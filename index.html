@@ -2,87 +2,415 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#101827">
-<title>ديربي أرينا | Derby Arena</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0b1320">
+<title>ديربي أرينا | Derby Arena Pro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#101827;--panel:#192538;--gold:#ffc857;--muted:#9aacc4;--green:#37d99b;--red:#ff6b6b}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{background:var(--bg);color:#f4f7ff;font-family:'Cairo',system-ui,sans-serif;min-height:100vh;overflow-x:hidden;user-select:none;-webkit-user-select:none}
-header{text-align:center;padding:12px 8px 4px}
-h1{color:var(--gold);font-size:26px;font-weight:900;text-shadow:0 0 20px rgba(255,200,87,.4)}
-.sub{color:var(--muted);font-size:11px}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;padding:8px;max-width:650px;margin:auto}
-.stat{background:var(--panel);border:1px solid #2a3b52;border-radius:10px;padding:7px 4px;text-align:center}
-.stat b{display:block;font-size:18px;color:var(--gold);font-weight:900}
-.stat span{font-size:10px;color:var(--muted)}
-.arena-wrap{position:relative;width:min(96vw,620px);margin:auto}
-canvas{width:100%;aspect-ratio:1;display:block;border-radius:14px;touch-action:manipulation;background:#0b1320;box-shadow:0 0 30px rgba(0,0,0,.5)}
-#banner{position:absolute;top:6%;left:5%;right:5%;text-align:center;pointer-events:none;font-weight:900;color:var(--gold);text-shadow:0 2px 10px #000;font-size:16px;transition:opacity .3s}
-#banner.danger{color:var(--red);animation:pulse 1s infinite}
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
-/* Kill Feed */
-#killFeed{position:absolute;top:12%;right:3%;display:flex;flex-direction:column;gap:4px;pointer-events:none;z-index:5;max-width:130px}
-.kf-item{background:rgba(0,0,0,.85);border:1px solid rgba(255,107,107,.6);color:#fff;padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;animation:kfIn .3s ease-out,kfOut .3s ease-in 2.7s forwards;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-@keyframes kfIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
-@keyframes kfOut{to{opacity:0;transform:translateX(20px)}}
-/* FINAL banner */
-#finalBanner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);font-size:clamp(28px,9vw,52px);font-weight:900;z-index:15;pointer-events:none;opacity:0;font-family:'Cairo',sans-serif;text-align:center;white-space:nowrap}
-#finalBanner.show{animation:phaseZoom 2.2s ease-out}
-@keyframes phaseZoom{0%{transform:translate(-50%,-50%) scale(0);opacity:0}15%{transform:translate(-50%,-50%) scale(1.35);opacity:1}30%,70%{transform:translate(-50%,-50%) scale(1);opacity:1}100%{transform:translate(-50%,-50%) scale(.85);opacity:0}}
-/* FINAL DUEL */
-#finalDuel{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;background:radial-gradient(ellipse at center,rgba(40,0,0,.92) 0%,rgba(0,0,0,.97) 100%);backdrop-filter:blur(6px);border-radius:14px;z-index:18;opacity:0;pointer-events:none;transition:opacity .4s}
-#finalDuel.show{opacity:1}
-.duel-title{font-size:clamp(26px,8vw,44px);font-weight:900;color:var(--red);text-shadow:0 0 30px var(--red);margin-bottom:20px;letter-spacing:2px;animation:duelPulse 1s infinite}
-@keyframes duelPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
-.duel-fighters{display:flex;align-items:center;gap:16px}
-.duel-fighter{background:rgba(20,22,28,.95);border:2px solid var(--gold);border-radius:14px;padding:14px 20px;text-align:center;min-width:100px;box-shadow:0 0 25px rgba(255,200,87,.5)}
-.duel-emoji{font-size:42px;line-height:1}
-.duel-name{font-size:14px;font-weight:900;color:#fff;margin-top:6px;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.duel-vs{font-size:32px;font-weight:900;color:var(--red);text-shadow:0 0 20px var(--red)}
-/* PILL */
-#finalPill{position:absolute;bottom:8px;left:50%;transform:translateX(-50%) translateY(80px);background:linear-gradient(135deg,rgba(0,0,0,.92),rgba(40,10,10,.92));border:1.5px solid var(--red);border-radius:100px;padding:5px 16px;display:flex;align-items:center;gap:6px;font-size:11px;font-weight:900;color:#fff;z-index:7;opacity:0;pointer-events:none;transition:.3s;box-shadow:0 0 20px rgba(255,59,59,.5);white-space:nowrap}
-#finalPill.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.pill-vs{color:var(--red);font-size:13px}
-/* Winner */
-#winnerOverlay{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(255,200,87,.25) 0%,rgba(10,10,18,.97) 100%);display:flex;flex-direction:column;justify-content:center;align-items:center;border-radius:14px;z-index:20;opacity:0;pointer-events:none;transition:opacity .5s}
-#winnerOverlay.active{opacity:1;pointer-events:auto}
-.win-emoji{font-size:80px;line-height:1;animation:winBounce .6s ease}
-@keyframes winBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
-.win-title{color:var(--gold);font-size:14px;font-weight:700;margin-top:12px;letter-spacing:2px}
-.win-name{color:var(--green);font-size:clamp(28px,8vw,52px);font-weight:900;text-shadow:0 0 30px var(--green);margin:6px 0;text-align:center;padding:0 20px}
-.win-sub{color:#fff;font-size:12px;opacity:.8;margin-top:10px}
-/* Content */
-.content{max-width:650px;margin:auto;padding:8px;display:grid;gap:10px}
-.panel{background:var(--panel);border:1px solid #2a3b52;border-radius:12px;padding:12px}
-h2{font-size:14px;margin:0 0 10px;color:var(--gold);font-weight:900}
-.controls{display:flex;gap:7px;flex-wrap:wrap}
-input{flex:1;min-width:0;background:#0c1420;border:1px solid #3b506c;border-radius:8px;color:white;padding:11px;font-size:15px;font-family:'Cairo',sans-serif}
-input:focus{outline:none;border-color:var(--gold)}
-button{border:0;border-radius:8px;padding:10px 14px;font-weight:700;font-size:13px;cursor:pointer;background:var(--gold);color:#182031;font-family:'Cairo',sans-serif;transition:transform .15s}
-button:active{transform:scale(.96)}
-button.secondary{background:#30435b;color:white}
-button.green{background:var(--green);color:#09271e}
-button.danger{background:var(--red);color:#fff}
-.hint{font-size:11px;color:var(--muted);line-height:1.6;margin-top:8px}
-#messages{height:120px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;margin-top:8px;scrollbar-width:thin;scrollbar-color:var(--gold) transparent}
-#messages::-webkit-scrollbar{width:3px}
-#messages::-webkit-scrollbar-thumb{background:var(--gold);border-radius:3px}
-.msg{font-size:11px;background:#111c2b;border-radius:6px;padding:5px 8px;overflow-wrap:anywhere;animation:slideIn .2s}
-@keyframes slideIn{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
-.msg.fake{border-right:3px solid #7f8da2;opacity:.7}
-.msg.hole{border-right:3px solid var(--red);background:#2a1520}
-.msg.win{border-right:3px solid var(--green);background:#0d2618}
-.msg b{color:var(--gold)}
-.tag{color:#ffb2a7;font-size:9px}
-footer{text-align:center;color:var(--muted);font-size:10px;padding:12px}
-#screenFlash{position:fixed;inset:0;background:red;opacity:0;pointer-events:none;z-index:9999}
-#screenFlash.active{animation:redFlash .35s ease-out}
-@keyframes redFlash{0%{opacity:.5}100%{opacity:0}}
-.shake{animation:shakeScreen .4s}
-@keyframes shakeScreen{0%,100%{transform:translate(0,0)}20%{transform:translate(-6px,3px)}40%{transform:translate(6px,-3px)}60%{transform:translate(-3px,6px)}80%{transform:translate(3px,-6px)}}
+:root {
+  --bg: #090e17;
+  --panel: #131d2e;
+  --panel-border: #23354d;
+  --gold: #ffc857;
+  --gold-glow: rgba(255, 200, 87, 0.4);
+  --muted: #8ea3bf;
+  --green: #2bd893;
+  --red: #ff5252;
+  --blue: #38bdf8;
+  --text: #f0f4fc;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Cairo', system-ui, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  padding-bottom: 95px;
+}
+
+header { text-align: center; padding: 14px 10px 6px; }
+h1 {
+  color: var(--gold);
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  text-shadow: 0 0 25px var(--gold-glow);
+}
+.sub { color: var(--muted); font-size: 11px; font-weight: 600; margin-top: 2px; }
+
+/* الثيمات */
+.themes {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 10px 12px;
+  max-width: 680px;
+  margin: auto;
+  scrollbar-width: none;
+}
+.themes::-webkit-scrollbar { display: none; }
+.theme-btn {
+  flex: 0 0 auto;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  color: #cbd5e1;
+  padding: 7px 16px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.theme-btn.active {
+  background: var(--gold);
+  color: #0b1320;
+  border-color: var(--gold);
+  box-shadow: 0 0 16px var(--gold-glow);
+  transform: scale(1.03);
+}
+
+/* لوحة الإحصائيات */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  padding: 4px 12px 10px;
+  max-width: 680px;
+  margin: auto;
+}
+.stat {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  padding: 8px 4px;
+  text-align: center;
+}
+.stat b {
+  display: block;
+  font-size: 19px;
+  color: var(--gold);
+  font-weight: 900;
+  line-height: 1.1;
+}
+.stat span { font-size: 10px; color: var(--muted); font-weight: 600; }
+
+/* منطقة الحلبة */
+.arena-wrap {
+  position: relative;
+  width: min(94vw, 580px);
+  margin: auto;
+  aspect-ratio: 1;
+}
+canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 20px;
+  background: #080d14;
+  box-shadow: 0 10px 35px rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,200,87,0.15);
+}
+
+#banner {
+  position: absolute;
+  top: 5%;
+  left: 0;
+  right: 0;
+  text-align: center;
+  pointer-events: none;
+  font-weight: 900;
+  color: var(--gold);
+  text-shadow: 0 2px 10px rgba(0,0,0,0.9);
+  font-size: 15px;
+  z-index: 10;
+  transition: all .3s;
+}
+#banner.danger { color: var(--red); animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
+
+/* شريط القتل */
+#killFeed {
+  position: absolute;
+  top: 10%;
+  right: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  pointer-events: none;
+  z-index: 15;
+  max-width: 140px;
+}
+.kf-item {
+  background: rgba(15, 23, 38, 0.9);
+  border: 1px solid rgba(255, 82, 82, 0.7);
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  animation: kfIn .25s ease-out forwards;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+@keyframes kfIn { from{opacity:0; transform:translateX(25px)} to{opacity:1; transform:none} }
+
+/* لافتة المراحل */
+#finalBanner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  font-size: clamp(28px, 8vw, 48px);
+  font-weight: 900;
+  z-index: 25;
+  pointer-events: none;
+  opacity: 0;
+  text-align: center;
+  white-space: nowrap;
+  text-shadow: 0 4px 20px rgba(0,0,0,0.9);
+}
+#finalBanner.show { animation: phaseZoom 2.5s ease-out forwards; }
+@keyframes phaseZoom {
+  0% { transform: translate(-50%, -50%) scale(0.2); opacity: 0; }
+  15% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+  30%, 75% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+}
+
+/* المواجهة النهائية */
+#finalDuel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle, rgba(20,5,10,0.85) 0%, rgba(5,8,15,0.95) 100%);
+  backdrop-filter: blur(4px);
+  border-radius: 20px;
+  z-index: 30;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .4s ease;
+}
+#finalDuel.show { opacity: 1; }
+.duel-title {
+  font-size: clamp(22px, 6vw, 36px);
+  font-weight: 900;
+  color: var(--red);
+  text-shadow: 0 0 25px var(--red);
+  margin-bottom: 15px;
+  animation: pulse 0.8s infinite;
+}
+.duel-fighters { display: flex; align-items: center; gap: 14px; }
+.duel-fighter {
+  background: rgba(19, 29, 46, 0.95);
+  border: 2px solid var(--gold);
+  border-radius: 14px;
+  padding: 12px 16px;
+  text-align: center;
+  min-width: 95px;
+  box-shadow: 0 0 20px rgba(255,200,87,0.3);
+}
+.duel-emoji { font-size: 36px; line-height: 1; }
+.duel-name {
+  font-size: 13px;
+  font-weight: 900;
+  color: #fff;
+  margin-top: 6px;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.duel-vs { font-size: 26px; font-weight: 900; color: var(--red); }
+
+/* شاشة الفائز */
+#winnerOverlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(255,200,87,0.2) 0%, rgba(8,13,20,0.96) 90%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 20px;
+  z-index: 40;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .5s ease;
+}
+#winnerOverlay.active { opacity: 1; pointer-events: auto; }
+.win-emoji { font-size: 70px; line-height: 1; animation: winHop .8s infinite alternate ease-in-out; }
+@keyframes winHop { from{transform:translateY(0)} to{transform:translateY(-16px)} }
+.win-title { color: var(--gold); font-size: 13px; font-weight: 800; margin-top: 10px; letter-spacing: 1px; }
+.win-name {
+  color: #fff;
+  font-size: clamp(26px, 7vw, 44px);
+  font-weight: 900;
+  text-shadow: 0 0 30px var(--gold);
+  margin: 4px 0;
+  text-align: center;
+  padding: 0 15px;
+}
+.win-sub { color: var(--muted); font-size: 12px; font-weight: 600; margin-top: 6px; }
+
+/* لوحات التحكم والشات */
+.content {
+  max-width: 680px;
+  margin: 12px auto auto;
+  padding: 0 12px;
+  display: grid;
+  gap: 10px;
+}
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+  padding: 12px 14px;
+}
+h2 { font-size: 13px; margin-bottom: 8px; color: var(--gold); font-weight: 800; }
+.controls { display: flex; gap: 8px; flex-wrap: wrap; }
+input {
+  flex: 1;
+  min-width: 0;
+  background: #090e17;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  color: #fff;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  font-weight: 600;
+}
+input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 10px var(--gold-glow); }
+button {
+  border: 0;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+  background: var(--gold);
+  color: #090e17;
+  font-family: inherit;
+  transition: transform .1s, filter .2s;
+}
+button:active { transform: scale(0.96); }
+button.secondary { background: #23354d; color: #fff; }
+button.green { background: var(--green); color: #042416; }
+.hint { font-size: 11px; color: var(--muted); line-height: 1.5; margin-top: 8px; font-weight: 600; }
+
+#messages {
+  height: 95px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--panel-border) transparent;
+}
+.msg {
+  font-size: 11px;
+  background: #0d1522;
+  border-radius: 6px;
+  padding: 6px 10px;
+  line-height: 1.4;
+  border-right: 3px solid var(--blue);
+}
+.msg.fake { border-right-color: #64748b; opacity: .8; }
+.msg.hole { border-right-color: var(--red); background: #1c1015; }
+.msg.win { border-right-color: var(--green); background: #0c1c16; }
+.msg b { color: var(--gold); font-weight: 800; }
+.msg .tag { color: var(--muted); font-size: 9px; margin-right: 4px; }
+
+footer { text-align: center; color: var(--muted); font-size: 10px; font-weight: 700; padding: 18px 0 6px; }
+
+/* زر الـ CTA الذكي */
+#ctaBtn {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #ffc857, #ff8c00);
+  color: #0b1320;
+  border: 0;
+  padding: 12px 26px;
+  border-radius: 99px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(255,140,0,0.4);
+  z-index: 100;
+  white-space: nowrap;
+}
+
+/* النافذة المنبثقة */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s;
+  padding: 16px;
+}
+.modal-overlay.show { opacity: 1; pointer-events: auto; }
+.modal-card {
+  background: linear-gradient(135deg, #162234, #0b1320);
+  border: 1px solid var(--gold);
+  border-radius: 18px;
+  padding: 24px 20px;
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.8);
+}
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: transparent;
+  border: 0;
+  color: var(--muted);
+  font-size: 24px;
+  cursor: pointer;
+}
+
+#screenFlash {
+  position: fixed;
+  inset: 0;
+  background: rgba(255,0,0,0.25);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 999;
+}
+#screenFlash.active { animation: flashAnim .3s ease-out; }
+@keyframes flashAnim { 0%{opacity:1} 100%{opacity:0} }
+
+.shake { animation: shakeArena .35s; }
+@keyframes shakeArena {
+  0%,100%{transform:none}
+  20%{transform:translate(-4px, 3px)}
+  40%{transform:translate(4px, -3px)}
+  60%{transform:translate(-3px, 2px)}
+  80%{transform:translate(3px, -2px)}
+}
 </style>
 </head>
 <body>
@@ -90,469 +418,1001 @@ footer{text-align:center;color:var(--muted);font-size:10px;padding:12px}
 <div id="screenFlash"></div>
 
 <header>
-<h1>🏆 ديربي أرينا</h1>
-<div class="sub">64 مدينة · حفر الموت · معركة البقاء</div>
+  <h1>🏆 ديربي أرينا</h1>
+  <div class="sub">محاكاة الاشتباك المباشر · النسخة المطورة</div>
 </header>
 
-<div class="stats">
-<div class="stat"><b id="alive">0</b><span>باقية</span></div>
-<div class="stat"><b id="clock">90</b><span>ثانية</span></div>
-<div class="stat"><b id="votes">0</b><span>تصويت</span></div>
-<div class="stat"><b id="status">جاهزة</b><span>الحالة</span></div>
+<div class="themes" id="themes">
+  <button class="theme-btn active" data-theme="hoods">🏘️ الأحياء</button>
+  <button class="theme-btn" data-theme="cities">🏙️ المدن</button>
+  <button class="theme-btn" data-theme="restaurants">🍔 المطاعم</button>
+  <button class="theme-btn" data-theme="companies">🏢 الشركات</button>
 </div>
 
-<div class="arena-wrap">
-<canvas id="arena" width="720" height="720"></canvas>
-<div id="banner">اضغط «ابدأ المعركة»</div>
-<div id="killFeed"></div>
-<div id="finalBanner"></div>
-<div id="finalDuel">
-<div class="duel-title">⚔️ FINAL DUEL</div>
-<div class="duel-fighters">
-<div class="duel-fighter"><div class="duel-emoji" id="duelE1">❓</div><div class="duel-name" id="duelN1">—</div></div>
-<div class="duel-vs">VS</div>
-<div class="duel-fighter"><div class="duel-emoji" id="duelE2">❓</div><div class="duel-name" id="duelN2">—</div></div>
+<div class="stats">
+  <div class="stat"><b id="alive">0</b><span>المتبقي</span></div>
+  <div class="stat"><b id="clock">90</b><span>الوقت</span></div>
+  <div class="stat"><b id="votes">0</b><span>الأصوات</span></div>
+  <div class="stat"><b id="status">جاهزة</b><span>الحالة</span></div>
 </div>
-</div>
-<div id="finalPill"><span id="pillL">—</span><span class="pill-vs">⚔️</span><span id="pillR">—</span></div>
-<div id="winnerOverlay">
-<div class="win-emoji">👑</div>
-<div class="win-title">الفائز في هذه الجولة</div>
-<div class="win-name" id="winName">—</div>
-<div class="win-sub">تهانينا لدعم المدينة! 🎉</div>
-</div>
+
+<div class="arena-wrap" id="arenaBox">
+  <canvas id="arena"></canvas>
+  <div id="banner">اضغط «ابدأ المعركة» للخوض في الصراع</div>
+  <div id="killFeed"></div>
+  <div id="finalBanner"></div>
+  
+  <div id="finalDuel">
+    <div class="duel-title">⚔️ المواجهة الحاسمة</div>
+    <div class="duel-fighters">
+      <div class="duel-fighter">
+        <div class="duel-emoji">🛡️</div>
+        <div class="duel-name" id="duelN1">—</div>
+      </div>
+      <div class="duel-vs">ضد</div>
+      <div class="duel-fighter">
+        <div class="duel-emoji">⚔️</div>
+        <div class="duel-name" id="duelN2">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="winnerOverlay">
+    <div class="win-emoji">👑</div>
+    <div class="win-title">بطل الأرينا المتوج</div>
+    <div class="win-name" id="winName">—</div>
+    <div class="win-sub">حسم المعركة ونال الصدارة! 🎉</div>
+  </div>
 </div>
 
 <div class="content">
-<section class="panel">
-<h2>⚔️ التحكم بالمعركة</h2>
-<div class="controls">
-<button id="start">🎮 ابدأ المعركة</button>
-<button id="reset" class="secondary">↻ إعادة</button>
-<button id="pause" class="secondary">⏸ إيقاف</button>
-</div>
-<div class="hint">احذر الحفر السوداء — أي كرة تسقط فيها تُقصى فوراً.</div>
-</section>
+  <section class="panel">
+    <h2>⚔️ إدارة المواجهة</h2>
+    <div class="controls">
+      <button id="start">🎮 ابدأ المعركة</button>
+      <button id="reset" class="secondary">↻ تصفير</button>
+      <button id="pause" class="secondary">⏸ إيقاف</button>
+    </div>
+    <div class="hint">🌀 المروحة المركزية ذات 4 شفرات تقذف الكرات نحو ثقوب الإقصاء السوداء.</div>
+  </section>
 
-<section class="panel">
-<h2>🗳️ صوّت لمدينتك</h2>
-<form id="voteForm" class="controls">
-<input id="cityInput" maxlength="24" placeholder="اكتب اسم مدينتك..." autocomplete="off">
-<button class="green" type="submit">أطلق ⚡</button>
-</form>
-<div class="hint">كل تصويت = دفعة قوية. استغلها لإسقاط خصمك في حفرة!</div>
-</section>
+  <section class="panel">
+    <h2>🗳️ دعم وتصويت</h2>
+    <form id="voteForm" class="controls">
+      <input id="cityInput" maxlength="20" placeholder="اكتب اسماً للتصويت وتعزيز القوة..." autocomplete="off">
+      <button class="green" type="submit">إطلاق ⚡</button>
+    </form>
+  </section>
 
-<section class="panel">
-<div class="controls" style="align-items:center;justify-content:space-between">
-<h2 style="margin:0">💬 الشات</h2>
-<button id="fakeToggle" class="secondary">محاكاة: متوقفة</button>
-</div>
-<div id="messages"></div>
-</section>
+  <section class="panel">
+    <div class="controls" style="align-items:center;justify-content:space-between">
+      <h2 style="margin:0">💬 البث والتفاعل</h2>
+      <button id="fakeToggle" class="secondary">المحاكاة: متوقفة</button>
+    </div>
+    <div id="messages"></div>
+  </section>
 </div>
 
-<footer>DERBY ARENA · Canvas 2D · حفر الموت</footer>
+<footer>DERBY ARENA PRO · محرك فيزيائي فائق الخفة</footer>
+
+<button id="ctaBtn">🚀 احصل على نسختك للبث</button>
+
+<div class="modal-overlay" id="ctaModal">
+  <div class="modal-card">
+    <button class="modal-close" id="modalCloseBtn">&times;</button>
+    <div style="font-size: 50px; margin-bottom: 8px;">🎯</div>
+    <h2 style="font-size: 20px; color: var(--gold); margin-bottom: 8px;">جاهز لإطلاق بثك الخاص؟</h2>
+    <p style="font-size: 12px; color: #cbd5e1; line-height: 1.6; margin-bottom: 14px;">
+      نظام كامل مجهز للبث المباشر على يوتيوب وتيك توك مع قراءة الشات الحقيقي، وتوزيع الجوائز، والفيزياء التفاعلية الحية.
+    </p>
+    <input type="text" id="userName" placeholder="اسمك أو قناتك (اختياري)" style="width:100%; margin-bottom:12px; text-align:center;">
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      <button id="whatsappBtn" class="green" style="padding:12px;">📱 تواصل عبر واتساب فوراً</button>
+      <button id="modalLaterBtn" class="secondary">إغلاق</button>
+    </div>
+  </div>
+</div>
 
 <script>
 (()=>{
 "use strict";
-const $=id=>document.getElementById(id);
-const canvas=$("arena"),ctx=canvas.getContext("2d");
-const W=720,CX=360,CY=360;
-const colors=["#ff6b6b","#4ecdc4","#ffe66d","#a78bfa","#60a5fa","#f97316","#f472b6","#a3e635","#facc15","#38bdf8"];
-const cities=[
-"الرياض","جدة","مكة","المدينة","الدمام","الخبر","الطائف","تبوك",
-"أبها","جازان","حائل","بريدة","عنيزة","نجران","الجوف","ينبع",
-"الجبيل","الأحساء","القطيف","عرعر","الباحة","سكاكا","القريات","رفحاء",
-"حفر الباطن","الخرج","شقراء","الرس","المجمعة","وادي الدواسر","بيشة","محايل",
-"صنعاء","عدن","دبي","أبوظبي","الدوحة","الكويت","مسقط","المنامة",
-"القاهرة","الإسكندرية","عمّان","بيروت","دمشق","بغداد","الموصل","إسطنبول",
-"أنقرة","لندن","باريس","مدريد","روما","برلين","طوكيو","سيول",
-"بكين","مومباي","دلهي","نيويورك","تورونتو","ساو باولو","سيدني","الدار البيضاء"
+
+const THEMES = {
+  hoods: {
+    label: "الأحياء",
+    items: [
+      "النظيم","النسيم","الريان","العليا","الملقا","حطين","الشفا","السويدي","العزيزية","قرطبة",
+      "الروضة","الخزامى","الشميسي","البطحاء","المعذر","الحمراء","الشاطئ","السلامة","البوادي","الصفا",
+      "المروة","أبحر","الفيصلية","العوالي","النهضة","الموظفين","الشهداء","النزهة","المروج","الورود",
+      "الدرعية","الغدير","الربوة","الياسمين","العقيق","الصحافة","طويق","لبن","عرقة","الرمال"
+    ]
+  },
+  cities: {
+    label: "المدن",
+    items: [
+      "الرياض","جدة","مكة","المدينة","الدمام","الخبر","الطائف","تبوك","أبها","جازان",
+      "حائل","بريدة","عنيزة","نجران","ينبع","الجبيل","الأحساء","القطيف","عرعر","الباحة",
+      "سكاكا","القريات","حفر الباطن","الخرج","المجمعة","بيشة","الدوادمي","الزلفي","شرورة","النماص"
+    ]
+  },
+  restaurants: {
+    label: "المطاعم",
+    items: [
+      "البيك","هرفي","ماكدونالدز","كنتاكي","برغرايزر","برغر كنج","الطازج","شاورمر","دومينوز","بيتزا هت",
+      "صب واي","كودو","جان برجر","شيك شاك","شاورما تيكرز","مايسترو","شاورما هليل","سلطان ديلايت","هامبرغيني","فرايديز"
+    ]
+  },
+  companies: {
+    label: "الشركات",
+    items: [
+      "STC","موبايلي","زين","أرامكو","سابك","معادن","الراجحي","الأهلي","الإنماء","جرير",
+      "إكسترا","المراعي","نادك","العثيم","بنده","التميمي","لولو","ساسكو","سال","الدريس"
+    ]
+  }
+};
+
+const COLORS = [
+  "#ff5252","#38bdf8","#ffd166","#2bd893","#a78bfa",
+  "#fb923c","#f472b6","#4ade80","#facc15","#22d3ee"
 ];
-let balls=[],running=false,paused=false,started=false;
-let fakeOn=false,fakeTimer=null,raf=0;
-let votes=0,seconds=90,lastFrame=0,arenaR=318,winner=null;
-let holes=[],particles=[],elimQueue=[],processingElim=false;
-let timeScale=1,phaseShown={},lastAlive=-1;
-const rand=(a,b)=>a+Math.random()*(b-a);
-const audio={ctx:null,init(){if(this.ctx)return;try{this.ctx=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}},
-tone(f,d,t="sine",g=.1){if(!this.ctx)return;if(this.ctx.state==="suspended")this.ctx.resume();const o=this.ctx.createOscillator(),gn=this.ctx.createGain();o.type=t;o.frequency.value=f;gn.gain.setValueAtTime(g,this.ctx.currentTime);gn.gain.exponentialRampToValueAtTime(.001,this.ctx.currentTime+d);o.connect(gn);gn.connect(this.ctx.destination);o.start();o.stop(this.ctx.currentTime+d)},
-vote(){this.tone(660,.1,"sine",.15)},
-elim(){this.tone(220,.2,"sawtooth",.3);setTimeout(()=>this.tone(120,.3,"triangle",.25),100)},
-duel(){this.tone(440,.15,"square",.15);setTimeout(()=>this.tone(880,.25,"square",.2),150)},
-win(){[523,659,784,1047,1318].forEach((f,i)=>setTimeout(()=>this.tone(f,.35,"triangle",.25),i*120))},
-final(){[440,554,659,880].forEach((f,i)=>setTimeout(()=>this.tone(f,.3,"square",.15),i*100))}};
 
-function addMsg(name,text,cls="",fake=false){
- const el=document.createElement("div");
- el.className="msg "+cls+(fake?" fake":"");
- const who=document.createElement("b");who.textContent=name+" ";
- const body=document.createElement("span");body.textContent=text;
- el.append(who,body);
- if(fake){const t=document.createElement("span");t.className="tag";t.textContent=" · تجريبي";el.append(t)}
- $("messages").append(el);
- while($("messages").children.length>40)$("messages").firstElementChild.remove();
- $("messages").scrollTop=$("messages").scrollHeight;
+const $ = id => document.getElementById(id);
+const canvas = $("arena");
+const ctx = canvas.getContext("2d");
+
+let V_WIDTH = 720;
+let CX = 360, CY = 360;
+let dpr = 1;
+
+function setupHiDPI() {
+  dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = V_WIDTH * dpr;
+  canvas.height = V_WIDTH * dpr;
+  ctx.resetTransform?.();
+  ctx.scale(dpr, dpr);
 }
 
-function makeHoles(){
- holes=[];
- const count=6;
- let attempts=0;
- while(holes.length<count&&attempts<400){
-  attempts++;
-  const angle=Math.random()*Math.PI*2;
-  const dist=140+Math.random()*140;
-  const h={x:CX+Math.cos(angle)*dist,y:CY+Math.sin(angle)*dist,r:30};
-  let overlap=false;
-  for(const o of holes){if(Math.hypot(h.x-o.x,h.y-o.y)<h.r+o.r+50){overlap=true;break}}
-  if(!overlap)holes.push(h);
- }
-}
-
-function makeBalls(){
- balls=[];particles=[];elimQueue=[];phaseShown={};lastAlive=-1;
- cities.forEach((name,i)=>{
-  const a=rand(0,Math.PI*2),d=rand(30,180);
-  balls.push({id:i,name,x:CX+Math.cos(a)*d,y:CY+Math.sin(a)*d,
-   vx:rand(-100,100),vy:rand(-100,100),r:20,
-   color:colors[i%colors.length],alive:true,flash:0});
- });
- seconds=90;arenaR=318;votes=0;winner=null;timeScale=1;
- makeHoles();
- for(const b of balls){
-  for(const h of holes){
-   const d=Math.hypot(b.x-h.x,b.y-h.y);
-   if(d<h.r+b.r+10){
-    const ang=Math.atan2(b.y-h.y,b.x-h.x);
-    b.x=h.x+Math.cos(ang)*(h.r+b.r+20);
-    b.y=h.y+Math.sin(ang)*(h.r+b.r+20);
-   }
+// مدير الصوت الآمن الخفيف
+const SoundSystem = {
+  ctx: null,
+  lastSoundTime: 0,
+  init() {
+    if (!this.ctx) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) this.ctx = new AudioCtx();
+    }
+    if (this.ctx && this.ctx.state === "suspended") {
+      this.ctx.resume().catch(()=>{});
+    }
+  },
+  playTone(freq, dur, type="sine", gainVal=0.1) {
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+    if (now - this.lastSoundTime < 0.04) return; // منع التشويش الصوتي
+    this.lastSoundTime = now;
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, now);
+      gain.gain.setValueAtTime(gainVal, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now);
+      osc.stop(now + dur);
+    } catch(e) {}
+  },
+  vote() { this.playTone(720, 0.12, "sine", 0.15); },
+  elim() { 
+    this.playTone(180, 0.18, "sawtooth", 0.2); 
+    setTimeout(() => this.playTone(110, 0.25, "triangle", 0.25), 90);
+  },
+  duel() {
+    this.playTone(440, 0.2, "square", 0.15);
+    setTimeout(() => this.playTone(880, 0.3, "square", 0.2), 160);
+  },
+  win() {
+    [523, 659, 784, 1046].forEach((f, idx) => {
+      setTimeout(() => this.playTone(f, 0.35, "triangle", 0.2), idx * 120);
+    });
   }
- }
- updateUI();
-}
+};
 
-function updateUI(){
- $("alive").textContent=balls.filter(b=>b.alive).length;
- $("clock").textContent=Math.max(0,Math.ceil(seconds));
- $("votes").textContent=votes;
- $("status").textContent=winner?"انتهت":paused?"متوقفة":running?"مباشرة":"جاهزة";
- $("pause").textContent=paused?"▶ متابعة":"⏸ إيقاف";
-}
+let roundId = 0;
+let currentTheme = "hoods";
+let balls = [], holes = [], particles = [], windParticles = [];
+let running = false, paused = false, started = false;
+let fakeOn = false, fakeTimer = null;
+let seconds = 90, votes = 0, arenaR = 320, winner = null;
+let fanAngle = 0;
+let timeScale = 1;
+let phaseShown = {};
+let lastAlive = -1;
+let lastTime = 0;
 
-function launchCity(name,fake=false){
- name=name.trim().slice(0,24);
- if(!name)return;
- if(!started||winner){addMsg(name,"المعركة غير نشطة",fake?"fake":"",fake);return}
- let b=balls.find(x=>x.alive&&x.name===name);
- if(!b){
-  b=balls.find(x=>!x.alive);
-  if(b){b.alive=true;b.name=name;b.x=CX+rand(-40,40);b.y=CY+rand(-40,40);b.vx=rand(-130,130);b.vy=rand(-130,130);b.flash=.5}
-  else{b={id:balls.length,name,x:CX+rand(-50,50),y:CY+rand(-50,50),vx:rand(-130,130),vy:rand(-130,130),r:20,color:colors[Math.floor(Math.random()*colors.length)],alive:true,flash:.5};balls.push(b)}
- }else{
-  const a=Math.random()*Math.PI*2;
-  b.vx+=Math.cos(a)*200;b.vy+=Math.sin(a)*200;b.flash=.65;
-  audio.vote();
- }
- votes++;
- addMsg(name,fake?"صوّت (محاكاة)":"صوّت وأطلق الكرة",fake?"fake":"",fake);
- updateUI();
-}
+const FAN = {
+  radius: 95,
+  hubRadius: 20,
+  blades: 4,
+  speed: 2.5,
+  pushForce: 460
+};
 
-function collide(a,b){
- let dx=b.x-a.x,dy=b.y-a.y,d2=dx*dx+dy*dy;
- const min=a.r+b.r;
- if(d2>=min*min)return;
- let d=Math.sqrt(d2)||.01,nx=dx/d,ny=dy/d;
- const overlap=min-d;
- a.x-=nx*overlap*.5;a.y-=ny*overlap*.5;
- b.x+=nx*overlap*.5;b.y+=ny*overlap*.5;
- const rvx=b.vx-a.vx,rvy=b.vy-a.vy,vel=rvx*nx+rvy*ny;
- if(vel<0){
-  const imp=-(1.82)*vel/2;
-  a.vx-=imp*nx;a.vy-=imp*ny;b.vx+=imp*nx;b.vy+=imp*ny;
- }
- const kick=rand(1,10);
- a.vx-=nx*kick;a.vy-=ny*kick;b.vx+=nx*kick;b.vy+=ny*kick;
-}
-
-function burst(x,y,color){
- for(let i=0;i<25;i++){
-  const a=rand(0,Math.PI*2),s=rand(1,5);
-  particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-2,alpha:1,color,size:rand(2,4)});
- }
-}
-
-function enqueueElim(ball){
- if(winner)return;
- elimQueue.push(ball);
- if(!processingElim)drainElim();
-}
-
-function drainElim(){
- if(elimQueue.length===0){processingElim=false;return}
- processingElim=true;
- const b=elimQueue.shift();
- // Kill feed
- const kf=document.createElement("div");
- kf.className="kf-item";
- kf.textContent="☠️ "+b.name;
- $("killFeed").prepend(kf);
- while($("killFeed").children.length>4)$("killFeed").lastChild.remove();
- setTimeout(()=>kf.remove(),3000);
- audio.elim();
- // Flash + shake (only for last elims, not all)
- const aliveN=balls.filter(x=>x.alive).length;
- if(aliveN<=10){
-  const flash=$("screenFlash");
-  flash.classList.remove("active");
-  void flash.offsetWidth;
-  flash.classList.add("active");
-  document.body.classList.add("shake");
-  setTimeout(()=>document.body.classList.remove("shake"),400);
- }
- addMsg("☠️",b.name+" سقط","hole",false);
- requestAnimationFrame(()=>setTimeout(drainElim,300));
-}
-
-function showPhase(text,color,scale,dur){
- const el=$("finalBanner");
- el.textContent=text;
- el.style.color=color;
- el.classList.remove("show");
- void el.offsetWidth;
- el.classList.add("show");
- timeScale=scale;
- if(window._phaseTimer)clearTimeout(window._phaseTimer);
- window._phaseTimer=setTimeout(()=>timeScale=1,dur);
-}
-
-function checkPhases(n){
- if(n<=2&&!phaseShown.p2){
-  phaseShown.p2=true;
-  const alive=balls.filter(b=>b.alive);
-  if(alive.length===2){
-   $("duelE1").textContent="🏆";
-   $("duelN1").textContent=alive[0].name;
-   $("duelE2").textContent="🏆";
-   $("duelN2").textContent=alive[1].name;
-   $("pillL").textContent=alive[0].name;
-   $("pillR").textContent=alive[1].name;
-   $("finalDuel").classList.add("show");
-   audio.duel();
-   setTimeout(()=>{
-    $("finalDuel").classList.remove("show");
-    setTimeout(()=>$("finalPill").classList.add("show"),400);
-   },3000);
+function initHoles() {
+  holes = [];
+  const count = 6;
+  const dist = 210;
+  for (let i = 0; i < count; i++) {
+    const angle = (i / count) * Math.PI * 2 + 0.3;
+    holes.push({
+      x: CX + Math.cos(angle) * dist,
+      y: CY + Math.sin(angle) * dist,
+      r: 32,
+      gravityRadius: 65
+    });
   }
-  showPhase("👑 FINAL DUEL","#ff3b3b",0.3,5000);
-  return;
- }
- if(n<=3&&!phaseShown.p3){phaseShown.p3=true;showPhase("⚠️ FINAL 3","#ff3b3b",0.4,4000);audio.final();return}
- if(n<=5&&!phaseShown.p5){phaseShown.p5=true;showPhase("🔥 FINAL 5","#ff8c00",0.55,3000);audio.final();return}
- if(n<=10&&!phaseShown.p10){phaseShown.p10=true;showPhase("🔥 FINAL 10","#ffd700",0.75,3000);audio.final();return}
 }
 
-function step(dt){
- if(!running||paused||winner)return;
- const eDt=dt*timeScale;
- seconds-=dt;
- // Slow shrink (holes are primary elim)
- arenaR=Math.max(180,318*(.55+.45*Math.max(0,seconds)/90));
- const alive=balls.filter(b=>b.alive);
- for(const b of alive){
-  if(!b.alive)continue;
-  b.x+=b.vx*eDt;b.y+=b.vy*eDt;
-  b.vx*=Math.pow(.994,eDt*60);b.vy*=Math.pow(.994,eDt*60);
-  // Hole check
-  let fell=false;
-  for(const h of holes){
-   if(Math.hypot(b.x-h.x,b.y-h.y)<h.r){
-    b.alive=false;fell=true;
-    burst(b.x,b.y,b.color);
-    enqueueElim(b);
-    break;
-   }
+function initBalls() {
+  balls = [];
+  particles = [];
+  windParticles = [];
+  phaseShown = {};
+  lastAlive = -1;
+  winner = null;
+  seconds = 90;
+  arenaR = 320;
+  timeScale = 1;
+  fanAngle = 0;
+
+  const rawItems = THEMES[currentTheme].items;
+  const items = [...new Set(rawItems)].slice(0, 38);
+
+  items.forEach((name, i) => {
+    const angle = (i / items.length) * Math.PI * 2 + (Math.random() * 0.2);
+    const dist = 110 + (Math.random() * 80);
+    balls.push({
+      id: i,
+      name,
+      x: CX + Math.cos(angle) * dist,
+      y: CY + Math.sin(angle) * dist,
+      vx: (Math.random() - 0.5) * 80,
+      vy: (Math.random() - 0.5) * 80,
+      r: 19,
+      baseRadius: 19,
+      color: COLORS[i % COLORS.length],
+      alive: true,
+      scale: 1,
+      flash: 0,
+      isTargeted: 0,
+      inVortex: false
+    });
+  });
+
+  initHoles();
+  updateUI();
+  $("cityInput").placeholder = `اكتب اسم (مثال: ${items[0]})...`;
+}
+
+function updateUI() {
+  const aliveCount = balls.filter(b => b.alive).length;
+  $("alive").textContent = aliveCount;
+  $("clock").textContent = Math.max(0, Math.ceil(seconds));
+  $("votes").textContent = votes;
+  $("status").textContent = winner ? "انتهت" : paused ? "متوقفة" : running ? "جارية ⚡" : "جاهزة";
+  $("pause").textContent = paused ? "▶ استئناف" : "⏸ إيقاف";
+}
+
+function addMsg(name, text, cls="", fake=false) {
+  const box = $("messages");
+  const el = document.createElement("div");
+  el.className = `msg ${cls} ${fake ? "fake" : ""}`;
+  
+  const who = document.createElement("b");
+  who.textContent = name + " ";
+  
+  const span = document.createElement("span");
+  span.textContent = text;
+  
+  el.appendChild(who);
+  el.appendChild(span);
+
+  if (fake) {
+    const tag = document.createElement("span");
+    tag.className = "tag";
+    tag.textContent = "· تجريبي";
+    el.appendChild(tag);
   }
-  if(fell)continue;
-  // Wall
-  const dx=b.x-CX,dy=b.y-CY,d=Math.hypot(dx,dy)||1;
-  const maxR=arenaR-b.r;
-  if(d>maxR){
-   const nx=dx/d,ny=dy/d;
-   b.x=CX+nx*maxR;b.y=CY+ny*maxR;
-   const v=b.vx*nx+b.vy*ny;
-   if(v>0){b.vx-=1.85*v*nx;b.vy-=1.85*v*ny}
+
+  box.appendChild(el);
+  if (box.children.length > 30) box.firstElementChild.remove();
+  box.scrollTop = box.scrollHeight;
+}
+
+function burst(x, y, color, count=20) {
+  for (let i = 0; i < count; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const speed = 1 + Math.random() * 4.5;
+    particles.push({
+      x, y,
+      vx: Math.cos(a) * speed,
+      vy: Math.sin(a) * speed - 0.5,
+      alpha: 1,
+      color,
+      size: 2 + Math.random() * 3
+    });
   }
-  b.flash=Math.max(0,b.flash-eDt);
- }
- for(let i=0;i<alive.length;i++){
-  const a=alive[i];if(!a.alive)continue;
-  for(let j=i+1;j<alive.length;j++){
-   const b=alive[j];if(b.alive)collide(a,b);
+}
+
+function triggerElimination(ball, currentRound) {
+  if (roundId !== currentRound || winner) return;
+
+  SoundSystem.elim();
+  burst(ball.x, ball.y, ball.color, 25);
+
+  const kf = $("killFeed");
+  const item = document.createElement("div");
+  item.className = "kf-item";
+  item.textContent = `☠️ ${ball.name}`;
+  kf.prepend(item);
+  if (kf.children.length > 4) kf.lastChild.remove();
+  setTimeout(() => item.remove(), 2800);
+
+  addMsg("☠️ إقصاء", `سقط ${ball.name} في الثقب`, "hole", false);
+
+  const remaining = balls.filter(b => b.alive).length;
+  if (remaining <= 8) {
+    const sf = $("screenFlash");
+    sf.classList.remove("active");
+    void sf.offsetWidth;
+    sf.classList.add("active");
+
+    const arenaBox = $("arenaBox");
+    arenaBox.classList.remove("shake");
+    void arenaBox.offsetWidth;
+    arenaBox.classList.add("shake");
   }
- }
- const aliveN=balls.filter(b=>b.alive).length;
- if(aliveN!==lastAlive){lastAlive=aliveN;checkPhases(aliveN)}
- if(seconds<=0||aliveN<=1){
-  seconds=Math.max(0,seconds);
-  let survivors=balls.filter(b=>b.alive);
-  if(survivors.length>1){
-   survivors.sort((a,b)=>Math.hypot(a.x-CX,a.y-CY)-Math.hypot(b.x-CX,b.y-CY));
-   survivors.slice(1).forEach(b=>b.alive=false);
+}
+
+function showPhase(text, color, scale, dur) {
+  const el = $("finalBanner");
+  el.textContent = text;
+  el.style.color = color;
+  el.classList.remove("show");
+  void el.offsetWidth;
+  el.classList.add("show");
+
+  timeScale = scale;
+  const currentR = roundId;
+  setTimeout(() => {
+    if (roundId === currentR) timeScale = 1;
+  }, dur);
+}
+
+function checkMatchMilestones(aliveCount) {
+  if (aliveCount <= 2 && !phaseShown.p2) {
+    phaseShown.p2 = true;
+    const alive = balls.filter(b => b.alive);
+    if (alive.length === 2) {
+      $("duelN1").textContent = alive[0].name;
+      $("duelN2").textContent = alive[1].name;
+      $("finalDuel").classList.add("show");
+      SoundSystem.duel();
+      setTimeout(() => $("finalDuel").classList.remove("show"), 2800);
+    }
+    showPhase("⚔️ المواجهة الحاسمة", "#ff5252", 0.45, 3500);
+    return;
   }
-  winner=balls.find(b=>b.alive)||null;
-  running=false;
-  $("banner").textContent=winner?"🏆 الفائز: "+winner.name:"انتهت!";
+  if (aliveCount <= 3 && !phaseShown.p3) {
+    phaseShown.p3 = true;
+    showPhase("⚠️ آخر 3 متنافسين!", "#ff5252", 0.6, 2500);
+    return;
+  }
+  if (aliveCount <= 5 && !phaseShown.p5) {
+    phaseShown.p5 = true;
+    showPhase("🔥 الخمسة الكبار!", "#ff8c00", 0.75, 2000);
+    return;
+  }
+  if (aliveCount <= 10 && !phaseShown.p10) {
+    phaseShown.p10 = true;
+    showPhase("⚡ توب 10 مشتعل!", "#ffd166", 0.85, 2000);
+    return;
+  }
+}
+
+function launchCity(name, fake=false) {
+  name = name.trim().slice(0, 20);
+  if (!name) return;
+
+  SoundSystem.init();
+
+  if (!started || winner) {
+    addMsg("تنبيه", "المعركة غير نشطة حالياً", "", fake);
+    return;
+  }
+
+  let ball = balls.find(b => b.alive && b.name.toLowerCase() === name.toLowerCase());
+
+  if (!ball) {
+    // محاولة إحياء كرة إن لم تكن متواجدة
+    ball = balls.find(b => !b.alive);
+    if (ball) {
+      ball.alive = true;
+      ball.name = name;
+      ball.scale = 1;
+      ball.inVortex = false;
+      const spawnAngle = Math.random() * Math.PI * 2;
+      ball.x = CX + Math.cos(spawnAngle) * (arenaR - 35);
+      ball.y = CY + Math.sin(spawnAngle) * (arenaR - 35);
+      ball.vx = -Math.cos(spawnAngle) * 120;
+      ball.vy = -Math.sin(spawnAngle) * 120;
+      ball.flash = 0.8;
+      ball.isTargeted = 3;
+    }
+  } else {
+    // إعطاء دفعة طاقة وحصانة لحظية
+    const a = Math.random() * Math.PI * 2;
+    ball.vx += Math.cos(a) * 220;
+    ball.vy += Math.sin(a) * 220;
+    ball.flash = 0.8;
+    ball.isTargeted = 3;
+    SoundSystem.vote();
+  }
+
+  votes++;
+  addMsg(name, fake ? "صوّت عبر المحاكاة 🚀" : "أطلق تصويتاً معززاً! ⚡", "", fake);
+  updateUI();
+}
+
+// تحديث حركة المروحة لجميع الشفرات الأربع بدقة
+function updateFanPhysics(dt) {
+  fanAngle += FAN.speed * dt;
+  const bladeCount = FAN.blades;
+  const anglePerBlade = (Math.PI * 2) / bladeCount;
+  const coneWidth = 0.55;
+
+  const aliveBalls = balls.filter(b => b.alive && !b.inVortex);
+
+  for (const b of aliveBalls) {
+    const dx = b.x - CX;
+    const dy = b.y - CY;
+    const distSq = dx * dx + dy * dy;
+
+    if (distSq < (FAN.radius + b.r) * (FAN.radius + b.r) && distSq > (FAN.hubRadius * FAN.hubRadius)) {
+      const dist = Math.sqrt(distSq);
+      const ballAngle = Math.atan2(dy, dx);
+
+      for (let i = 0; i < bladeCount; i++) {
+        const bladeA = (fanAngle + i * anglePerBlade) % (Math.PI * 2);
+        let diff = ballAngle - bladeA;
+        while (diff > Math.PI) diff -= Math.PI * 2;
+        while (diff < -Math.PI) diff += Math.PI * 2;
+
+        if (Math.abs(diff) < coneWidth) {
+          const tangX = -Math.sin(ballAngle);
+          const tangY = Math.cos(ballAngle);
+          const radX = dx / dist;
+          const radY = dy / dist;
+
+          const force = FAN.pushForce * dt * (1 - (dist / (FAN.radius + b.r)));
+          b.vx += (tangX * 0.75 + radX * 0.65) * force;
+          b.vy += (tangY * 0.75 + radY * 0.65) * force;
+
+          if (Math.random() < 0.2) {
+            windParticles.push({
+              x: b.x, y: b.y,
+              vx: tangX * 40, vy: tangY * 40,
+              alpha: 0.8,
+              life: 12,
+              size: 2.5
+            });
+          }
+          break;
+        }
+      }
+    }
+  }
+
+  for (let i = windParticles.length - 1; i >= 0; i--) {
+    const p = windParticles[i];
+    p.x += p.vx * dt;
+    p.y += p.vy * dt;
+    p.alpha -= 0.05;
+    p.life--;
+    if (p.alpha <= 0 || p.life <= 0) windParticles.splice(i, 1);
+  }
+}
+
+// المحرك الفيزيائي الرئيسي
+function updatePhysics(dt) {
+  if (!running || paused || winner) return;
+
+  const currentRound = roundId;
+  const effectiveDt = dt * timeScale;
+  seconds -= dt;
+
+  // تقلص الحلبة تدريجياً
+  const targetR = 320 * (0.55 + 0.45 * Math.max(0, seconds) / 90);
+  arenaR = Math.max(160, targetR);
+
+  updateFanPhysics(effectiveDt);
+
+  const alive = balls.filter(b => b.alive);
+
+  for (const b of alive) {
+    if (b.inVortex) {
+      // محاكاة السقوط والامتصاص داخل الثقب
+      b.scale -= effectiveDt * 1.6;
+      b.x += b.vx * effectiveDt;
+      b.y += b.vy * effectiveDt;
+      if (b.scale <= 0.05) {
+        b.alive = false;
+        b.inVortex = false;
+        triggerElimination(b, currentRound);
+      }
+      continue;
+    }
+
+    // الحركة والاحتكاك
+    b.x += b.vx * effectiveDt;
+    b.y += b.vy * effectiveDt;
+    b.vx *= Math.pow(0.988, effectiveDt * 60);
+    b.vy *= Math.pow(0.988, effectiveDt * 60);
+
+    // الاصطدام بقلب المروحة المركزي
+    const dCenterSq = (b.x - CX) * (b.x - CX) + (b.y - CY) * (b.y - CY);
+    const minCenterDist = FAN.hubRadius + b.r;
+    if (dCenterSq < minCenterDist * minCenterDist) {
+      const dCenter = Math.sqrt(dCenterSq) || 1;
+      const nx = (b.x - CX) / dCenter;
+      const ny = (b.y - CY) / dCenter;
+      b.x = CX + nx * minCenterDist;
+      b.y = CY + ny * minCenterDist;
+      b.vx = nx * 140;
+      b.vy = ny * 140;
+    }
+
+    // فيزياء الثقوب والجاذبية
+    for (const h of holes) {
+      const hx = b.x - h.x;
+      const hy = b.y - h.y;
+      const hDistSq = hx * hx + hy * hy;
+
+      if (hDistSq < h.gravityRadius * h.gravityRadius) {
+        const hDist = Math.sqrt(hDistSq) || 0.1;
+        const pull = (1 - (hDist / h.gravityRadius)) * 280 * effectiveDt;
+        // السحب نحو مركز الثقب مع دوران حلزوني
+        b.vx -= (hx / hDist) * pull;
+        b.vy -= (hy / hDist) * pull;
+        b.vx += (-hy / hDist) * (pull * 0.4);
+        b.vy += (hx / hDist) * (pull * 0.4);
+
+        if (hDist < h.r * 0.75) {
+          b.inVortex = true;
+          b.vx *= 0.3;
+          b.vy *= 0.3;
+          break;
+        }
+      }
+    }
+
+    if (b.inVortex) continue;
+
+    // جدران الحلبة مع معامل ارتداد طبيعي
+    const dWallSq = (b.x - CX) * (b.x - CX) + (b.y - CY) * (b.y - CY);
+    const maxR = arenaR - b.r;
+    if (dWallSq > maxR * maxR) {
+      const dWall = Math.sqrt(dWallSq) || 1;
+      const nx = (b.x - CX) / dWall;
+      const ny = (b.y - CY) / dWall;
+      b.x = CX + nx * maxR;
+      b.y = CY + ny * maxR;
+      const vNormal = b.vx * nx + b.vy * ny;
+      if (vNormal > 0) {
+        b.vx -= 1.82 * vNormal * nx;
+        b.vy -= 1.82 * vNormal * ny;
+      }
+    }
+
+    if (b.flash > 0) b.flash = Math.max(0, b.flash - effectiveDt * 1.5);
+    if (b.isTargeted > 0) b.isTargeted = Math.max(0, b.isTargeted - effectiveDt);
+  }
+
+  // تصادم الكرات مع بعضها
+  for (let i = 0; i < alive.length; i++) {
+    const a = alive[i];
+    if (!a.alive || a.inVortex) continue;
+
+    for (let j = i + 1; j < alive.length; j++) {
+      const b = alive[j];
+      if (!b.alive || b.inVortex) continue;
+
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const minDist = a.r + b.r;
+
+      if (dx * dx + dy * dy < minDist * minDist) {
+        const d = Math.sqrt(dx * dx + dy * dy) || 0.1;
+        const nx = dx / d;
+        const ny = dy / d;
+        const overlap = minDist - d;
+
+        // فصل التداخل
+        a.x -= nx * overlap * 0.5;
+        a.y -= ny * overlap * 0.5;
+        b.x += nx * overlap * 0.5;
+        b.y += ny * overlap * 0.5;
+
+        // سرعة الارتداد
+        const rvx = b.vx - a.vx;
+        const rvy = b.vy - a.vy;
+        const velAlongNormal = rvx * nx + rvy * ny;
+
+        if (velAlongNormal < 0) {
+          const impulse = -1.75 * velAlongNormal / 2;
+          a.vx -= impulse * nx;
+          a.vy -= impulse * ny;
+          b.vx += impulse * nx;
+          b.vy += impulse * ny;
+        }
+      }
+    }
+  }
+
+  // التحقق من الإنجازات والعد التنازلي
+  const aliveRemaining = balls.filter(b => b.alive).length;
+  if (aliveRemaining !== lastAlive) {
+    lastAlive = aliveRemaining;
+    checkMatchMilestones(aliveRemaining);
+  }
+
+  // الحسم وإعلان الفائز
+  if (seconds <= 0 || aliveRemaining <= 1) {
+    seconds = Math.max(0, seconds);
+    const survivors = balls.filter(b => b.alive);
+    if (survivors.length > 1) {
+      survivors.sort((p1, p2) => {
+        const d1 = (p1.x - CX) ** 2 + (p1.y - CY) ** 2;
+        const d2 = (p2.x - CX) ** 2 + (p2.y - CY) ** 2;
+        return d1 - d2;
+      });
+      survivors.slice(1).forEach(b => { b.alive = false; });
+    }
+
+    winner = balls.find(b => b.alive) || null;
+    running = false;
+
+    $("banner").textContent = winner ? `👑 البطل: ${winner.name}` : "انتهت المعركة!";
+    $("banner").classList.remove("danger");
+
+    if (winner) {
+      $("winName").textContent = winner.name;
+      $("winnerOverlay").classList.add("active");
+      SoundSystem.win();
+      burst(CX, CY, winner.color, 40);
+      for (let i = 0; i < 3; i++) {
+        setTimeout(() => burst(CX + (Math.random()-0.5)*200, CY + (Math.random()-0.5)*200, winner.color, 25), i * 220);
+      }
+      addMsg("🏆 النتيجة", `توج ${winner.name} بطلاً للأرينا!`, "win", false);
+    }
+  }
+
+  updateUI();
+}
+
+// الرسم على الكانفاس
+function render() {
+  ctx.clearRect(0, 0, V_WIDTH, V_WIDTH);
+
+  // خلفية الكانفاس الحلبة
+  const bg = ctx.createRadialGradient(CX, CY, 40, CX, CY, 360);
+  bg.addColorStop(0, "#132135");
+  bg.addColorStop(1, "#070c14");
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, V_WIDTH, V_WIDTH);
+
+  // حدود الأرينا
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(CX, CY, arenaR, 0, Math.PI * 2);
+  ctx.fillStyle = "#0c1524";
+  ctx.fill();
+
+  const isDanger = seconds < 20 || (!running && winner);
+  ctx.strokeStyle = isDanger ? "#ff5252" : "#ffc857";
+  ctx.lineWidth = 4;
+  ctx.shadowBlur = isDanger ? 22 : 12;
+  ctx.shadowColor = ctx.strokeStyle;
+  ctx.stroke();
+  ctx.restore();
+
+  // رسم المروحة وشفراتها الأربع
+  if (started && !winner) {
+    ctx.save();
+    ctx.translate(CX, CY);
+
+    // هالة دوران المروحة
+    const fanGlow = ctx.createRadialGradient(0, 0, 10, 0, 0, FAN.radius * 1.2);
+    fanGlow.addColorStop(0, "rgba(255,82,82,0.18)");
+    fanGlow.addColorStop(1, "rgba(255,82,82,0)");
+    ctx.beginPath();
+    ctx.arc(0, 0, FAN.radius * 1.2, 0, Math.PI * 2);
+    ctx.fillStyle = fanGlow;
+    ctx.fill();
+
+    ctx.rotate(fanAngle);
+    for (let i = 0; i < FAN.blades; i++) {
+      ctx.save();
+      ctx.rotate((i / FAN.blades) * Math.PI * 2);
+      const bladeGrad = ctx.createLinearGradient(0, 0, FAN.radius, 0);
+      bladeGrad.addColorStop(0, "#ff5252");
+      bladeGrad.addColorStop(1, "rgba(255,82,82,0.1)");
+      ctx.strokeStyle = bladeGrad;
+      ctx.lineWidth = 7;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(FAN.hubRadius + 2, 0);
+      ctx.lineTo(FAN.radius, 0);
+      ctx.stroke();
+      ctx.restore();
+    }
+    ctx.restore();
+
+    // قلب المروحة
+    ctx.beginPath();
+    ctx.arc(CX, CY, FAN.hubRadius, 0, Math.PI * 2);
+    ctx.fillStyle = "#e11d48";
+    ctx.fill();
+    ctx.strokeStyle = "#fff";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+
+  // رسم الثقوب السوداء مع دوامة الجاذبية
+  for (const h of holes) {
+    const vortexGrad = ctx.createRadialGradient(h.x, h.y, h.r * 0.3, h.x, h.y, h.gravityRadius);
+    vortexGrad.addColorStop(0, "rgba(0,0,0,1)");
+    vortexGrad.addColorStop(0.5, "rgba(255,82,82,0.25)");
+    vortexGrad.addColorStop(1, "rgba(0,0,0,0)");
+
+    ctx.beginPath();
+    ctx.arc(h.x, h.y, h.gravityRadius, 0, Math.PI * 2);
+    ctx.fillStyle = vortexGrad;
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(h.x, h.y, h.r, 0, Math.PI * 2);
+    ctx.fillStyle = "#000";
+    ctx.fill();
+    ctx.strokeStyle = "#ff5252";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+
+  // جزيئات الرياح
+  for (const p of windParticles) {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255,160,160,${p.alpha})`;
+    ctx.fill();
+  }
+
+  // رسم الكرات
+  for (const b of balls) {
+    if (!b.alive) continue;
+
+    const r = b.r * b.scale;
+    if (r <= 0.5) continue;
+
+    // ظل الكرة
+    ctx.beginPath();
+    ctx.arc(b.x, b.y + 3, r + 2, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(0,0,0,0.35)";
+    ctx.fill();
+
+    // مجسم الكرة ثلاثي الأبعاد
+    const grad = ctx.createRadialGradient(b.x - r * 0.3, b.y - r * 0.3, 1, b.x, b.y, r);
+    grad.addColorStop(0, "#ffffff");
+    grad.addColorStop(0.2, b.color);
+    grad.addColorStop(1, "#0d131a");
+
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, r, 0, Math.PI * 2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    ctx.strokeStyle = b.flash > 0 ? "#ffffff" : b.color;
+    ctx.lineWidth = b.flash > 0 ? 3 : 1.5;
+    ctx.stroke();
+
+    // مؤشر الاستهداف عند التصويت للكرة
+    if (b.isTargeted > 0) {
+      ctx.save();
+      ctx.strokeStyle = "#ffc857";
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, r + 7, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // سهم إشارة متحرك
+      ctx.fillStyle = "#ffc857";
+      ctx.beginPath();
+      ctx.moveTo(b.x, b.y - r - 16);
+      ctx.lineTo(b.x - 5, b.y - r - 23);
+      ctx.lineTo(b.x + 5, b.y - r - 23);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // اسم الكرة بنطاق واضح
+    if (b.scale > 0.6) {
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 11px Cairo, sans-serif";
+      ctx.textAlign = "center";
+      const displayName = b.name.length > 7 ? b.name.slice(0, 7) + ".." : b.name;
+      ctx.fillText(displayName, b.x, b.y + r + 13);
+    }
+  }
+
+  // رسم الجزيئات المتناثرة
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.x += p.vx;
+    p.y += p.vy;
+    p.alpha -= 0.025;
+    if (p.alpha <= 0) {
+      particles.splice(i, 1);
+      continue;
+    }
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fillStyle = p.color;
+    ctx.globalAlpha = Math.max(0, p.alpha);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+}
+
+function gameLoop(time) {
+  if (!lastTime) lastTime = time;
+  const dt = Math.min((time - lastTime) / 1000, 0.033);
+  lastTime = time;
+
+  updatePhysics(dt);
+  render();
+
+  requestAnimationFrame(gameLoop);
+}
+
+function startGame() {
+  SoundSystem.init();
+  if (running) return;
+
+  if (winner || !started) {
+    roundId++;
+    initBalls();
+  }
+
+  started = true;
+  running = true;
+  paused = false;
+  winner = null;
+
+  $("banner").textContent = "⚔️ المعركة مشتعلة الآن!";
   $("banner").classList.remove("danger");
-  if(winner){
-   $("winName").textContent=winner.name;
-   $("winnerOverlay").classList.add("active");
-   audio.win();
-   burst(CX,CY,winner.color);
-   for(let i=0;i<3;i++)setTimeout(()=>burst(rand(150,570),rand(150,570),winner.color),i*200);
-   addMsg("🏆","الفائز: "+winner.name,"win",false);
+  $("winnerOverlay").classList.remove("active");
+  $("finalDuel").classList.remove("show");
+  $("killFeed").innerHTML = "";
+  updateUI();
+}
+
+function resetGame() {
+  roundId++;
+  running = false;
+  paused = false;
+  started = false;
+  winner = null;
+
+  initBalls();
+
+  $("banner").textContent = "اضغط «ابدأ المعركة» للخوض في الصراع";
+  $("banner").classList.remove("danger");
+  $("winnerOverlay").classList.remove("active");
+  $("finalDuel").classList.remove("show");
+  $("killFeed").innerHTML = "";
+
+  updateUI();
+}
+
+// تبديل المحاكاة بطريقة آمنة
+function scheduleNextFake() {
+  if (!fakeOn) return;
+  const nextDelay = 1800 + Math.random() * 2000;
+  fakeTimer = setTimeout(() => {
+    if (!fakeOn) return;
+    const items = THEMES[currentTheme].items;
+    const chosen = items[Math.floor(Math.random() * items.length)];
+    const comments = [
+      `صوتوا لـ ${chosen}!`,
+      `فريق ${chosen} للمجد 🔥`,
+      `${chosen} بطل اليوم`,
+      `احذر الثقب يا ${chosen}!`,
+      `ادعموا ${chosen} 🚀`
+    ];
+    addMsg("مشاهد", comments[Math.floor(Math.random() * comments.length)], "", true);
+    if (running && !paused && !winner) {
+      launchCity(chosen, true);
+    }
+    scheduleNextFake();
+  }, nextDelay);
+}
+
+// الأحداث والتفاعل
+document.querySelectorAll(".theme-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".theme-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    currentTheme = btn.dataset.theme;
+    resetGame();
+    addMsg("النظام", `تم التحويل إلى ثيم: ${THEMES[currentTheme].label}`, "");
+  });
+});
+
+$("start").addEventListener("click", startGame);
+$("reset").addEventListener("click", resetGame);
+$("pause").addEventListener("click", () => {
+  if (!started || winner) return;
+  paused = !paused;
+  $("banner").textContent = paused ? "⏸ المعركة متوقفة مؤقتاً" : "⚔️ المعركة مشتعلة الآن!";
+  updateUI();
+});
+
+$("voteForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const val = $("cityInput").value.trim();
+  if (val) {
+    launchCity(val, false);
+    $("cityInput").value = "";
   }
- }
- updateUI();
-}
-
-function draw(){
- ctx.clearRect(0,0,W,W);
- const bg=ctx.createRadialGradient(CX,CY,20,CX,CY,360);
- bg.addColorStop(0,"#1a2b40");bg.addColorStop(1,"#0b1320");
- ctx.fillStyle=bg;ctx.fillRect(0,0,W,W);
- // Arena
- ctx.save();ctx.translate(CX,CY);
- ctx.beginPath();ctx.arc(0,0,arenaR,0,Math.PI*2);
- ctx.fillStyle="#101b2b";ctx.fill();
- const danger=seconds<20||running===false&&winner;
- ctx.strokeStyle=danger?"#ff6b6b":"#f7c65b";
- ctx.lineWidth=4;
- ctx.shadowBlur=danger?25:15;
- ctx.shadowColor=ctx.strokeStyle;
- ctx.stroke();
- ctx.shadowBlur=0;
- ctx.beginPath();ctx.arc(0,0,arenaR*.66,0,Math.PI*2);
- ctx.strokeStyle="rgba(255,255,255,.06)";ctx.lineWidth=1;ctx.stroke();
- ctx.restore();
- // Holes
- for(const h of holes){
-  const g=ctx.createRadialGradient(h.x,h.y,h.r*.4,h.x,h.y,h.r*1.8);
-  g.addColorStop(0,"rgba(0,0,0,1)");
-  g.addColorStop(0.6,"rgba(60,10,10,.7)");
-  g.addColorStop(1,"rgba(0,0,0,0)");
-  ctx.beginPath();ctx.arc(h.x,h.y,h.r*1.8,0,Math.PI*2);
-  ctx.fillStyle=g;ctx.fill();
-  ctx.beginPath();ctx.arc(h.x,h.y,h.r,0,Math.PI*2);
-  ctx.fillStyle="#000";ctx.fill();
-  ctx.strokeStyle="#ff6b6b";ctx.lineWidth=2.5;ctx.stroke();
-  ctx.beginPath();ctx.arc(h.x,h.y,h.r-5,0,Math.PI*2);
-  ctx.strokeStyle="rgba(255,200,87,.2)";ctx.lineWidth=1;ctx.stroke();
- }
- // Balls
- for(const b of balls){
-  if(!b.alive)continue;
-  ctx.beginPath();ctx.arc(b.x,b.y,b.r+4,0,Math.PI*2);
-  ctx.fillStyle="rgba(0,0,0,.35)";ctx.fill();
-  const g=ctx.createRadialGradient(b.x-4,b.y-5,1,b.x,b.y,b.r+2);
-  g.addColorStop(0,"#ffffff");g.addColorStop(.16,b.color);g.addColorStop(1,"#172233");
-  ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
-  ctx.strokeStyle=b.flash>0?"#fff":b.color;
-  ctx.lineWidth=b.flash>0?3:1.5;ctx.stroke();
-  ctx.fillStyle="#fff";ctx.font="bold 12px Cairo";
-  ctx.textAlign="center";
-  ctx.fillText(b.name.length>8?b.name.slice(0,8):b.name,b.x,b.y+b.r+14);
- }
- // Particles
- for(let i=particles.length-1;i>=0;i--){
-  const p=particles[i];
-  p.x+=p.vx;p.y+=p.vy;p.vy+=0.2;p.alpha-=0.025;
-  if(p.alpha<=0){particles.splice(i,1);continue}
-  ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
-  ctx.fillStyle=p.color;ctx.globalAlpha=p.alpha;ctx.fill();
-  ctx.globalAlpha=1;
- }
- if(winner){
-  ctx.fillStyle=winner.color;ctx.font="bold 36px Cairo";
-  ctx.textAlign="center";ctx.shadowBlur=25;ctx.shadowColor=winner.color;
-  ctx.fillText("🏆 "+winner.name,CX,CY);
-  ctx.shadowBlur=0;
- }
-}
-
-function loop(t){
- raf=requestAnimationFrame(loop);
- if(!lastFrame)lastFrame=t;
- const dt=Math.min((t-lastFrame)/1000,.035);
- lastFrame=t;
- if(!paused)step(dt);
- draw();
-}
-
-function startGame(){
- audio.init();
- if(running)return;
- if(winner||!started)makeBalls();
- started=true;winner=null;running=true;paused=false;
- $("banner").textContent="⚔️ المعركة جارية!";
- $("banner").classList.remove("danger");
- $("winnerOverlay").classList.remove("active");
- $("finalDuel").classList.remove("show");
- $("finalPill").classList.remove("show");
- $("killFeed").innerHTML="";
-}
-
-function resetGame(){
- running=false;paused=false;started=false;winner=null;
- makeBalls();
- $("banner").textContent="اضغط «ابدأ المعركة»";
- $("banner").classList.remove("danger");
- $("winnerOverlay").classList.remove("active");
- $("finalDuel").classList.remove("show");
- $("finalPill").classList.remove("show");
- $("killFeed").innerHTML="";
- updateUI();draw();
-}
-
-$("start").addEventListener("click",startGame);
-$("reset").addEventListener("click",resetGame);
-$("pause").addEventListener("click",()=>{
- if(!started)return;
- paused=!paused;updateUI();
- $("banner").textContent=paused?"⏸ متوقفة":"⚔️ جارية!";
-});
-$("voteForm").addEventListener("submit",e=>{
- e.preventDefault();
- const v=$("cityInput").value.trim();
- if(!v)return;
- launchCity(v,false);
- $("cityInput").value="";
-});
-$("fakeToggle").addEventListener("click",()=>{
- fakeOn=!fakeOn;
- const btn=$("fakeToggle");
- btn.textContent="محاكاة: "+(fakeOn?"تعمل":"متوقفة");
- btn.className=fakeOn?"green":"secondary";
- if(fakeTimer){clearInterval(fakeTimer);fakeTimer=null}
- if(fakeOn){
-  addMsg("النظام","بدأت المحاكاة", "", true);
-  fakeTimer=setInterval(()=>{
-   if(!fakeOn)return;
-   const c=cities[Math.floor(Math.random()*cities.length)];
-   const acts=["أنا أشجع "+c,"صوّتوا لـ "+c,"هيا يا "+c,"فريق "+c+" قوي","ودّوه الحفرة"];
-   addMsg("مشاهد",acts[Math.floor(Math.random()*acts.length)],"",true);
-   if(running&&!paused&&!winner&&Math.random()<.7)launchCity(c,true);
-  },rand(1800,3800));
- }
 });
 
-makeBalls();
-draw();
-requestAnimationFrame(loop);
+$("fakeToggle").addEventListener("click", () => {
+  fakeOn = !fakeOn;
+  const btn = $("fakeToggle");
+  btn.textContent = fakeOn ? "المحاكاة: تعمل" : "المحاكاة: متوقفة";
+  btn.className = fakeOn ? "green" : "secondary";
+
+  if (fakeTimer) {
+    clearTimeout(fakeTimer);
+    fakeTimer = null;
+  }
+
+  if (fakeOn) {
+    addMsg("النظام", "بدأت المحاكاة التفاعلية للشات", "");
+    scheduleNextFake();
+  }
+});
+
+// نافذة الـ CTA
+const modal = $("ctaModal");
+$("ctaBtn").addEventListener("click", () => modal.classList.add("show"));
+$("modalCloseBtn").addEventListener("click", () => modal.classList.remove("show"));
+$("modalLaterBtn").addEventListener("click", () => modal.classList.remove("show"));
+
+$("whatsappBtn").addEventListener("click", () => {
+  const user = $("userName").value.trim() || "مهتم بالبث";
+  const text = encodeURIComponent(`مرحباً، أنا ${user}، شاهدت تجربة ديربي أرينا وأرغب في الحصول على النسخة المخصصة للبث المباشر بكامل المزايا.`);
+  window.open(`https://wa.me/966592859590?text=${text}`, "_blank");
+});
+
+window.addEventListener("resize", setupHiDPI);
+
+// التهيئة والإقلاع
+setupHiDPI();
+initBalls();
+requestAnimationFrame(gameLoop);
 
 })();
 </script>
