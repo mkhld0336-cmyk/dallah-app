@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#060911">
+<meta name="theme-color" content="#050810">
 <title>ديربي أرينا الملكي | Derby Arena Royal Pro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -14,9 +14,9 @@
   --panel-border: rgba(255, 200, 87, 0.25);
   --gold: #ffc857;
   --gold-light: #ffe699;
-  --gold-glow: rgba(255, 200, 87, 0.4);
+  --gold-glow: rgba(255, 200, 87, 0.35);
   --gold-gradient: linear-gradient(135deg, #ffd700, #ff9800);
-  --vip-card: linear-gradient(135deg, #1f1a10, #0a0e17 60%, #2e240c);
+  --vip-card: linear-gradient(135deg, #182232, #0a0e17 70%, #2a200b);
   --muted: #8b9db4;
   --green: #2bd893;
   --red: #ff4757;
@@ -32,180 +32,151 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   user-select: none;
-  padding-bottom: 90px;
+  padding-bottom: 30px;
   background-image: 
-    radial-gradient(1px 1px at 20px 30px, #ffffff33, rgba(0,0,0,0)),
-    radial-gradient(1.5px 1.5px at 150px 180px, #ffd70044, rgba(0,0,0,0)),
-    radial-gradient(1px 1px at 300px 90px, #ffffff22, rgba(0,0,0,0));
-  background-size: 350px 350px;
+    radial-gradient(1px 1px at 20px 30px, #ffffff22, rgba(0,0,0,0)),
+    radial-gradient(1.5px 1.5px at 150px 180px, #ffd70033, rgba(0,0,0,0));
+  background-size: 300px 300px;
 }
 
-/* شاشة العظمة (Splash Screen) */
+/* شاشة الترحيب (Splash Screen) */
 #splashScreen {
   position: fixed; inset: 0;
-  background: radial-gradient(circle at center, #131f33 0%, #030509 100%);
+  background: radial-gradient(circle at center, #10192d 0%, #030509 100%);
   z-index: 1000;
   display: flex; flex-direction: column; justify-content: center; align-items: center;
-  padding: 24px; text-align: center;
-  transition: opacity .5s ease, visibility .5s;
+  padding: 20px; text-align: center;
+  transition: opacity .4s ease, visibility .4s;
 }
 #splashScreen.hide { opacity: 0; visibility: hidden; pointer-events: none; }
-.splash-crown { font-size: 70px; line-height: 1; animation: floatCrown 2.5s infinite ease-in-out; filter: drop-shadow(0 0 25px var(--gold)); }
-@keyframes floatCrown { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-12px) scale(1.05)} }
-.splash-title { font-size: 34px; font-weight: 900; color: var(--gold); margin-top: 15px; text-shadow: 0 0 30px var(--gold-glow); letter-spacing: -1px; }
-.splash-season { display: inline-block; background: rgba(255,200,87,0.15); border: 1px solid var(--gold); color: var(--gold-light); font-size: 11px; font-weight: 800; padding: 4px 14px; border-radius: 99px; margin-top: 6px; }
-.splash-box { margin-top: 25px; width: 100%; max-width: 330px; background: rgba(13,21,34,0.85); border: 1px solid var(--panel-border); padding: 18px; border-radius: 16px; backdrop-filter: blur(10px); }
-.splash-box input { width: 100%; background: #070b13; border: 1px solid var(--panel-border); padding: 12px; border-radius: 10px; color: #fff; font-family: inherit; font-size: 13px; text-align: center; margin-bottom: 10px; }
-.splash-box input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 12px var(--gold-glow); }
-.btn-royal-start { width: 100%; background: var(--gold-gradient); color: #070b12; border: 0; padding: 14px; border-radius: 10px; font-weight: 900; font-size: 15px; font-family: inherit; cursor: pointer; box-shadow: 0 8px 25px rgba(255,165,0,0.4); }
+.splash-crown { font-size: 65px; animation: floatCrown 2.5s infinite ease-in-out; filter: drop-shadow(0 0 20px var(--gold)); }
+@keyframes floatCrown { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-10px) scale(1.05)} }
+.splash-title { font-size: 30px; font-weight: 900; color: var(--gold); margin-top: 10px; text-shadow: 0 0 20px var(--gold-glow); }
+.splash-season { display: inline-block; background: rgba(255,200,87,0.12); border: 1px solid var(--gold); color: var(--gold-light); font-size: 11px; font-weight: 800; padding: 3px 12px; border-radius: 99px; margin-top: 5px; }
+.splash-box { margin-top: 20px; width: 100%; max-width: 320px; background: rgba(13,21,34,0.9); border: 1px solid var(--panel-border); padding: 16px; border-radius: 14px; backdrop-filter: blur(10px); }
+.splash-box input { width: 100%; background: #070b13; border: 1px solid var(--panel-border); padding: 11px; border-radius: 8px; color: #fff; font-family: inherit; font-size: 13px; text-align: center; margin-bottom: 10px; }
+.splash-box input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 10px var(--gold-glow); }
+.btn-royal-start { width: 100%; background: var(--gold-gradient); color: #070b12; border: 0; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 14px; font-family: inherit; cursor: pointer; box-shadow: 0 6px 20px rgba(255,165,0,0.35); }
 
-/* الشريط العلوي الملكي */
-.royal-header {
-  max-width: 680px; margin: auto; padding: 8px 12px;
-  display: flex; justify-content: space-between; align-items: center;
-  background: rgba(13, 21, 34, 0.9); backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--panel-border);
-}
-.royal-brand { font-size: 16px; font-weight: 900; color: var(--gold); display: flex; align-items: center; gap: 6px; text-shadow: 0 0 10px var(--gold-glow); }
-.earnings-tag { background: #070b13; border: 1px solid rgba(43,216,147,0.4); color: var(--green); padding: 3px 10px; border-radius: 99px; font-size: 10px; font-weight: 800; }
+/* الهيكل الموحد والمضغوط لتوفير المساحة */
+.app-container { max-width: 520px; margin: auto; padding: 8px; display: flex; flex-direction: column; gap: 8px; }
 
-/* بطاقة الحساب البنكي الفاخرة (VIP Black Card) */
-.user-card-wrap { max-width: 680px; margin: 8px auto; padding: 0 12px; }
-.vip-card {
+/* الشريط العلوي وبطاقة VIP المدمجة */
+.header-card {
   background: var(--vip-card);
   border: 1px solid var(--gold);
-  border-radius: 16px; padding: 12px 16px;
+  border-radius: 14px; padding: 10px 14px;
   display: flex; justify-content: space-between; align-items: center;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.6); position: relative; overflow: hidden;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.5); position: relative; overflow: hidden;
 }
-.vip-card::after {
+.header-card::after {
   content: ""; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-  background: linear-gradient(60deg, transparent 40%, rgba(255,215,0,0.08) 50%, transparent 60%);
+  background: linear-gradient(60deg, transparent 40%, rgba(255,215,0,0.06) 50%, transparent 60%);
   transform: rotate(30deg); pointer-events: none;
 }
-.vip-user-info { display: flex; align-items: center; gap: 10px; }
-.vip-badge-icon { font-size: 28px; filter: drop-shadow(0 0 10px var(--gold)); }
-.vip-name { font-size: 14px; font-weight: 900; color: #fff; }
+.vip-user-info { display: flex; align-items: center; gap: 8px; }
+.vip-badge-icon { font-size: 24px; filter: drop-shadow(0 0 8px var(--gold)); }
+.vip-name { font-size: 13px; font-weight: 900; color: #fff; }
 .vip-rank { font-size: 10px; color: var(--gold); font-weight: 700; }
-.vip-sparks { text-align: left; }
-.vip-sparks-num { font-size: 20px; font-weight: 900; color: var(--gold); font-family: monospace; }
-.btn-charge-chip { background: var(--gold-gradient); color: #070b12; border: 0; padding: 5px 12px; border-radius: 8px; font-size: 11px; font-weight: 900; font-family: inherit; cursor: pointer; margin-top: 3px; display: inline-block; }
+.vip-sparks { text-align: left; display: flex; flex-direction: column; align-items: flex-end; }
+.vip-sparks-num { font-size: 16px; font-weight: 900; color: var(--gold); font-family: monospace; }
+.btn-charge-chip { background: var(--gold-gradient); color: #070b12; border: 0; padding: 3px 10px; border-radius: 6px; font-size: 10px; font-weight: 900; font-family: inherit; cursor: pointer; margin-top: 2px; }
 
-/* الثيمات الست */
-.themes { display: flex; gap: 6px; overflow-x: auto; padding: 8px 12px; max-width: 680px; margin: auto; scrollbar-width: none; }
+/* شريط الأرباح والحالة */
+.sub-header-bar { display: flex; justify-content: space-between; align-items: center; font-size: 11px; padding: 0 4px; }
+.earnings-tag { background: #070b13; border: 1px solid rgba(43,216,147,0.4); color: var(--green); padding: 2px 8px; border-radius: 99px; font-weight: 800; }
+
+/* الثيمات */
+.themes { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
 .themes::-webkit-scrollbar { display: none; }
 .theme-btn {
   flex: 0 0 auto; background: var(--bg-card); border: 1px solid rgba(255,200,87,0.2);
-  color: #cbd5e1; padding: 6px 14px; border-radius: 99px; font-size: 11px; font-weight: 800;
+  color: #cbd5e1; padding: 5px 12px; border-radius: 99px; font-size: 11px; font-weight: 800;
   cursor: pointer; font-family: inherit; transition: all .2s;
 }
-.theme-btn.active { background: var(--gold); color: #070b12; border-color: var(--gold); box-shadow: 0 0 14px var(--gold-glow); font-weight: 900; }
+.theme-btn.active { background: var(--gold); color: #070b12; border-color: var(--gold); box-shadow: 0 0 10px var(--gold-glow); font-weight: 900; }
 
-/* لوحة الإحصائيات */
-.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 2px 12px 8px; max-width: 680px; margin: auto; }
-.stat { background: var(--bg-card); border: 1px solid var(--panel-border); border-radius: 10px; padding: 6px 2px; text-align: center; }
-.stat b { display: block; font-size: 17px; color: var(--gold); font-weight: 900; line-height: 1.1; }
+/* الإحصائيات المصغرة */
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+.stat { background: var(--bg-card); border: 1px solid var(--panel-border); border-radius: 8px; padding: 5px 2px; text-align: center; }
+.stat b { display: block; font-size: 15px; color: var(--gold); font-weight: 900; line-height: 1.1; }
 .stat span { font-size: 9px; color: var(--muted); font-weight: 700; }
 
-/* الحلبة الكروية */
-.arena-wrap { position: relative; width: min(94vw, 560px); margin: auto; aspect-ratio: 1; }
-canvas { width: 100%; height: 100%; display: block; border-radius: 20px; background: #060911; box-shadow: 0 15px 45px rgba(0,0,0,0.8); border: 1.5px solid var(--panel-border); }
+/* الحلبة الكروية وسط الشاشة */
+.arena-wrap { position: relative; width: 100%; aspect-ratio: 1; max-width: 420px; margin: auto; }
+canvas { width: 100%; height: 100%; display: block; border-radius: 16px; background: #060911; box-shadow: 0 10px 30px rgba(0,0,0,0.7); border: 1.5px solid var(--panel-border); }
 
-#banner { position: absolute; top: 4%; left: 0; right: 0; text-align: center; font-weight: 900; color: var(--gold); font-size: 14px; z-index: 10; pointer-events: none; text-shadow: 0 2px 8px #000; }
-#inAppToast { position: absolute; top: 10%; left: 5%; right: 5%; background: var(--gold-gradient); color: #050810; padding: 9px; border-radius: 10px; text-align: center; font-size: 12px; font-weight: 900; z-index: 60; transform: translateY(-70px); opacity: 0; transition: all .4s cubic-bezier(0.18, 0.89, 0.32, 1.28); box-shadow: 0 8px 30px rgba(255,200,87,0.7); }
+#banner { position: absolute; top: 3%; left: 0; right: 0; text-align: center; font-weight: 900; color: var(--gold); font-size: 13px; z-index: 10; pointer-events: none; text-shadow: 0 2px 6px #000; }
+#inAppToast { position: absolute; top: 8%; left: 5%; right: 5%; background: var(--gold-gradient); color: #050810; padding: 8px; border-radius: 8px; text-align: center; font-size: 11px; font-weight: 900; z-index: 60; transform: translateY(-50px); opacity: 0; transition: all .3s ease; box-shadow: 0 6px 20px rgba(255,200,87,0.6); }
 #inAppToast.show { transform: translateY(0); opacity: 1; }
 
-/* الترسانة التكتيكية الملكية */
-.armory-wrap { max-width: 680px; margin: 8px auto 4px; padding: 0 12px; }
-.armory-header { display: flex; justify-content: space-between; font-size: 11px; font-weight: 800; color: var(--gold); margin-bottom: 6px; }
-.armory-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+/* الترسانة التكتيكية */
+.armory-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
 .t-btn {
   background: linear-gradient(135deg, #131f33, #080d16);
-  border: 1px solid var(--panel-border); border-radius: 12px; padding: 10px 6px;
+  border: 1px solid var(--panel-border); border-radius: 10px; padding: 8px 4px;
   color: #fff; cursor: pointer; display: flex; flex-direction: column; align-items: center;
   font-family: inherit; transition: all .2s;
 }
-.t-btn:active { transform: scale(0.95); border-color: var(--gold); }
-.t-btn .icon { font-size: 22px; filter: drop-shadow(0 0 6px rgba(255,200,87,0.5)); }
-.t-btn .name { font-size: 11px; font-weight: 800; margin-top: 2px; }
-.t-btn .cost { font-size: 10px; color: var(--gold); font-weight: 900; margin-top: 2px; }
+.t-btn:active { transform: scale(0.96); border-color: var(--gold); }
+.t-btn .icon { font-size: 20px; }
+.t-btn .name { font-size: 10px; font-weight: 800; margin-top: 2px; }
+.t-btn .cost { font-size: 9px; color: var(--gold); font-weight: 900; margin-top: 1px; }
 
-/* الشات وأدوات التحكم */
-.content { max-width: 680px; margin: 8px auto auto; padding: 0 12px; display: grid; gap: 8px; }
-.panel { background: var(--bg-card); border: 1px solid var(--panel-border); border-radius: 14px; padding: 10px 12px; }
-.controls { display: flex; gap: 6px; flex-wrap: wrap; }
-input.chat-input { flex: 1; min-width: 0; background: #070b13; border: 1px solid var(--panel-border); border-radius: 8px; color: #fff; padding: 10px 12px; font-size: 13px; font-family: inherit; }
+/* اللوحات والأزرار التفاعلية */
+.panel { background: var(--bg-card); border: 1px solid var(--panel-border); border-radius: 12px; padding: 8px 10px; }
+.controls { display: flex; gap: 5px; flex-wrap: wrap; }
+input.chat-input { flex: 1; min-width: 0; background: #070b13; border: 1px solid var(--panel-border); border-radius: 8px; color: #fff; padding: 8px 10px; font-size: 12px; font-family: inherit; }
 input.chat-input:focus { outline: none; border-color: var(--gold); }
-button.btn-act { border: 0; border-radius: 8px; padding: 9px 14px; font-weight: 800; font-size: 12px; cursor: pointer; background: var(--gold); color: #070b12; font-family: inherit; }
+button.btn-act { border: 0; border-radius: 8px; padding: 8px 12px; font-weight: 800; font-size: 11px; cursor: pointer; background: var(--gold); color: #070b12; font-family: inherit; }
 button.btn-sec { background: #1a273b; color: #cbd5e1; }
 button.btn-green { background: var(--green); color: #032014; }
 
-#messages { height: 95px; overflow-y: auto; display: flex; flex-direction: column; gap: 5px; margin-top: 8px; scrollbar-width: thin; }
-.msg { font-size: 11px; background: #080d16; border-radius: 8px; padding: 6px 10px; border-right: 3px solid var(--gold); display: flex; align-items: center; justify-content: space-between; }
+#messages { height: 75px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; margin-top: 6px; scrollbar-width: thin; }
+.msg { font-size: 10px; background: #080d16; border-radius: 6px; padding: 5px 8px; border-right: 3px solid var(--gold); display: flex; align-items: center; justify-content: space-between; }
 .msg.system { border-right-color: var(--blue); }
-.msg.strike { border-right-color: var(--red); background: rgba(255,71,87,0.1); }
+.msg.strike { border-right-color: var(--red); background: rgba(255,71,87,0.08); }
 .msg-txt b { color: var(--gold); }
 
-/* شاشة FINAL DUEL الكونية */
-#finalDuel {
-  position: absolute; inset: 0;
-  background: radial-gradient(circle at center, rgba(15,10,30,0.95) 0%, rgba(3,4,8,0.98) 100%);
-  border-radius: 20px; z-index: 40; display: flex; flex-direction: column; justify-content: center; align-items: center;
-  opacity: 0; pointer-events: none; transition: opacity .4s ease;
+/* شاشة المواجهة والتتويج داخل الحلبة */
+#finalDuel, #winnerModal {
+  position: absolute; inset: 0; border-radius: 16px; z-index: 40;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  opacity: 0; pointer-events: none; transition: opacity .3s ease;
+  background: radial-gradient(circle at center, rgba(15,10,30,0.92) 0%, rgba(3,4,8,0.97) 100%);
 }
-#finalDuel.show { opacity: 1; }
-.duel-head { font-size: 26px; font-weight: 900; color: var(--red); text-shadow: 0 0 25px var(--red); animation: pulseHead .8s infinite; }
-@keyframes pulseHead { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
-.duel-vs-box { display: flex; align-items: center; gap: 14px; margin-top: 15px; }
-.duel-card { background: rgba(18,28,45,0.9); border: 2px solid var(--gold); border-radius: 12px; padding: 12px 18px; text-align: center; min-width: 95px; }
-.duel-name { font-size: 13px; font-weight: 900; color: #fff; margin-top: 4px; }
+#finalDuel.show, #winnerModal.show { opacity: 1; pointer-events: auto; }
+.duel-head { font-size: 22px; font-weight: 900; color: var(--red); text-shadow: 0 0 20px var(--red); }
+.duel-vs-box { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.duel-card { background: rgba(18,28,45,0.9); border: 1.5px solid var(--gold); border-radius: 10px; padding: 8px 14px; text-align: center; min-width: 80px; }
+.duel-name { font-size: 12px; font-weight: 900; color: #fff; margin-top: 2px; }
 
-/* شاشة التتويج الملكي (King Winner Screen) */
-#winnerModal {
-  position: absolute; inset: 0;
-  background: radial-gradient(circle at center, rgba(255,200,87,0.25) 0%, rgba(4,6,10,0.97) 80%);
-  border-radius: 20px; z-index: 50; display: flex; flex-direction: column; justify-content: center; align-items: center;
-  opacity: 0; pointer-events: none; transition: opacity .5s;
-}
-#winnerModal.show { opacity: 1; pointer-events: auto; }
-.winner-crown { font-size: 75px; animation: winPop .7s infinite alternate ease-in-out; }
-@keyframes winPop { from{transform:translateY(0) scale(1)} to{transform:translateY(-14px) scale(1.08)} }
-.winner-title { color: var(--gold); font-size: 13px; font-weight: 800; letter-spacing: 2px; margin-top: 8px; }
-.winner-name { font-size: 34px; font-weight: 900; color: #fff; text-shadow: 0 0 35px var(--gold); margin: 6px 0; }
+.winner-crown { font-size: 60px; animation: winPop .7s infinite alternate ease-in-out; }
+@keyframes winPop { from{transform:translateY(0) scale(1)} to{transform:translateY(-10px) scale(1.06)} }
+.winner-title { color: var(--gold); font-size: 11px; font-weight: 800; letter-spacing: 1px; margin-top: 4px; }
+.winner-name { font-size: 26px; font-weight: 900; color: #fff; text-shadow: 0 0 25px var(--gold); margin: 4px 0; }
 
-/* نافذة الإعلان التفاعلي المحاكي (Rewarded Ad Modal) */
-#adModal {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.92);
+/* النوافذ المنبثقة (Modals) */
+#adModal, #shopModal {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.88);
   z-index: 900; display: flex; justify-content: center; align-items: center;
-  opacity: 0; pointer-events: none; transition: opacity .3s; padding: 16px;
+  opacity: 0; pointer-events: none; transition: opacity .25s; padding: 12px;
 }
-#adModal.show { opacity: 1; pointer-events: auto; }
-.ad-box {
+#adModal.show, #shopModal.show { opacity: 1; pointer-events: auto; }
+.modal-box {
   background: linear-gradient(135deg, #162438, #090e18);
-  border: 2px solid var(--gold); border-radius: 16px; padding: 20px;
-  max-width: 360px; width: 100%; text-align: center; position: relative;
+  border: 1.5px solid var(--gold); border-radius: 14px; padding: 16px;
+  max-width: 340px; width: 100%; text-align: center; position: relative;
 }
-.ad-badge { position: absolute; top: 12px; left: 12px; background: var(--red); color: #fff; font-size: 9px; font-weight: 900; padding: 2px 8px; border-radius: 4px; }
-.ad-timer { font-size: 11px; color: var(--muted); margin-top: 10px; }
-.ad-skip-btn { margin-top: 14px; width: 100%; padding: 10px; background: #23354d; color: #fff; border: 0; border-radius: 8px; font-family: inherit; font-weight: 800; font-size: 12px; cursor: not-allowed; }
-.ad-skip-btn.ready { background: var(--gold-gradient); color: #070b12; cursor: pointer; }
+.ad-badge { position: absolute; top: 10px; left: 10px; background: var(--red); color: #fff; font-size: 8px; font-weight: 900; padding: 2px 6px; border-radius: 4px; }
+.shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
+.shop-item { background: #080d16; border: 1px solid var(--panel-border); border-radius: 10px; padding: 10px; cursor: pointer; }
+.shop-item:hover, .shop-item.best { border-color: var(--gold); background: rgba(255,200,87,0.06); }
+.shop-item-sparks { font-size: 15px; font-weight: 900; color: var(--gold); }
+.shop-item-price { font-size: 10px; color: #fff; font-weight: 700; margin-top: 1px; }
 
-/* نافذة الدفع والشحن المضمنة (Tap Payments Simulation Modal) */
-#shopModal {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.85);
-  z-index: 800; display: flex; justify-content: center; align-items: center;
-  opacity: 0; pointer-events: none; transition: opacity .25s; padding: 14px;
-}
-#shopModal.show { opacity: 1; pointer-events: auto; }
-.shop-card { background: linear-gradient(135deg, #131f33, #070b13); border: 1.5px solid var(--gold); border-radius: 18px; padding: 20px; max-width: 390px; width: 100%; text-align: center; }
-.shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0; }
-.shop-item { background: #080d16; border: 1px solid var(--panel-border); border-radius: 12px; padding: 12px; cursor: pointer; transition: all .2s; }
-.shop-item:hover, .shop-item.best { border-color: var(--gold); background: rgba(255,200,87,0.08); }
-.shop-item-sparks { font-size: 17px; font-weight: 900; color: var(--gold); }
-.shop-item-price { font-size: 11px; color: #fff; font-weight: 700; margin-top: 2px; }
-
-#screenFlash { position: fixed; inset: 0; background: rgba(255,255,255,0.3); opacity: 0; pointer-events: none; z-index: 999; }
-#screenFlash.active { animation: sf 0.3s ease-out; }
+#screenFlash { position: fixed; inset: 0; background: rgba(255,255,255,0.25); opacity: 0; pointer-events: none; z-index: 999; }
+#screenFlash.active { animation: sf 0.25s ease-out; }
 @keyframes sf { 0%{opacity:1} 100%{opacity:0} }
 </style>
 </head>
@@ -213,29 +184,24 @@ button.btn-green { background: var(--green); color: #032014; }
 
 <div id="screenFlash"></div>
 
-<!-- شاشة العظمة الأولى (Splash Screen) -->
+<!-- شاشة الترحيب الأولية -->
 <div id="splashScreen">
   <div class="splash-crown">👑</div>
   <h1 class="splash-title">ديربي أرينا</h1>
   <div class="splash-season">الموسم الأول · النسخة الملكية</div>
   
   <div class="splash-box">
-    <p style="font-size:12px; color:var(--muted); margin-bottom:12px">سجّل دخولك لحفظ لقبك ومحفظة شراراتك</p>
+    <p style="font-size:11px; color:var(--muted); margin-bottom:10px">سجّل دخولك لحفظ لقبك ومحفظة شراراتك</p>
     <input type="text" id="regName" placeholder="اسمك أو لقبك (مثال: كاسر)" maxlength="16">
     <input type="tel" id="regPhone" placeholder="رقم الجوال (05xxxxxxxx)" maxlength="10">
     <button class="btn-royal-start" id="enterGameBtn">⚔️ خوض المعركة الملكية</button>
   </div>
 </div>
 
-<!-- الشريط العلوي -->
-<div class="royal-header">
-  <div class="royal-brand">👑 ديربي أرينا <span style="font-size:10px; color:var(--muted)">ROYAL</span></div>
-  <div class="earnings-tag" id="simEarnings">💰 أرباح الجولة: 0 ر.س</div>
-</div>
+<div class="app-container">
 
-<!-- بطاقة الحساب الفاخرة (VIP Card) -->
-<div class="user-card-wrap">
-  <div class="vip-card">
+  <!-- الشريط العلوي الملكي و بطاقة VIP -->
+  <div class="header-card">
     <div class="vip-user-info">
       <div class="vip-badge-icon" id="vipIcon">🛡️</div>
       <div>
@@ -248,117 +214,119 @@ button.btn-green { background: var(--green); color: #032014; }
       <button class="btn-charge-chip" id="openShopBtn">⚡ شحن شرارات</button>
     </div>
   </div>
-</div>
 
-<!-- الثيمات الست الموسعة -->
-<div class="themes" id="themeBar">
-  <button class="theme-btn active" data-theme="hoods">🏘️ الحواري</button>
-  <button class="theme-btn" data-theme="cities">🏙️ المدن</button>
-  <button class="theme-btn" data-theme="restaurants">🍔 المطاعم</button>
-  <button class="theme-btn" data-theme="companies">🏢 الشركات</button>
-  <button class="theme-btn" data-theme="cars">🚗 السيارات</button>
-  <button class="theme-btn" data-theme="players">⚽ الأساطير</button>
-</div>
+  <!-- شريط الأرباح -->
+  <div class="sub-header-bar">
+    <div style="font-weight: 900; font-size: 12px; color: var(--gold);">👑 ديربي أرينا <span style="font-size:9px; color:var(--muted)">ROYAL</span></div>
+    <div class="earnings-tag" id="simEarnings">💰 أرباح الجولة: 0 ر.س</div>
+  </div>
 
-<!-- الإحصائيات -->
-<div class="stats">
-  <div class="stat"><b id="aliveCount">0</b><span>المتبقي</span></div>
-  <div class="stat"><b id="clockCount">90</b><span>الوقت</span></div>
-  <div class="stat"><b id="votesCount">0</b><span>الأصوات</span></div>
-  <div class="stat"><b id="statusLabel">جاهزة</b><span>الحالة</span></div>
-</div>
+  <!-- الثيمات -->
+  <div class="themes" id="themeBar">
+    <button class="theme-btn active" data-theme="hoods">🏘️ الأحياء</button>
+    <button class="theme-btn" data-theme="cities">🏙️ المدن</button>
+    <button class="theme-btn" data-theme="restaurants">🍔 المطاعم</button>
+    <button class="theme-btn" data-theme="companies">🏢 الشركات</button>
+    <button class="theme-btn" data-theme="cars">🚗 السيارات</button>
+    <button class="theme-btn" data-theme="players">⚽ الأساطير</button>
+  </div>
 
-<!-- الحلبة والطبقات التفاعلية -->
-<div class="arena-wrap">
-  <canvas id="arenaCanvas"></canvas>
-  <div id="banner">اضغط «ابدأ المعركة» لإطلاق الصدام</div>
-  <div id="inAppToast">⚔️ حدث جديد!</div>
+  <!-- لوحة الإحصائيات المصغرة -->
+  <div class="stats">
+    <div class="stat"><b id="aliveCount">0</b><span>المتبقي</span></div>
+    <div class="stat"><b id="clockCount">90</b><span>الوقت</span></div>
+    <div class="stat"><b id="votesCount">0</b><span>الأصوات</span></div>
+    <div class="stat"><b id="statusLabel">جاهزة</b><span>الحالة</span></div>
+  </div>
 
-  <!-- المواجهة الحاسمة -->
-  <div id="finalDuel">
-    <div class="duel-head">⚔️ FINAL DUEL</div>
-    <div class="duel-vs-box">
-      <div class="duel-card"><div style="font-size:30px">🛡️</div><div class="duel-name" id="duelN1">—</div></div>
-      <div style="font-size:22px; font-weight:900; color:var(--red)">VS</div>
-      <div class="duel-card"><div style="font-size:30px">⚔️</div><div class="duel-name" id="duelN2">—</div></div>
+  <!-- الحلبة الكروية -->
+  <div class="arena-wrap">
+    <canvas id="arenaCanvas"></canvas>
+    <div id="banner">اضغط «ابدأ المعركة» لإطلاق الصدام</div>
+    <div id="inAppToast">⚔️ حدث جديد!</div>
+
+    <!-- المواجهة الحاسمة -->
+    <div id="finalDuel">
+      <div class="duel-head">⚔️ FINAL DUEL</div>
+      <div class="duel-vs-box">
+        <div class="duel-card"><div style="font-size:24px">🛡️</div><div class="duel-name" id="duelN1">—</div></div>
+        <div style="font-size:18px; font-weight:900; color:var(--red)">VS</div>
+        <div class="duel-card"><div style="font-size:24px">⚔️</div><div class="duel-name" id="duelN2">—</div></div>
+      </div>
+    </div>
+
+    <!-- التتويج الملكي -->
+    <div id="winnerModal">
+      <div class="winner-crown">👑</div>
+      <div class="winner-title">بطل الأرينا المتوج</div>
+      <div class="winner-name" id="winName">—</div>
+      <button class="btn-royal-start" style="width:auto; padding:6px 18px; font-size:12px;" onclick="resetGame()">معركة جديدة ↻</button>
     </div>
   </div>
 
-  <!-- التتويج الملكي -->
-  <div id="winnerModal">
-    <div class="winner-crown">👑</div>
-    <div class="winner-title">بطل الأرينا المتوج</div>
-    <div class="winner-name" id="winName">—</div>
-    <button class="btn-royal-start" style="width:auto; padding:8px 24px" onclick="resetGame()">معركة جديدة ↻</button>
+  <!-- الترسانة التكتيكية -->
+  <div class="panel">
+    <div style="display: flex; justify-content: space-between; font-size: 10px; font-weight: 800; color: var(--gold); margin-bottom: 5px;">
+      <span>🎯 التدخل التكتيكي المباشر</span>
+      <span style="color:var(--muted)">تأثير مباشر في البث ⚡</span>
+    </div>
+    <div class="armory-grid">
+      <button class="t-btn" id="btnBoost">
+        <span class="icon">🚀</span>
+        <span class="name">دفعة نفاثة</span>
+        <span class="cost">⚡ 50</span>
+      </button>
+      <button class="t-btn" id="btnShield">
+        <span class="icon">🛡️</span>
+        <span class="name">درع لامع</span>
+        <span class="cost">⚡ 120</span>
+      </button>
+      <button class="t-btn" id="btnStrike">
+        <span class="icon">⚡</span>
+        <span class="name">صاعقة ملكية</span>
+        <span class="cost">⚡ 250</span>
+      </button>
+    </div>
   </div>
-</div>
 
-<!-- الترسانة التكتيكية -->
-<div class="armory-wrap">
-  <div class="armory-header">
-    <span>🎯 التدخل التكتيكي (اختر كرتك بالشات ونفذ)</span>
-    <span style="color:var(--muted)">تأثير مباشر في البث ⚡</span>
-  </div>
-  <div class="armory-grid">
-    <button class="t-btn" id="btnBoost">
-      <span class="icon">🚀</span>
-      <span class="name">دفعة نفاثة</span>
-      <span class="cost">⚡ 50 شرارة</span>
-    </button>
-    <button class="t-btn" id="btnShield">
-      <span class="icon">🛡️</span>
-      <span class="name">درع لامع (5ث)</span>
-      <span class="cost">⚡ 120 شرارة</span>
-    </button>
-    <button class="t-btn" id="btnStrike">
-      <span class="icon">⚡</span>
-      <span class="name">صاعقة ملكية</span>
-      <span class="cost">⚡ 250 شرارة</span>
-    </button>
-  </div>
-</div>
-
-<!-- التحكم والتفاعل -->
-<div class="content">
+  <!-- التحكم والتشغيل -->
   <section class="panel">
     <div class="controls">
-      <button class="btn-act" id="startBtn">🎮 ابدأ المعركة</button>
+      <button class="btn-act" id="startBtn">🎮 ابدأ</button>
       <button class="btn-act btn-sec" id="resetBtn">↻ تصفير</button>
       <button class="btn-act btn-sec" id="pauseBtn">⏸ إيقاف</button>
-      <button class="btn-act btn-sec" id="fakeChatToggle" style="margin-right:auto">شات المحاكاة: متوقف</button>
+      <button class="btn-act btn-sec" id="fakeChatToggle" style="margin-right:auto; font-size:10px;">المحاكاة: معطل</button>
     </div>
   </section>
 
+  <!-- شات التصويت والمحاكاة -->
   <section class="panel">
     <form id="voteForm" class="controls">
-      <input type="text" id="voteInput" class="chat-input" placeholder="اكتب اسم كرتك للتصويت المجاني...">
-      <button type="submit" class="btn-act btn-green">إطلاق مجاني ⚡</button>
+      <input type="text" id="voteInput" class="chat-input" placeholder="اكتب اسم كرتك للتصويت...">
+      <button type="submit" class="btn-act btn-green">إطلاق ⚡</button>
     </form>
-  </section>
-
-  <section class="panel">
-    <h3 style="font-size:12px; color:var(--gold); margin-bottom:4px">💬 تفاعل البث المباشر المالي</h3>
     <div id="messages"></div>
   </section>
+
 </div>
 
-<!-- نافذة الإعلان التفاعلي المحاكي -->
+<!-- نافذة الإعلان التفاعلي -->
 <div id="adModal">
-  <div class="ad-box">
+  <div class="modal-box">
     <span class="ad-badge">إعلان مدعوم</span>
-    <div style="font-size:40px; margin-top:10px">🍔</div>
-    <h3 style="color:var(--gold); margin-top:8px">عروض حصرية للبث المباشر</h3>
-    <p style="font-size:12px; color:#cbd5e1; margin-top:6px">اشحن رصيد الشرارات واحصل على ضعف الرصيد لأول عملية شحن اليوم!</p>
-    <div class="ad-timer" id="adTimerText">يمكنك التخطي بعد 5 ثوانٍ...</div>
-    <button class="ad-skip-btn" id="adSkipBtn" disabled>انتظر 5 ثوانٍ</button>
+    <div style="font-size:35px; margin-top:8px">🍔</div>
+    <h3 style="color:var(--gold); font-size:15px; margin-top:6px">عروض حصرية للبث المباشر</h3>
+    <p style="font-size:11px; color:#cbd5e1; margin-top:4px">اشحن رصيد الشرارات واحصل على ضعف الرصيد لأول عملية شحن اليوم!</p>
+    <div style="font-size:10px; color:var(--muted); margin-top:8px" id="adTimerText">يمكنك التخطي بعد 5 ثوانٍ...</div>
+    <button class="btn-act btn-sec" style="margin-top:10px; width:100%; cursor:not-allowed;" id="adSkipBtn" disabled>انتظر 5 ثوانٍ</button>
   </div>
 </div>
 
-<!-- متجر الشحن التفاعلي (Tap Payments Simulation) -->
+<!-- متجر الشحن التفاعلي -->
 <div id="shopModal">
-  <div class="shop-card">
-    <h3 style="color:var(--gold); font-size:18px">⚡ شحن محفظة الشرارات</h3>
-    <p style="font-size:11px; color:var(--muted); margin-top:4px">بوابة الدفع الإلكتروني المباشرة (مدى / Apple Pay)</p>
+  <div class="modal-box">
+    <h3 style="color:var(--gold); font-size:16px">⚡ شحن محفظة الشرارات</h3>
+    <p style="font-size:10px; color:var(--muted); margin-top:2px">بوابة الدفع الإلكتروني (مدى / Apple Pay)</p>
     
     <div class="shop-grid">
       <div class="shop-item" onclick="processPayment(500, 5)">
@@ -366,7 +334,7 @@ button.btn-green { background: var(--green); color: #032014; }
         <div class="shop-item-price">5 ر.س</div>
       </div>
       <div class="shop-item best" onclick="processPayment(1600, 15)">
-        <div style="font-size:9px; color:var(--red); font-weight:900">الأكثر مبيعاً 🔥</div>
+        <div style="font-size:8px; color:var(--red); font-weight:900">الأكثر مبيعاً 🔥</div>
         <div class="shop-item-sparks">⚡ 1,600</div>
         <div class="shop-item-price">15 ر.س</div>
       </div>
@@ -375,7 +343,7 @@ button.btn-green { background: var(--green); color: #032014; }
         <div class="shop-item-price">30 ر.س (VIP)</div>
       </div>
       <div class="shop-item" onclick="processPayment(10000, 75)">
-        <div style="font-size:9px; color:var(--gold); font-weight:900">الملكي 👑</div>
+        <div style="font-size:8px; color:var(--gold); font-weight:900">الملكي 👑</div>
         <div class="shop-item-sparks">⚡ 10,000</div>
         <div class="shop-item-price">75 ر.س</div>
       </div>
@@ -413,7 +381,6 @@ function resizeCanvas() {
   ctx.scale(dpr, dpr);
 }
 
-// محفظة LocalStorage وبيانات المستخدم
 let profile = JSON.parse(localStorage.getItem("royal_user") || "null");
 let totalEarnings = parseInt(localStorage.getItem("royal_earnings") || "0");
 
@@ -446,7 +413,6 @@ function updateProfileUI() {
   $("simEarnings").textContent = `💰 أرباح اليوم: ${totalEarnings} ر.س`;
 }
 
-// نظام الصوتيات
 const SoundSystem = {
   ctx: null,
   init() {
@@ -469,7 +435,6 @@ const SoundSystem = {
   elim() { this.play(100, 0.25, "square", 0.2); }
 };
 
-// حالة اللعبة
 let currentTheme = "hoods";
 let balls = [], holes = [], confetti = [];
 let running = false, paused = false, started = false;
@@ -516,7 +481,7 @@ function showToast(text) {
   const t = $("inAppToast");
   t.textContent = text;
   t.classList.add("show");
-  setTimeout(() => t.classList.remove("show"), 2800);
+  setTimeout(() => t.classList.remove("show"), 2500);
 }
 
 function addMsg(name, txt, cls="") {
@@ -525,18 +490,10 @@ function addMsg(name, txt, cls="") {
   el.className = `msg ${cls}`;
   el.innerHTML = `<span class="msg-txt"><b>${name}:</b> ${txt}</span>`;
   b.appendChild(el);
-  if (b.children.length > 25) b.firstElementChild.remove();
+  if (b.children.length > 20) b.firstElementChild.remove();
   b.scrollTop = b.scrollHeight;
 }
 
-// تشغيل الإشعار الحقيقي على الجهاز
-function triggerPushNotification(title, body) {
-  if ("Notification" in window && Notification.permission === "granted") {
-    new Notification(title, { body, icon: "👑" });
-  }
-}
-
-// الترسانة التكتيكية
 function applyTactical(type) {
   SoundSystem.init();
   if (!profile) return;
@@ -570,7 +527,7 @@ function applyTactical(type) {
       }
     });
     $("screenFlash").classList.add("active");
-    setTimeout(() => $("screenFlash").classList.remove("active"), 300);
+    setTimeout(() => $("screenFlash").classList.remove("active"), 250);
     showToast(`⚡ صاعقة ملكية بتوجيه من [${profile.name}]!`);
     addMsg("ضربة كبرى ⚡", `صاعقة ملكية تضرب محيط [${target.name}]!`, "strike");
   }
@@ -579,7 +536,6 @@ function applyTactical(type) {
   updateProfileUI();
 }
 
-// الفيزياء
 function updatePhysics(dt) {
   if (!running || paused || winner) return;
   seconds -= dt;
@@ -604,7 +560,6 @@ function updatePhysics(dt) {
     if (b.shield > 0) b.shield = Math.max(0, b.shield - dt);
     if (b.flash > 0) b.flash = Math.max(0, b.flash - dt);
 
-    // المروحة
     const dx = b.x - CX, dy = b.y - CY, dist = Math.hypot(dx, dy);
     if (dist < FAN.radius + b.r && dist > FAN.hubRadius) {
       const ballA = Math.atan2(dy, dx);
@@ -620,7 +575,6 @@ function updatePhysics(dt) {
       }
     }
 
-    // الحفر
     if (b.shield <= 0) {
       for (const h of holes) {
         const hx = b.x - h.x, hy = b.y - h.y, hd = Math.hypot(hx, hy);
@@ -631,7 +585,6 @@ function updatePhysics(dt) {
       }
     }
 
-    // ارتداد الحلبة
     const dWall = Math.hypot(b.x - CX, b.y - CY);
     if (dWall > arenaR - b.r) {
       const nx = (b.x - CX) / dWall, ny = (b.y - CY) / dWall;
@@ -641,7 +594,6 @@ function updatePhysics(dt) {
     }
   }
 
-  // تصادم الكرات
   for (let i = 0; i < alive.length; i++) {
     for (let j = i + 1; j < alive.length; j++) {
       const a = alive[i], b = alive[j];
@@ -662,15 +614,13 @@ function updatePhysics(dt) {
     }
   }
 
-  // FINAL DUEL
   if (alive.length === 2 && !$("finalDuel").classList.contains("show")) {
     $("duelN1").textContent = alive[0].name;
     $("duelN2").textContent = alive[1].name;
     $("finalDuel").classList.add("show");
-    setTimeout(() => $("finalDuel").classList.remove("show"), 3000);
+    setTimeout(() => $("finalDuel").classList.remove("show"), 2500);
   }
 
-  // الفائز
   if (seconds <= 0 || alive.length <= 1) {
     winner = alive[0] || null;
     running = false;
@@ -687,12 +637,11 @@ function updatePhysics(dt) {
 }
 
 function spawnConfetti() {
-  for (let i = 0; i < 60; i++) {
+  for (let i = 0; i < 50; i++) {
     confetti.push({
       x: CX, y: CY,
-      vx: (Math.random() - 0.5) * 200,
-      vy: (Math.random() - 0.5) * 200,
-      size: 4 + Math.random() * 4,
+      vx: (Math.random() - 0.5) * 180, vy: (Math.random() - 0.5) * 180,
+      size: 3 + Math.random() * 4,
       color: COLORS[Math.floor(Math.random() * COLORS.length)],
       alpha: 1
     });
@@ -702,220 +651,245 @@ function spawnConfetti() {
 function render() {
   ctx.clearRect(0, 0, V_WIDTH, V_WIDTH);
 
-  // أرضية الأرينا الملكية
   ctx.save();
   ctx.beginPath();
   ctx.arc(CX, CY, arenaR, 0, Math.PI * 2);
-  ctx.fillStyle = "#070c14";
+  ctx.fillStyle = "#080d16";
   ctx.fill();
-  ctx.strokeStyle = seconds < 20 ? "#ff4757" : "#ffc857";
-  ctx.lineWidth = 4;
-  ctx.shadowBlur = 15; ctx.shadowColor = ctx.strokeStyle;
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = "var(--gold)";
+  ctx.stroke();
+  ctx.clip();
+
+  for (let r = 80; r < arenaR; r += 70) {
+    ctx.beginPath();
+    ctx.arc(CX, CY, r, 0, Math.PI * 2);
+    ctx.strokeStyle = "rgba(255,200,87,0.06)";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+
+  holes.forEach(h => {
+    ctx.beginPath();
+    ctx.arc(h.x, h.y, h.r, 0, Math.PI * 2);
+    ctx.fillStyle = "#030509";
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "var(--red)";
+    ctx.stroke();
+  });
+
+  ctx.save();
+  ctx.translate(CX, CY);
+  ctx.rotate(fanAngle);
+  for (let i = 0; i < FAN.blades; i++) {
+    ctx.rotate(Math.PI / 2);
+    ctx.beginPath();
+    ctx.moveTo(FAN.hubRadius, -6);
+    ctx.lineTo(FAN.radius, -12);
+    ctx.lineTo(FAN.radius, 12);
+    ctx.lineTo(FAN.hubRadius, 6);
+    ctx.fillStyle = "rgba(255, 200, 87, 0.12)";
+    ctx.fill();
+    ctx.strokeStyle = "rgba(255, 200, 87, 0.3)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+  ctx.beginPath();
+  ctx.arc(0, 0, FAN.hubRadius, 0, Math.PI * 2);
+  ctx.fillStyle = "#131f33";
+  ctx.fill();
+  ctx.strokeStyle = "var(--gold)";
   ctx.stroke();
   ctx.restore();
 
-  // المروحة المركزية
-  if (started && !winner) {
+  balls.forEach(b => {
+    if (!b.alive && b.scale <= 0) return;
     ctx.save();
-    ctx.translate(CX, CY);
-    ctx.rotate(fanAngle);
-    for (let i = 0; i < 4; i++) {
-      ctx.rotate(Math.PI / 2);
-      ctx.strokeStyle = "rgba(255, 71, 87, 0.8)";
-      ctx.lineWidth = 6;
-      ctx.beginPath(); ctx.moveTo(FAN.hubRadius, 0); ctx.lineTo(FAN.radius, 0); ctx.stroke();
+    ctx.translate(b.x, b.y);
+    ctx.scale(b.scale, b.scale);
+
+    ctx.beginPath();
+    ctx.arc(0, 0, b.r + 2, 0, Math.PI * 2);
+    ctx.fillStyle = b.color;
+    ctx.shadowColor = b.color;
+    ctx.shadowBlur = 10;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    ctx.beginPath();
+    ctx.arc(0, 0, b.r, 0, Math.PI * 2);
+    ctx.fillStyle = "#0d1522";
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(0, 0, b.r - 2, 0, Math.PI * 2);
+    ctx.fillStyle = b.color;
+    ctx.fill();
+
+    if (b.shield > 0) {
+      ctx.beginPath();
+      ctx.arc(0, 0, b.r + 5, 0, Math.PI * 2);
+      ctx.strokeStyle = "var(--blue)";
+      ctx.lineWidth = 2;
+      ctx.stroke();
     }
-    ctx.restore();
-  }
-
-  // الثقوب
-  for (const h of holes) {
-    ctx.beginPath();
-    ctx.arc(h.x, h.y, h.r, 0, Math.PI * 2);
-    ctx.fillStyle = "#000"; ctx.fill();
-    ctx.strokeStyle = "#ff4757"; ctx.lineWidth = 2; ctx.stroke();
-  }
-
-  // الكرات
-  for (const b of balls) {
-    if (!b.alive) continue;
-    const r = b.r * b.scale;
-    ctx.beginPath();
-    ctx.arc(b.x, b.y, r, 0, Math.PI * 2);
-    ctx.fillStyle = b.color; ctx.fill();
-
-    if (b.shield > 0) { ctx.strokeStyle = "#38bdf8"; ctx.lineWidth = 3.5; ctx.stroke(); }
-    if (b.flash > 0) { ctx.strokeStyle = "#fff"; ctx.lineWidth = 4; ctx.stroke(); }
 
     ctx.fillStyle = "#fff";
-    ctx.font = "bold 11px Cairo, sans-serif";
+    ctx.font = "bold 10px Cairo, sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText(b.name, b.x, b.y + r + 13);
-  }
+    ctx.textBaseline = "middle";
+    ctx.shadowColor = "#000";
+    ctx.shadowBlur = 4;
+    ctx.fillText(b.name, 0, 0);
+    ctx.restore();
+  });
 
-  // كونفيتي الفوز
-  for (let i = confetti.length - 1; i >= 0; i--) {
-    const c = confetti[i];
-    c.x += c.vx * 0.016; c.y += c.vy * 0.016; c.alpha -= 0.015;
-    if (c.alpha <= 0) { confetti.splice(i, 1); continue; }
-    ctx.fillStyle = c.color; ctx.globalAlpha = c.alpha;
-    ctx.fillRect(c.x, c.y, c.size, c.size);
+  confetti.forEach((c, i) => {
+    c.x += c.vx * 0.016; c.y += c.vy * 0.016; c.alpha -= 0.01;
+    ctx.beginPath();
+    ctx.arc(c.x, c.y, c.size, 0, Math.PI * 2);
+    ctx.fillStyle = c.color;
+    ctx.globalAlpha = Math.max(0, c.alpha);
+    ctx.fill();
     ctx.globalAlpha = 1;
-  }
+    if (c.alpha <= 0) confetti.splice(i, 1);
+  });
+
+  ctx.restore();
 }
 
-function loop(t) {
-  if (!lastTime) lastTime = t;
-  const dt = Math.min((t - lastTime) / 1000, 0.033);
-  lastTime = t;
+function gameLoop(timestamp) {
+  if (!lastTime) lastTime = timestamp;
+  const dt = Math.min((timestamp - lastTime) / 1000, 0.1);
+  lastTime = timestamp;
+
   updatePhysics(dt);
   render();
-  requestAnimationFrame(loop);
+  requestAnimationFrame(gameLoop);
 }
 
-// نافذة الإعلان
-function showAd(callback) {
-  const modal = $("adModal");
-  const skipBtn = $("adSkipBtn");
-  const timerText = $("adTimerText");
-  modal.classList.add("show");
-  skipBtn.disabled = true;
-  skipBtn.classList.remove("ready");
-
-  let remain = 5;
-  timerText.textContent = `يمكنك التخطي بعد ${remain} ثوانٍ...`;
-  skipBtn.textContent = `انتظر ${remain} ثوانٍ`;
-
-  const intv = setInterval(() => {
-    remain--;
-    if (remain > 0) {
-      timerText.textContent = `يمكنك التخطي بعد ${remain} ثوانٍ...`;
-      skipBtn.textContent = `انتظر ${remain} ثوانٍ`;
-    } else {
-      clearInterval(intv);
-      timerText.textContent = "يمكنك الآن تخطي الإعلان ومتابعة المعركة";
-      skipBtn.disabled = false;
-      skipBtn.classList.add("ready");
-      skipBtn.textContent = "تخطي الإعلان ⏭";
-      skipBtn.onclick = () => {
-        modal.classList.remove("show");
-        if (callback) callback();
-      };
-    }
-  }, 1000);
-}
-
-// المتجر ومحاكاة الدفع لبوابة Tap
-function openShop() { $("shopModal").classList.add("show"); }
-function closeShop() { $("shopModal").classList.remove("show"); }
-
-window.processPayment = (amt, price) => {
-  SoundSystem.init();
-  closeShop();
-  // إظهار نافذة إعلان ثم شحن الرصيد
-  showAd(() => {
-    profile.sparks += amt;
-    totalEarnings += price;
-    localStorage.setItem("royal_user", JSON.stringify(profile));
-    localStorage.setItem("royal_earnings", totalEarnings);
+// الأحداث وأدوات التحكم
+window.addEventListener("DOMContentLoaded", () => {
+  resizeCanvas();
+  if (profile) {
     updateProfileUI();
-    SoundSystem.cash();
-    showToast(`⚡ أصبحت أغنى! شحنت +${amt} شرارة بنجاح`);
-    addMsg("عملية دفع ناجحة", `تم استلام ${price} ر.س من ${profile.name} (+${amt} شرارة)`, "system");
-  });
-};
-
-// عناصر التحكم الرئيسية
-$("enterGameBtn").addEventListener("click", () => {
-  SoundSystem.init();
-  if ("Notification" in window) Notification.requestPermission();
-  const n = $("regName").value.trim();
-  const p = $("regPhone").value.trim();
-  saveProfile(n, p);
-  $("splashScreen").classList.add("hide");
+    $("splashScreen").classList.add("hide");
+  } else {
+    $("splashScreen").classList.remove("hide");
+  }
+  initBalls();
+  requestAnimationFrame(gameLoop);
 });
 
-$("openShopBtn").addEventListener("click", openShop);
-$("btnBoost").addEventListener("click", () => applyTactical("boost"));
-$("btnShield").addEventListener("click", () => applyTactical("shield"));
-$("btnStrike").addEventListener("click", () => applyTactical("strike"));
+$("enterGameBtn").addEventListener("click", () => {
+  const name = $("regName").value.trim();
+  const phone = $("regPhone").value.trim();
+  if (!name) { alert("الرجاء إدخال اسمك أو لقبك"); return; }
+  saveProfile(name, phone);
+  $("splashScreen").classList.add("hide");
+  SoundSystem.init();
+});
 
 $("startBtn").addEventListener("click", () => {
   SoundSystem.init();
-  if (winner || !started) initBalls();
-  started = true; running = true; paused = false;
-  $("banner").textContent = "⚔️ المعركة مشتعلة الآن!";
-  triggerPushNotification("⚔️ انطلق ديربي أرينا!", "ادخل وصوّت لحارتك وادعم كرتك بالصواعق الآن!");
+  if (!started) { started = true; running = true; paused = false; $("banner").textContent = "⚔️ المعركة مشتعلة الآن!"; }
+  else { running = !running; paused = !running; }
+  $("startBtn").textContent = running ? "⏸ إيقاف مؤقت" : "▶ استئناف";
   updateUI();
 });
-
-window.resetGame = () => {
-  running = false; paused = false; started = false;
-  $("winnerModal").classList.remove("show");
-  initBalls();
-  $("banner").textContent = "اضغط «ابدأ المعركة» لإطلاق الصدام";
-};
-$("resetBtn").addEventListener("click", resetGame);
 
 $("pauseBtn").addEventListener("click", () => {
-  if (!started || winner) return;
+  if (!started) return;
   paused = !paused;
+  running = !paused;
   updateUI();
 });
 
-$("voteForm").addEventListener("submit", e => {
-  e.preventDefault();
-  const val = $("voteInput").value.trim();
-  if (!val) return;
-  const b = balls.find(x => x.alive && x.name.toLowerCase() === val.toLowerCase());
-  if (b) {
-    b.vx += (Math.random() - 0.5) * 160; b.vy += (Math.random() - 0.5) * 160;
-    b.flash = 0.6; votes++;
-    SoundSystem.play(650, 0.1);
-    addMsg(profile ? profile.name : "مشاهد", `صوّت لـ [${b.name}]`, "");
-  }
-  $("voteInput").value = "";
-  updateUI();
-});
+$("resetBtn").addEventListener("click", () => resetGame());
 
-$("fakeChatToggle").addEventListener("click", () => {
-  fakeChatOn = !fakeChatOn;
-  $("fakeChatToggle").textContent = `شات المحاكاة: ${fakeChatOn ? "يعمل" : "متوقف"}`;
-  $("fakeChatToggle").className = `btn-act ${fakeChatOn ? "btn-green" : "btn-sec"}`;
-  if (fakeTimer) clearInterval(fakeTimer);
-  if (fakeChatOn) {
-    fakeTimer = setInterval(() => {
-      if (!running || paused || winner) return;
-      const pool = THEMES[currentTheme].items;
-      const pick = pool[Math.floor(Math.random() * pool.length)];
-      addMsg("مشاهد", `عاش ${pick}! 🔥`);
-      const t = balls.find(b => b.alive && b.name === pick);
-      if (t) { t.vx += (Math.random() - 0.5) * 70; t.vy += (Math.random() - 0.5) * 70; votes++; }
-    }, 1800);
-  }
-});
+function resetGame() {
+  started = false; running = false; paused = false;
+  $("startBtn").textContent = "🎮 ابدأ المعركة";
+  $("winnerModal").classList.remove("show");
+  $("finalDuel").classList.remove("show");
+  $("banner").textContent = "اضغط «ابدأ المعركة» لإطلاق الصدام";
+  initBalls();
+}
 
-// التبديل بين السلاسل الست
 document.querySelectorAll(".theme-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
+  btn.addEventListener("click", (e) => {
     document.querySelectorAll(".theme-btn").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    currentTheme = btn.dataset.theme;
+    e.target.classList.add("active");
+    currentTheme = e.target.dataset.theme;
     resetGame();
   });
 });
 
-window.addEventListener("resize", resizeCanvas);
+$("voteForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const val = $("voteInput").value.trim();
+  if (!val) return;
+  votes++;
+  $("voteInput").value = "";
+  addMsg(profile ? profile.name : "مشاهد", `صوت لـ [${val}] ⚡`, "system");
+  SoundSystem.cash();
+  updateUI();
+});
 
-// بدء النظام
-if (profile) {
-  $("splashScreen").classList.add("hide");
+$("btnBoost").addEventListener("click", () => applyTactical("boost"));
+$("btnShield").addEventListener("click", () => applyTactical("shield"));
+$("btnStrike").addEventListener("click", () => applyTactical("strike"));
+
+$("openShopBtn").addEventListener("click", () => {
+  SoundSystem.init();
+  $("adModal").classList.add("show");
+  let t = 5;
+  const timerEl = $("adTimerText");
+  const skipBtn = $("adSkipBtn");
+  skipBtn.disabled = true;
+  skipBtn.classList.remove("ready");
+  skipBtn.textContent = "انتظر 5 ثوانٍ";
+
+  const interval = setInterval(() => {
+    t--;
+    if (t > 0) {
+      timerEl.textContent = `يمكنك التخطي بعد ${t} ثوانٍ...`;
+    } else {
+      clearInterval(interval);
+      timerEl.textContent = "انتهى الإعلان، يمكنك المتابعة!";
+      skipBtn.disabled = false;
+      skipBtn.classList.add("ready");
+      skipBtn.textContent = "✖ تخطي والدخول للمتجر";
+    }
+  }, 1000);
+
+  skipBtn.onclick = () => {
+    if (!skipBtn.disabled) {
+      $("adModal").classList.remove("show");
+      $("shopModal").classList.add("show");
+    }
+  };
+});
+
+window.closeShop = function() {
+  $("shopModal").classList.remove("show");
+};
+
+window.processPayment = function(sparks, price) {
+  SoundSystem.cash();
+  if (!profile) profile = { name: "لاعب", sparks: 500 };
+  profile.sparks += sparks;
+  totalEarnings += price;
+  localStorage.setItem("royal_user", JSON.stringify(profile));
+  localStorage.setItem("royal_earnings", totalEarnings);
   updateProfileUI();
-}
-resizeCanvas();
-initBalls();
-requestAnimationFrame(loop);
+  closeShop();
+  showToast(`⚡ أصبحت أغنى! شحنت +${sparks} شرارة بنجاح`);
+  addMsg("عملية دفع ناجحة", `تم استلام ${price} ر.س من ${profile.name} (+${sparks} شرارة)`, "system");
+};
 
+window.addEventListener("resize", resizeCanvas);
 })();
 </script>
 </body>
