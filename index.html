@@ -3,513 +3,384 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#0b1320">
-<title>ديربي أرينا | Derby Arena Pro</title>
+<meta name="theme-color" content="#060911">
+<title>ديربي أرينا الملكي | Derby Arena Royal Pro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #090e17;
-  --panel: #131d2e;
-  --panel-border: #23354d;
+  --bg-dark: #050810;
+  --bg-card: #0d1522;
+  --panel-border: rgba(255, 200, 87, 0.25);
   --gold: #ffc857;
+  --gold-light: #ffe699;
   --gold-glow: rgba(255, 200, 87, 0.4);
-  --muted: #8ea3bf;
+  --gold-gradient: linear-gradient(135deg, #ffd700, #ff9800);
+  --vip-card: linear-gradient(135deg, #1f1a10, #0a0e17 60%, #2e240c);
+  --muted: #8b9db4;
   --green: #2bd893;
-  --red: #ff5252;
+  --red: #ff4757;
   --blue: #38bdf8;
-  --text: #f0f4fc;
+  --text: #f8fafc;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 body {
-  background: var(--bg);
+  background: var(--bg-dark);
   color: var(--text);
   font-family: 'Cairo', system-ui, sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
   user-select: none;
-  -webkit-user-select: none;
-  padding-bottom: 95px;
+  padding-bottom: 90px;
+  background-image: 
+    radial-gradient(1px 1px at 20px 30px, #ffffff33, rgba(0,0,0,0)),
+    radial-gradient(1.5px 1.5px at 150px 180px, #ffd70044, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 300px 90px, #ffffff22, rgba(0,0,0,0));
+  background-size: 350px 350px;
 }
 
-header { text-align: center; padding: 14px 10px 6px; }
-h1 {
-  color: var(--gold);
-  font-size: 26px;
-  font-weight: 900;
-  letter-spacing: -0.5px;
-  text-shadow: 0 0 25px var(--gold-glow);
+/* شاشة العظمة (Splash Screen) */
+#splashScreen {
+  position: fixed; inset: 0;
+  background: radial-gradient(circle at center, #131f33 0%, #030509 100%);
+  z-index: 1000;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  padding: 24px; text-align: center;
+  transition: opacity .5s ease, visibility .5s;
 }
-.sub { color: var(--muted); font-size: 11px; font-weight: 600; margin-top: 2px; }
+#splashScreen.hide { opacity: 0; visibility: hidden; pointer-events: none; }
+.splash-crown { font-size: 70px; line-height: 1; animation: floatCrown 2.5s infinite ease-in-out; filter: drop-shadow(0 0 25px var(--gold)); }
+@keyframes floatCrown { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-12px) scale(1.05)} }
+.splash-title { font-size: 34px; font-weight: 900; color: var(--gold); margin-top: 15px; text-shadow: 0 0 30px var(--gold-glow); letter-spacing: -1px; }
+.splash-season { display: inline-block; background: rgba(255,200,87,0.15); border: 1px solid var(--gold); color: var(--gold-light); font-size: 11px; font-weight: 800; padding: 4px 14px; border-radius: 99px; margin-top: 6px; }
+.splash-box { margin-top: 25px; width: 100%; max-width: 330px; background: rgba(13,21,34,0.85); border: 1px solid var(--panel-border); padding: 18px; border-radius: 16px; backdrop-filter: blur(10px); }
+.splash-box input { width: 100%; background: #070b13; border: 1px solid var(--panel-border); padding: 12px; border-radius: 10px; color: #fff; font-family: inherit; font-size: 13px; text-align: center; margin-bottom: 10px; }
+.splash-box input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 12px var(--gold-glow); }
+.btn-royal-start { width: 100%; background: var(--gold-gradient); color: #070b12; border: 0; padding: 14px; border-radius: 10px; font-weight: 900; font-size: 15px; font-family: inherit; cursor: pointer; box-shadow: 0 8px 25px rgba(255,165,0,0.4); }
 
-/* الثيمات */
-.themes {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding: 10px 12px;
-  max-width: 680px;
-  margin: auto;
-  scrollbar-width: none;
+/* الشريط العلوي الملكي */
+.royal-header {
+  max-width: 680px; margin: auto; padding: 8px 12px;
+  display: flex; justify-content: space-between; align-items: center;
+  background: rgba(13, 21, 34, 0.9); backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--panel-border);
 }
+.royal-brand { font-size: 16px; font-weight: 900; color: var(--gold); display: flex; align-items: center; gap: 6px; text-shadow: 0 0 10px var(--gold-glow); }
+.earnings-tag { background: #070b13; border: 1px solid rgba(43,216,147,0.4); color: var(--green); padding: 3px 10px; border-radius: 99px; font-size: 10px; font-weight: 800; }
+
+/* بطاقة الحساب البنكي الفاخرة (VIP Black Card) */
+.user-card-wrap { max-width: 680px; margin: 8px auto; padding: 0 12px; }
+.vip-card {
+  background: var(--vip-card);
+  border: 1px solid var(--gold);
+  border-radius: 16px; padding: 12px 16px;
+  display: flex; justify-content: space-between; align-items: center;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.6); position: relative; overflow: hidden;
+}
+.vip-card::after {
+  content: ""; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+  background: linear-gradient(60deg, transparent 40%, rgba(255,215,0,0.08) 50%, transparent 60%);
+  transform: rotate(30deg); pointer-events: none;
+}
+.vip-user-info { display: flex; align-items: center; gap: 10px; }
+.vip-badge-icon { font-size: 28px; filter: drop-shadow(0 0 10px var(--gold)); }
+.vip-name { font-size: 14px; font-weight: 900; color: #fff; }
+.vip-rank { font-size: 10px; color: var(--gold); font-weight: 700; }
+.vip-sparks { text-align: left; }
+.vip-sparks-num { font-size: 20px; font-weight: 900; color: var(--gold); font-family: monospace; }
+.btn-charge-chip { background: var(--gold-gradient); color: #070b12; border: 0; padding: 5px 12px; border-radius: 8px; font-size: 11px; font-weight: 900; font-family: inherit; cursor: pointer; margin-top: 3px; display: inline-block; }
+
+/* الثيمات الست */
+.themes { display: flex; gap: 6px; overflow-x: auto; padding: 8px 12px; max-width: 680px; margin: auto; scrollbar-width: none; }
 .themes::-webkit-scrollbar { display: none; }
 .theme-btn {
-  flex: 0 0 auto;
-  background: var(--panel);
-  border: 1px solid var(--panel-border);
-  color: #cbd5e1;
-  padding: 7px 16px;
-  border-radius: 99px;
-  font-size: 12px;
-  font-weight: 800;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all .2s cubic-bezier(0.4, 0, 0.2, 1);
+  flex: 0 0 auto; background: var(--bg-card); border: 1px solid rgba(255,200,87,0.2);
+  color: #cbd5e1; padding: 6px 14px; border-radius: 99px; font-size: 11px; font-weight: 800;
+  cursor: pointer; font-family: inherit; transition: all .2s;
 }
-.theme-btn.active {
-  background: var(--gold);
-  color: #0b1320;
-  border-color: var(--gold);
-  box-shadow: 0 0 16px var(--gold-glow);
-  transform: scale(1.03);
-}
+.theme-btn.active { background: var(--gold); color: #070b12; border-color: var(--gold); box-shadow: 0 0 14px var(--gold-glow); font-weight: 900; }
 
 /* لوحة الإحصائيات */
-.stats {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
-  padding: 4px 12px 10px;
-  max-width: 680px;
-  margin: auto;
-}
-.stat {
-  background: var(--panel);
-  border: 1px solid var(--panel-border);
-  border-radius: 12px;
-  padding: 8px 4px;
-  text-align: center;
-}
-.stat b {
-  display: block;
-  font-size: 19px;
-  color: var(--gold);
-  font-weight: 900;
-  line-height: 1.1;
-}
-.stat span { font-size: 10px; color: var(--muted); font-weight: 600; }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 2px 12px 8px; max-width: 680px; margin: auto; }
+.stat { background: var(--bg-card); border: 1px solid var(--panel-border); border-radius: 10px; padding: 6px 2px; text-align: center; }
+.stat b { display: block; font-size: 17px; color: var(--gold); font-weight: 900; line-height: 1.1; }
+.stat span { font-size: 9px; color: var(--muted); font-weight: 700; }
 
-/* منطقة الحلبة */
-.arena-wrap {
-  position: relative;
-  width: min(94vw, 580px);
-  margin: auto;
-  aspect-ratio: 1;
-}
-canvas {
-  width: 100%;
-  height: 100%;
-  display: block;
-  border-radius: 20px;
-  background: #080d14;
-  box-shadow: 0 10px 35px rgba(0,0,0,0.6);
-  border: 1px solid rgba(255,200,87,0.15);
-}
+/* الحلبة الكروية */
+.arena-wrap { position: relative; width: min(94vw, 560px); margin: auto; aspect-ratio: 1; }
+canvas { width: 100%; height: 100%; display: block; border-radius: 20px; background: #060911; box-shadow: 0 15px 45px rgba(0,0,0,0.8); border: 1.5px solid var(--panel-border); }
 
-#banner {
-  position: absolute;
-  top: 5%;
-  left: 0;
-  right: 0;
-  text-align: center;
-  pointer-events: none;
-  font-weight: 900;
-  color: var(--gold);
-  text-shadow: 0 2px 10px rgba(0,0,0,0.9);
-  font-size: 15px;
-  z-index: 10;
-  transition: all .3s;
-}
-#banner.danger { color: var(--red); animation: pulse 1s infinite; }
-@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
+#banner { position: absolute; top: 4%; left: 0; right: 0; text-align: center; font-weight: 900; color: var(--gold); font-size: 14px; z-index: 10; pointer-events: none; text-shadow: 0 2px 8px #000; }
+#inAppToast { position: absolute; top: 10%; left: 5%; right: 5%; background: var(--gold-gradient); color: #050810; padding: 9px; border-radius: 10px; text-align: center; font-size: 12px; font-weight: 900; z-index: 60; transform: translateY(-70px); opacity: 0; transition: all .4s cubic-bezier(0.18, 0.89, 0.32, 1.28); box-shadow: 0 8px 30px rgba(255,200,87,0.7); }
+#inAppToast.show { transform: translateY(0); opacity: 1; }
 
-/* شريط القتل */
-#killFeed {
-  position: absolute;
-  top: 10%;
-  right: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  pointer-events: none;
-  z-index: 15;
-  max-width: 140px;
+/* الترسانة التكتيكية الملكية */
+.armory-wrap { max-width: 680px; margin: 8px auto 4px; padding: 0 12px; }
+.armory-header { display: flex; justify-content: space-between; font-size: 11px; font-weight: 800; color: var(--gold); margin-bottom: 6px; }
+.armory-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.t-btn {
+  background: linear-gradient(135deg, #131f33, #080d16);
+  border: 1px solid var(--panel-border); border-radius: 12px; padding: 10px 6px;
+  color: #fff; cursor: pointer; display: flex; flex-direction: column; align-items: center;
+  font-family: inherit; transition: all .2s;
 }
-.kf-item {
-  background: rgba(15, 23, 38, 0.9);
-  border: 1px solid rgba(255, 82, 82, 0.7);
-  color: #fff;
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 11px;
-  font-weight: 800;
-  animation: kfIn .25s ease-out forwards;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-}
-@keyframes kfIn { from{opacity:0; transform:translateX(25px)} to{opacity:1; transform:none} }
+.t-btn:active { transform: scale(0.95); border-color: var(--gold); }
+.t-btn .icon { font-size: 22px; filter: drop-shadow(0 0 6px rgba(255,200,87,0.5)); }
+.t-btn .name { font-size: 11px; font-weight: 800; margin-top: 2px; }
+.t-btn .cost { font-size: 10px; color: var(--gold); font-weight: 900; margin-top: 2px; }
 
-/* لافتة المراحل */
-#finalBanner {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0);
-  font-size: clamp(28px, 8vw, 48px);
-  font-weight: 900;
-  z-index: 25;
-  pointer-events: none;
-  opacity: 0;
-  text-align: center;
-  white-space: nowrap;
-  text-shadow: 0 4px 20px rgba(0,0,0,0.9);
-}
-#finalBanner.show { animation: phaseZoom 2.5s ease-out forwards; }
-@keyframes phaseZoom {
-  0% { transform: translate(-50%, -50%) scale(0.2); opacity: 0; }
-  15% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
-  30%, 75% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-  100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
-}
+/* الشات وأدوات التحكم */
+.content { max-width: 680px; margin: 8px auto auto; padding: 0 12px; display: grid; gap: 8px; }
+.panel { background: var(--bg-card); border: 1px solid var(--panel-border); border-radius: 14px; padding: 10px 12px; }
+.controls { display: flex; gap: 6px; flex-wrap: wrap; }
+input.chat-input { flex: 1; min-width: 0; background: #070b13; border: 1px solid var(--panel-border); border-radius: 8px; color: #fff; padding: 10px 12px; font-size: 13px; font-family: inherit; }
+input.chat-input:focus { outline: none; border-color: var(--gold); }
+button.btn-act { border: 0; border-radius: 8px; padding: 9px 14px; font-weight: 800; font-size: 12px; cursor: pointer; background: var(--gold); color: #070b12; font-family: inherit; }
+button.btn-sec { background: #1a273b; color: #cbd5e1; }
+button.btn-green { background: var(--green); color: #032014; }
 
-/* المواجهة النهائية */
+#messages { height: 95px; overflow-y: auto; display: flex; flex-direction: column; gap: 5px; margin-top: 8px; scrollbar-width: thin; }
+.msg { font-size: 11px; background: #080d16; border-radius: 8px; padding: 6px 10px; border-right: 3px solid var(--gold); display: flex; align-items: center; justify-content: space-between; }
+.msg.system { border-right-color: var(--blue); }
+.msg.strike { border-right-color: var(--red); background: rgba(255,71,87,0.1); }
+.msg-txt b { color: var(--gold); }
+
+/* شاشة FINAL DUEL الكونية */
 #finalDuel {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background: radial-gradient(circle, rgba(20,5,10,0.85) 0%, rgba(5,8,15,0.95) 100%);
-  backdrop-filter: blur(4px);
-  border-radius: 20px;
-  z-index: 30;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity .4s ease;
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at center, rgba(15,10,30,0.95) 0%, rgba(3,4,8,0.98) 100%);
+  border-radius: 20px; z-index: 40; display: flex; flex-direction: column; justify-content: center; align-items: center;
+  opacity: 0; pointer-events: none; transition: opacity .4s ease;
 }
 #finalDuel.show { opacity: 1; }
-.duel-title {
-  font-size: clamp(22px, 6vw, 36px);
-  font-weight: 900;
-  color: var(--red);
-  text-shadow: 0 0 25px var(--red);
-  margin-bottom: 15px;
-  animation: pulse 0.8s infinite;
-}
-.duel-fighters { display: flex; align-items: center; gap: 14px; }
-.duel-fighter {
-  background: rgba(19, 29, 46, 0.95);
-  border: 2px solid var(--gold);
-  border-radius: 14px;
-  padding: 12px 16px;
-  text-align: center;
-  min-width: 95px;
-  box-shadow: 0 0 20px rgba(255,200,87,0.3);
-}
-.duel-emoji { font-size: 36px; line-height: 1; }
-.duel-name {
-  font-size: 13px;
-  font-weight: 900;
-  color: #fff;
-  margin-top: 6px;
-  max-width: 100px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.duel-vs { font-size: 26px; font-weight: 900; color: var(--red); }
+.duel-head { font-size: 26px; font-weight: 900; color: var(--red); text-shadow: 0 0 25px var(--red); animation: pulseHead .8s infinite; }
+@keyframes pulseHead { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
+.duel-vs-box { display: flex; align-items: center; gap: 14px; margin-top: 15px; }
+.duel-card { background: rgba(18,28,45,0.9); border: 2px solid var(--gold); border-radius: 12px; padding: 12px 18px; text-align: center; min-width: 95px; }
+.duel-name { font-size: 13px; font-weight: 900; color: #fff; margin-top: 4px; }
 
-/* شاشة الفائز */
-#winnerOverlay {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle, rgba(255,200,87,0.2) 0%, rgba(8,13,20,0.96) 90%);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  border-radius: 20px;
-  z-index: 40;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity .5s ease;
+/* شاشة التتويج الملكي (King Winner Screen) */
+#winnerModal {
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at center, rgba(255,200,87,0.25) 0%, rgba(4,6,10,0.97) 80%);
+  border-radius: 20px; z-index: 50; display: flex; flex-direction: column; justify-content: center; align-items: center;
+  opacity: 0; pointer-events: none; transition: opacity .5s;
 }
-#winnerOverlay.active { opacity: 1; pointer-events: auto; }
-.win-emoji { font-size: 70px; line-height: 1; animation: winHop .8s infinite alternate ease-in-out; }
-@keyframes winHop { from{transform:translateY(0)} to{transform:translateY(-16px)} }
-.win-title { color: var(--gold); font-size: 13px; font-weight: 800; margin-top: 10px; letter-spacing: 1px; }
-.win-name {
-  color: #fff;
-  font-size: clamp(26px, 7vw, 44px);
-  font-weight: 900;
-  text-shadow: 0 0 30px var(--gold);
-  margin: 4px 0;
-  text-align: center;
-  padding: 0 15px;
-}
-.win-sub { color: var(--muted); font-size: 12px; font-weight: 600; margin-top: 6px; }
+#winnerModal.show { opacity: 1; pointer-events: auto; }
+.winner-crown { font-size: 75px; animation: winPop .7s infinite alternate ease-in-out; }
+@keyframes winPop { from{transform:translateY(0) scale(1)} to{transform:translateY(-14px) scale(1.08)} }
+.winner-title { color: var(--gold); font-size: 13px; font-weight: 800; letter-spacing: 2px; margin-top: 8px; }
+.winner-name { font-size: 34px; font-weight: 900; color: #fff; text-shadow: 0 0 35px var(--gold); margin: 6px 0; }
 
-/* لوحات التحكم والشات */
-.content {
-  max-width: 680px;
-  margin: 12px auto auto;
-  padding: 0 12px;
-  display: grid;
-  gap: 10px;
+/* نافذة الإعلان التفاعلي المحاكي (Rewarded Ad Modal) */
+#adModal {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.92);
+  z-index: 900; display: flex; justify-content: center; align-items: center;
+  opacity: 0; pointer-events: none; transition: opacity .3s; padding: 16px;
 }
-.panel {
-  background: var(--panel);
-  border: 1px solid var(--panel-border);
-  border-radius: 14px;
-  padding: 12px 14px;
+#adModal.show { opacity: 1; pointer-events: auto; }
+.ad-box {
+  background: linear-gradient(135deg, #162438, #090e18);
+  border: 2px solid var(--gold); border-radius: 16px; padding: 20px;
+  max-width: 360px; width: 100%; text-align: center; position: relative;
 }
-h2 { font-size: 13px; margin-bottom: 8px; color: var(--gold); font-weight: 800; }
-.controls { display: flex; gap: 8px; flex-wrap: wrap; }
-input {
-  flex: 1;
-  min-width: 0;
-  background: #090e17;
-  border: 1px solid var(--panel-border);
-  border-radius: 8px;
-  color: #fff;
-  padding: 10px 12px;
-  font-size: 14px;
-  font-family: inherit;
-  font-weight: 600;
-}
-input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 10px var(--gold-glow); }
-button {
-  border: 0;
-  border-radius: 8px;
-  padding: 10px 16px;
-  font-weight: 800;
-  font-size: 13px;
-  cursor: pointer;
-  background: var(--gold);
-  color: #090e17;
-  font-family: inherit;
-  transition: transform .1s, filter .2s;
-}
-button:active { transform: scale(0.96); }
-button.secondary { background: #23354d; color: #fff; }
-button.green { background: var(--green); color: #042416; }
-.hint { font-size: 11px; color: var(--muted); line-height: 1.5; margin-top: 8px; font-weight: 600; }
+.ad-badge { position: absolute; top: 12px; left: 12px; background: var(--red); color: #fff; font-size: 9px; font-weight: 900; padding: 2px 8px; border-radius: 4px; }
+.ad-timer { font-size: 11px; color: var(--muted); margin-top: 10px; }
+.ad-skip-btn { margin-top: 14px; width: 100%; padding: 10px; background: #23354d; color: #fff; border: 0; border-radius: 8px; font-family: inherit; font-weight: 800; font-size: 12px; cursor: not-allowed; }
+.ad-skip-btn.ready { background: var(--gold-gradient); color: #070b12; cursor: pointer; }
 
-#messages {
-  height: 95px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  margin-top: 8px;
-  scrollbar-width: thin;
-  scrollbar-color: var(--panel-border) transparent;
+/* نافذة الدفع والشحن المضمنة (Tap Payments Simulation Modal) */
+#shopModal {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+  z-index: 800; display: flex; justify-content: center; align-items: center;
+  opacity: 0; pointer-events: none; transition: opacity .25s; padding: 14px;
 }
-.msg {
-  font-size: 11px;
-  background: #0d1522;
-  border-radius: 6px;
-  padding: 6px 10px;
-  line-height: 1.4;
-  border-right: 3px solid var(--blue);
-}
-.msg.fake { border-right-color: #64748b; opacity: .8; }
-.msg.hole { border-right-color: var(--red); background: #1c1015; }
-.msg.win { border-right-color: var(--green); background: #0c1c16; }
-.msg b { color: var(--gold); font-weight: 800; }
-.msg .tag { color: var(--muted); font-size: 9px; margin-right: 4px; }
+#shopModal.show { opacity: 1; pointer-events: auto; }
+.shop-card { background: linear-gradient(135deg, #131f33, #070b13); border: 1.5px solid var(--gold); border-radius: 18px; padding: 20px; max-width: 390px; width: 100%; text-align: center; }
+.shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0; }
+.shop-item { background: #080d16; border: 1px solid var(--panel-border); border-radius: 12px; padding: 12px; cursor: pointer; transition: all .2s; }
+.shop-item:hover, .shop-item.best { border-color: var(--gold); background: rgba(255,200,87,0.08); }
+.shop-item-sparks { font-size: 17px; font-weight: 900; color: var(--gold); }
+.shop-item-price { font-size: 11px; color: #fff; font-weight: 700; margin-top: 2px; }
 
-footer { text-align: center; color: var(--muted); font-size: 10px; font-weight: 700; padding: 18px 0 6px; }
-
-/* زر الـ CTA الذكي */
-#ctaBtn {
-  position: fixed;
-  bottom: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: linear-gradient(135deg, #ffc857, #ff8c00);
-  color: #0b1320;
-  border: 0;
-  padding: 12px 26px;
-  border-radius: 99px;
-  font-family: inherit;
-  font-size: 14px;
-  font-weight: 900;
-  cursor: pointer;
-  box-shadow: 0 6px 20px rgba(255,140,0,0.4);
-  z-index: 100;
-  white-space: nowrap;
-}
-
-/* النافذة المنبثقة */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.85);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 200;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity .3s;
-  padding: 16px;
-}
-.modal-overlay.show { opacity: 1; pointer-events: auto; }
-.modal-card {
-  background: linear-gradient(135deg, #162234, #0b1320);
-  border: 1px solid var(--gold);
-  border-radius: 18px;
-  padding: 24px 20px;
-  max-width: 400px;
-  width: 100%;
-  text-align: center;
-  position: relative;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.8);
-}
-.modal-close {
-  position: absolute;
-  top: 10px;
-  right: 12px;
-  background: transparent;
-  border: 0;
-  color: var(--muted);
-  font-size: 24px;
-  cursor: pointer;
-}
-
-#screenFlash {
-  position: fixed;
-  inset: 0;
-  background: rgba(255,0,0,0.25);
-  opacity: 0;
-  pointer-events: none;
-  z-index: 999;
-}
-#screenFlash.active { animation: flashAnim .3s ease-out; }
-@keyframes flashAnim { 0%{opacity:1} 100%{opacity:0} }
-
-.shake { animation: shakeArena .35s; }
-@keyframes shakeArena {
-  0%,100%{transform:none}
-  20%{transform:translate(-4px, 3px)}
-  40%{transform:translate(4px, -3px)}
-  60%{transform:translate(-3px, 2px)}
-  80%{transform:translate(3px, -2px)}
-}
+#screenFlash { position: fixed; inset: 0; background: rgba(255,255,255,0.3); opacity: 0; pointer-events: none; z-index: 999; }
+#screenFlash.active { animation: sf 0.3s ease-out; }
+@keyframes sf { 0%{opacity:1} 100%{opacity:0} }
 </style>
 </head>
 <body>
 
 <div id="screenFlash"></div>
 
-<header>
-  <h1>🏆 ديربي أرينا</h1>
-  <div class="sub">محاكاة الاشتباك المباشر · النسخة المطورة</div>
-</header>
+<!-- شاشة العظمة الأولى (Splash Screen) -->
+<div id="splashScreen">
+  <div class="splash-crown">👑</div>
+  <h1 class="splash-title">ديربي أرينا</h1>
+  <div class="splash-season">الموسم الأول · النسخة الملكية</div>
+  
+  <div class="splash-box">
+    <p style="font-size:12px; color:var(--muted); margin-bottom:12px">سجّل دخولك لحفظ لقبك ومحفظة شراراتك</p>
+    <input type="text" id="regName" placeholder="اسمك أو لقبك (مثال: كاسر)" maxlength="16">
+    <input type="tel" id="regPhone" placeholder="رقم الجوال (05xxxxxxxx)" maxlength="10">
+    <button class="btn-royal-start" id="enterGameBtn">⚔️ خوض المعركة الملكية</button>
+  </div>
+</div>
 
-<div class="themes" id="themes">
-  <button class="theme-btn active" data-theme="hoods">🏘️ الأحياء</button>
+<!-- الشريط العلوي -->
+<div class="royal-header">
+  <div class="royal-brand">👑 ديربي أرينا <span style="font-size:10px; color:var(--muted)">ROYAL</span></div>
+  <div class="earnings-tag" id="simEarnings">💰 أرباح الجولة: 0 ر.س</div>
+</div>
+
+<!-- بطاقة الحساب الفاخرة (VIP Card) -->
+<div class="user-card-wrap">
+  <div class="vip-card">
+    <div class="vip-user-info">
+      <div class="vip-badge-icon" id="vipIcon">🛡️</div>
+      <div>
+        <div class="vip-name" id="displayUserName">لاعب مجهول</div>
+        <div class="vip-rank" id="displayVipRank">عضوية برونزية</div>
+      </div>
+    </div>
+    <div class="vip-sparks">
+      <div class="vip-sparks-num" id="displaySparks">500</div>
+      <button class="btn-charge-chip" id="openShopBtn">⚡ شحن شرارات</button>
+    </div>
+  </div>
+</div>
+
+<!-- الثيمات الست الموسعة -->
+<div class="themes" id="themeBar">
+  <button class="theme-btn active" data-theme="hoods">🏘️ الحواري</button>
   <button class="theme-btn" data-theme="cities">🏙️ المدن</button>
   <button class="theme-btn" data-theme="restaurants">🍔 المطاعم</button>
   <button class="theme-btn" data-theme="companies">🏢 الشركات</button>
+  <button class="theme-btn" data-theme="cars">🚗 السيارات</button>
+  <button class="theme-btn" data-theme="players">⚽ الأساطير</button>
 </div>
 
+<!-- الإحصائيات -->
 <div class="stats">
-  <div class="stat"><b id="alive">0</b><span>المتبقي</span></div>
-  <div class="stat"><b id="clock">90</b><span>الوقت</span></div>
-  <div class="stat"><b id="votes">0</b><span>الأصوات</span></div>
-  <div class="stat"><b id="status">جاهزة</b><span>الحالة</span></div>
+  <div class="stat"><b id="aliveCount">0</b><span>المتبقي</span></div>
+  <div class="stat"><b id="clockCount">90</b><span>الوقت</span></div>
+  <div class="stat"><b id="votesCount">0</b><span>الأصوات</span></div>
+  <div class="stat"><b id="statusLabel">جاهزة</b><span>الحالة</span></div>
 </div>
 
-<div class="arena-wrap" id="arenaBox">
-  <canvas id="arena"></canvas>
-  <div id="banner">اضغط «ابدأ المعركة» للخوض في الصراع</div>
-  <div id="killFeed"></div>
-  <div id="finalBanner"></div>
-  
+<!-- الحلبة والطبقات التفاعلية -->
+<div class="arena-wrap">
+  <canvas id="arenaCanvas"></canvas>
+  <div id="banner">اضغط «ابدأ المعركة» لإطلاق الصدام</div>
+  <div id="inAppToast">⚔️ حدث جديد!</div>
+
+  <!-- المواجهة الحاسمة -->
   <div id="finalDuel">
-    <div class="duel-title">⚔️ المواجهة الحاسمة</div>
-    <div class="duel-fighters">
-      <div class="duel-fighter">
-        <div class="duel-emoji">🛡️</div>
-        <div class="duel-name" id="duelN1">—</div>
-      </div>
-      <div class="duel-vs">ضد</div>
-      <div class="duel-fighter">
-        <div class="duel-emoji">⚔️</div>
-        <div class="duel-name" id="duelN2">—</div>
-      </div>
+    <div class="duel-head">⚔️ FINAL DUEL</div>
+    <div class="duel-vs-box">
+      <div class="duel-card"><div style="font-size:30px">🛡️</div><div class="duel-name" id="duelN1">—</div></div>
+      <div style="font-size:22px; font-weight:900; color:var(--red)">VS</div>
+      <div class="duel-card"><div style="font-size:30px">⚔️</div><div class="duel-name" id="duelN2">—</div></div>
     </div>
   </div>
 
-  <div id="winnerOverlay">
-    <div class="win-emoji">👑</div>
-    <div class="win-title">بطل الأرينا المتوج</div>
-    <div class="win-name" id="winName">—</div>
-    <div class="win-sub">حسم المعركة ونال الصدارة! 🎉</div>
+  <!-- التتويج الملكي -->
+  <div id="winnerModal">
+    <div class="winner-crown">👑</div>
+    <div class="winner-title">بطل الأرينا المتوج</div>
+    <div class="winner-name" id="winName">—</div>
+    <button class="btn-royal-start" style="width:auto; padding:8px 24px" onclick="resetGame()">معركة جديدة ↻</button>
   </div>
 </div>
 
+<!-- الترسانة التكتيكية -->
+<div class="armory-wrap">
+  <div class="armory-header">
+    <span>🎯 التدخل التكتيكي (اختر كرتك بالشات ونفذ)</span>
+    <span style="color:var(--muted)">تأثير مباشر في البث ⚡</span>
+  </div>
+  <div class="armory-grid">
+    <button class="t-btn" id="btnBoost">
+      <span class="icon">🚀</span>
+      <span class="name">دفعة نفاثة</span>
+      <span class="cost">⚡ 50 شرارة</span>
+    </button>
+    <button class="t-btn" id="btnShield">
+      <span class="icon">🛡️</span>
+      <span class="name">درع لامع (5ث)</span>
+      <span class="cost">⚡ 120 شرارة</span>
+    </button>
+    <button class="t-btn" id="btnStrike">
+      <span class="icon">⚡</span>
+      <span class="name">صاعقة ملكية</span>
+      <span class="cost">⚡ 250 شرارة</span>
+    </button>
+  </div>
+</div>
+
+<!-- التحكم والتفاعل -->
 <div class="content">
   <section class="panel">
-    <h2>⚔️ إدارة المواجهة</h2>
     <div class="controls">
-      <button id="start">🎮 ابدأ المعركة</button>
-      <button id="reset" class="secondary">↻ تصفير</button>
-      <button id="pause" class="secondary">⏸ إيقاف</button>
+      <button class="btn-act" id="startBtn">🎮 ابدأ المعركة</button>
+      <button class="btn-act btn-sec" id="resetBtn">↻ تصفير</button>
+      <button class="btn-act btn-sec" id="pauseBtn">⏸ إيقاف</button>
+      <button class="btn-act btn-sec" id="fakeChatToggle" style="margin-right:auto">شات المحاكاة: متوقف</button>
     </div>
-    <div class="hint">🌀 المروحة المركزية ذات 4 شفرات تقذف الكرات نحو ثقوب الإقصاء السوداء.</div>
   </section>
 
   <section class="panel">
-    <h2>🗳️ دعم وتصويت</h2>
     <form id="voteForm" class="controls">
-      <input id="cityInput" maxlength="20" placeholder="اكتب اسماً للتصويت وتعزيز القوة..." autocomplete="off">
-      <button class="green" type="submit">إطلاق ⚡</button>
+      <input type="text" id="voteInput" class="chat-input" placeholder="اكتب اسم كرتك للتصويت المجاني...">
+      <button type="submit" class="btn-act btn-green">إطلاق مجاني ⚡</button>
     </form>
   </section>
 
   <section class="panel">
-    <div class="controls" style="align-items:center;justify-content:space-between">
-      <h2 style="margin:0">💬 البث والتفاعل</h2>
-      <button id="fakeToggle" class="secondary">المحاكاة: متوقفة</button>
-    </div>
+    <h3 style="font-size:12px; color:var(--gold); margin-bottom:4px">💬 تفاعل البث المباشر المالي</h3>
     <div id="messages"></div>
   </section>
 </div>
 
-<footer>DERBY ARENA PRO · محرك فيزيائي فائق الخفة</footer>
+<!-- نافذة الإعلان التفاعلي المحاكي -->
+<div id="adModal">
+  <div class="ad-box">
+    <span class="ad-badge">إعلان مدعوم</span>
+    <div style="font-size:40px; margin-top:10px">🍔</div>
+    <h3 style="color:var(--gold); margin-top:8px">عروض حصرية للبث المباشر</h3>
+    <p style="font-size:12px; color:#cbd5e1; margin-top:6px">اشحن رصيد الشرارات واحصل على ضعف الرصيد لأول عملية شحن اليوم!</p>
+    <div class="ad-timer" id="adTimerText">يمكنك التخطي بعد 5 ثوانٍ...</div>
+    <button class="ad-skip-btn" id="adSkipBtn" disabled>انتظر 5 ثوانٍ</button>
+  </div>
+</div>
 
-<button id="ctaBtn">🚀 احصل على نسختك للبث</button>
-
-<div class="modal-overlay" id="ctaModal">
-  <div class="modal-card">
-    <button class="modal-close" id="modalCloseBtn">&times;</button>
-    <div style="font-size: 50px; margin-bottom: 8px;">🎯</div>
-    <h2 style="font-size: 20px; color: var(--gold); margin-bottom: 8px;">جاهز لإطلاق بثك الخاص؟</h2>
-    <p style="font-size: 12px; color: #cbd5e1; line-height: 1.6; margin-bottom: 14px;">
-      نظام كامل مجهز للبث المباشر على يوتيوب وتيك توك مع قراءة الشات الحقيقي، وتوزيع الجوائز، والفيزياء التفاعلية الحية.
-    </p>
-    <input type="text" id="userName" placeholder="اسمك أو قناتك (اختياري)" style="width:100%; margin-bottom:12px; text-align:center;">
-    <div style="display:flex; flex-direction:column; gap:8px;">
-      <button id="whatsappBtn" class="green" style="padding:12px;">📱 تواصل عبر واتساب فوراً</button>
-      <button id="modalLaterBtn" class="secondary">إغلاق</button>
+<!-- متجر الشحن التفاعلي (Tap Payments Simulation) -->
+<div id="shopModal">
+  <div class="shop-card">
+    <h3 style="color:var(--gold); font-size:18px">⚡ شحن محفظة الشرارات</h3>
+    <p style="font-size:11px; color:var(--muted); margin-top:4px">بوابة الدفع الإلكتروني المباشرة (مدى / Apple Pay)</p>
+    
+    <div class="shop-grid">
+      <div class="shop-item" onclick="processPayment(500, 5)">
+        <div class="shop-item-sparks">⚡ 500</div>
+        <div class="shop-item-price">5 ر.س</div>
+      </div>
+      <div class="shop-item best" onclick="processPayment(1600, 15)">
+        <div style="font-size:9px; color:var(--red); font-weight:900">الأكثر مبيعاً 🔥</div>
+        <div class="shop-item-sparks">⚡ 1,600</div>
+        <div class="shop-item-price">15 ر.س</div>
+      </div>
+      <div class="shop-item" onclick="processPayment(3800, 30)">
+        <div class="shop-item-sparks">⚡ 3,800</div>
+        <div class="shop-item-price">30 ر.س (VIP)</div>
+      </div>
+      <div class="shop-item" onclick="processPayment(10000, 75)">
+        <div style="font-size:9px; color:var(--gold); font-weight:900">الملكي 👑</div>
+        <div class="shop-item-sparks">⚡ 10,000</div>
+        <div class="shop-item-price">75 ر.س</div>
+      </div>
     </div>
+    <button class="btn-act btn-sec" style="width:100%" onclick="closeShop()">إلغاء</button>
   </div>
 </div>
 
@@ -518,901 +389,532 @@ footer { text-align: center; color: var(--muted); font-size: 10px; font-weight: 
 "use strict";
 
 const THEMES = {
-  hoods: {
-    label: "الأحياء",
-    items: [
-      "النظيم","النسيم","الريان","العليا","الملقا","حطين","الشفا","السويدي","العزيزية","قرطبة",
-      "الروضة","الخزامى","الشميسي","البطحاء","المعذر","الحمراء","الشاطئ","السلامة","البوادي","الصفا",
-      "المروة","أبحر","الفيصلية","العوالي","النهضة","الموظفين","الشهداء","النزهة","المروج","الورود",
-      "الدرعية","الغدير","الربوة","الياسمين","العقيق","الصحافة","طويق","لبن","عرقة","الرمال"
-    ]
-  },
-  cities: {
-    label: "المدن",
-    items: [
-      "الرياض","جدة","مكة","المدينة","الدمام","الخبر","الطائف","تبوك","أبها","جازان",
-      "حائل","بريدة","عنيزة","نجران","ينبع","الجبيل","الأحساء","القطيف","عرعر","الباحة",
-      "سكاكا","القريات","حفر الباطن","الخرج","المجمعة","بيشة","الدوادمي","الزلفي","شرورة","النماص"
-    ]
-  },
-  restaurants: {
-    label: "المطاعم",
-    items: [
-      "البيك","هرفي","ماكدونالدز","كنتاكي","برغرايزر","برغر كنج","الطازج","شاورمر","دومينوز","بيتزا هت",
-      "صب واي","كودو","جان برجر","شيك شاك","شاورما تيكرز","مايسترو","شاورما هليل","سلطان ديلايت","هامبرغيني","فرايديز"
-    ]
-  },
-  companies: {
-    label: "الشركات",
-    items: [
-      "STC","موبايلي","زين","أرامكو","سابك","معادن","الراجحي","الأهلي","الإنماء","جرير",
-      "إكسترا","المراعي","نادك","العثيم","بنده","التميمي","لولو","ساسكو","سال","الدريس"
-    ]
-  }
+  hoods: { label: "الأحياء", items: ["النظيم","النسيم","العليا","الملقا","حطين","الشفا","السويدي","العزيزية","قرطبة","الروضة","الشميسي","البطحاء","المعذر","الحمراء","أبحر","الدرعية"] },
+  cities: { label: "المدن", items: ["الرياض","جدة","مكة","المدينة","الدمام","الخبر","الطائف","تبوك","أبها","جازان","حائل","بريدة","عنيزة","نجران","ينبع","الأحساء"] },
+  restaurants: { label: "المطاعم", items: ["البيك","هرفي","ماكدونالدز","كنتاكي","برغرايزر","الطازج","شاورمر","دومينوز","بيتزا هت","كودو","شيك شاك","شاورما هليل"] },
+  companies: { label: "الشركات", items: ["STC","موبايلي","زين","أرامكو","سابك","الراجحي","الأهلي","الإنماء","جرير","إكسترا","المراعي","بنده"] },
+  cars: { label: "السيارات", items: ["لاندكروزر","باترول","هايلكس","كامري","كابريس","جمس","لكزس","توسان","أكسنت","شاص","ددسن","فورد"] },
+  players: { label: "الأساطير", items: ["رونالدو","ميسي","سالم الدوسري","بنزيما","نيمار","مبابي","هالاند","محرز","صلاح","ميتروفيتش","كانتي","بونو"] }
 };
 
-const COLORS = [
-  "#ff5252","#38bdf8","#ffd166","#2bd893","#a78bfa",
-  "#fb923c","#f472b6","#4ade80","#facc15","#22d3ee"
-];
-
+const COLORS = ["#ff4757","#38bdf8","#ffd166","#2bd893","#a855f7","#fb923c","#f472b6","#4ade80","#facc15","#22d3ee"];
 const $ = id => document.getElementById(id);
-const canvas = $("arena");
+const canvas = $("arenaCanvas");
 const ctx = canvas.getContext("2d");
 
-let V_WIDTH = 720;
-let CX = 360, CY = 360;
-let dpr = 1;
+const V_WIDTH = 720;
+const CX = 360, CY = 360;
+let dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-function setupHiDPI() {
-  dpr = Math.min(window.devicePixelRatio || 1, 2);
+function resizeCanvas() {
   canvas.width = V_WIDTH * dpr;
   canvas.height = V_WIDTH * dpr;
   ctx.resetTransform?.();
   ctx.scale(dpr, dpr);
 }
 
-// مدير الصوت الآمن الخفيف
-const SoundSystem = {
-  ctx: null,
-  lastSoundTime: 0,
-  init() {
-    if (!this.ctx) {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (AudioCtx) this.ctx = new AudioCtx();
-    }
-    if (this.ctx && this.ctx.state === "suspended") {
-      this.ctx.resume().catch(()=>{});
-    }
-  },
-  playTone(freq, dur, type="sine", gainVal=0.1) {
-    if (!this.ctx) return;
-    const now = this.ctx.currentTime;
-    if (now - this.lastSoundTime < 0.04) return; // منع التشويش الصوتي
-    this.lastSoundTime = now;
-    try {
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = type;
-      osc.frequency.setValueAtTime(freq, now);
-      gain.gain.setValueAtTime(gainVal, now);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start(now);
-      osc.stop(now + dur);
-    } catch(e) {}
-  },
-  vote() { this.playTone(720, 0.12, "sine", 0.15); },
-  elim() { 
-    this.playTone(180, 0.18, "sawtooth", 0.2); 
-    setTimeout(() => this.playTone(110, 0.25, "triangle", 0.25), 90);
-  },
-  duel() {
-    this.playTone(440, 0.2, "square", 0.15);
-    setTimeout(() => this.playTone(880, 0.3, "square", 0.2), 160);
-  },
-  win() {
-    [523, 659, 784, 1046].forEach((f, idx) => {
-      setTimeout(() => this.playTone(f, 0.35, "triangle", 0.2), idx * 120);
-    });
-  }
-};
+// محفظة LocalStorage وبيانات المستخدم
+let profile = JSON.parse(localStorage.getItem("royal_user") || "null");
+let totalEarnings = parseInt(localStorage.getItem("royal_earnings") || "0");
 
-let roundId = 0;
-let currentTheme = "hoods";
-let balls = [], holes = [], particles = [], windParticles = [];
-let running = false, paused = false, started = false;
-let fakeOn = false, fakeTimer = null;
-let seconds = 90, votes = 0, arenaR = 320, winner = null;
-let fanAngle = 0;
-let timeScale = 1;
-let phaseShown = {};
-let lastAlive = -1;
-let lastTime = 0;
-
-const FAN = {
-  radius: 95,
-  hubRadius: 20,
-  blades: 4,
-  speed: 2.5,
-  pushForce: 460
-};
-
-function initHoles() {
-  holes = [];
-  const count = 6;
-  const dist = 210;
-  for (let i = 0; i < count; i++) {
-    const angle = (i / count) * Math.PI * 2 + 0.3;
-    holes.push({
-      x: CX + Math.cos(angle) * dist,
-      y: CY + Math.sin(angle) * dist,
-      r: 32,
-      gravityRadius: 65
-    });
-  }
+function saveProfile(name, phone) {
+  profile = {
+    name: name || "بطل مجهول",
+    phone: phone || "05xxxxxxxx",
+    sparks: profile ? profile.sparks : 500,
+    vip: false
+  };
+  localStorage.setItem("royal_user", JSON.stringify(profile));
+  updateProfileUI();
 }
 
+function updateProfileUI() {
+  if (!profile) return;
+  $("displayUserName").textContent = profile.name;
+  $("displaySparks").textContent = profile.sparks;
+  if (profile.sparks >= 1000) {
+    profile.vip = true;
+    $("displayVipRank").textContent = "👑 عضوية ذهبية VIP";
+    $("displayVipRank").style.color = "var(--gold)";
+    $("vipIcon").textContent = "👑";
+  } else {
+    profile.vip = false;
+    $("displayVipRank").textContent = "عضوية برونزية";
+    $("displayVipRank").style.color = "var(--muted)";
+    $("vipIcon").textContent = "🛡️";
+  }
+  $("simEarnings").textContent = `💰 أرباح اليوم: ${totalEarnings} ر.س`;
+}
+
+// نظام الصوتيات
+const SoundSystem = {
+  ctx: null,
+  init() {
+    if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (this.ctx && this.ctx.state === "suspended") this.ctx.resume().catch(()=>{});
+  },
+  play(f, dur, type="sine", g=0.1) {
+    if (!this.ctx) return;
+    try {
+      const o = this.ctx.createOscillator(), gn = this.ctx.createGain();
+      o.type = type; o.frequency.value = f;
+      gn.gain.setValueAtTime(g, this.ctx.currentTime);
+      gn.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + dur);
+      o.connect(gn); gn.connect(this.ctx.destination);
+      o.start(); o.stop(this.ctx.currentTime + dur);
+    } catch(e) {}
+  },
+  cash() { [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => this.play(f, 0.25, "triangle", 0.15), i*80)); },
+  strike() { this.play(130, 0.4, "sawtooth", 0.3); },
+  elim() { this.play(100, 0.25, "square", 0.2); }
+};
+
+// حالة اللعبة
+let currentTheme = "hoods";
+let balls = [], holes = [], confetti = [];
+let running = false, paused = false, started = false;
+let seconds = 90, votes = 0, arenaR = 320, winner = null;
+let fanAngle = 0, lastTime = 0;
+let fakeChatOn = false, fakeTimer = null;
+
+const FAN = { radius: 95, hubRadius: 20, blades: 4, speed: 2.7, pushForce: 490 };
+
 function initBalls() {
-  balls = [];
-  particles = [];
-  windParticles = [];
-  phaseShown = {};
-  lastAlive = -1;
-  winner = null;
-  seconds = 90;
-  arenaR = 320;
-  timeScale = 1;
-  fanAngle = 0;
+  balls = []; holes = []; confetti = [];
+  seconds = 90; arenaR = 320; fanAngle = 0; winner = null;
 
-  const rawItems = THEMES[currentTheme].items;
-  const items = [...new Set(rawItems)].slice(0, 38);
-
+  const items = [...new Set(THEMES[currentTheme].items)].slice(0, 36);
   items.forEach((name, i) => {
-    const angle = (i / items.length) * Math.PI * 2 + (Math.random() * 0.2);
-    const dist = 110 + (Math.random() * 80);
+    const ang = (i / items.length) * Math.PI * 2;
+    const d = 110 + Math.random() * 85;
     balls.push({
-      id: i,
-      name,
-      x: CX + Math.cos(angle) * dist,
-      y: CY + Math.sin(angle) * dist,
-      vx: (Math.random() - 0.5) * 80,
-      vy: (Math.random() - 0.5) * 80,
-      r: 19,
-      baseRadius: 19,
-      color: COLORS[i % COLORS.length],
-      alive: true,
-      scale: 1,
-      flash: 0,
-      isTargeted: 0,
-      inVortex: false
+      id: i, name,
+      x: CX + Math.cos(ang) * d, y: CY + Math.sin(ang) * d,
+      vx: (Math.random() - 0.5) * 80, vy: (Math.random() - 0.5) * 80,
+      r: 19, color: COLORS[i % COLORS.length],
+      alive: true, scale: 1, flash: 0, shield: 0, inHole: false
     });
   });
 
-  initHoles();
+  for (let i = 0; i < 6; i++) {
+    const ang = (i / 6) * Math.PI * 2 + 0.3;
+    holes.push({ x: CX + Math.cos(ang) * 210, y: CY + Math.sin(ang) * 210, r: 32, pullR: 65 });
+  }
+
   updateUI();
-  $("cityInput").placeholder = `اكتب اسم (مثال: ${items[0]})...`;
+  $("voteInput").placeholder = `اكتب اسم (مثال: ${items[0]})...`;
 }
 
 function updateUI() {
-  const aliveCount = balls.filter(b => b.alive).length;
-  $("alive").textContent = aliveCount;
-  $("clock").textContent = Math.max(0, Math.ceil(seconds));
-  $("votes").textContent = votes;
-  $("status").textContent = winner ? "انتهت" : paused ? "متوقفة" : running ? "جارية ⚡" : "جاهزة";
-  $("pause").textContent = paused ? "▶ استئناف" : "⏸ إيقاف";
+  $("aliveCount").textContent = balls.filter(b => b.alive).length;
+  $("clockCount").textContent = Math.max(0, Math.ceil(seconds));
+  $("votesCount").textContent = votes;
+  $("statusLabel").textContent = winner ? "انتهت" : paused ? "متوقفة" : running ? "جارية ⚡" : "جاهزة";
 }
 
-function addMsg(name, text, cls="", fake=false) {
-  const box = $("messages");
+function showToast(text) {
+  const t = $("inAppToast");
+  t.textContent = text;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2800);
+}
+
+function addMsg(name, txt, cls="") {
+  const b = $("messages");
   const el = document.createElement("div");
-  el.className = `msg ${cls} ${fake ? "fake" : ""}`;
-  
-  const who = document.createElement("b");
-  who.textContent = name + " ";
-  
-  const span = document.createElement("span");
-  span.textContent = text;
-  
-  el.appendChild(who);
-  el.appendChild(span);
-
-  if (fake) {
-    const tag = document.createElement("span");
-    tag.className = "tag";
-    tag.textContent = "· تجريبي";
-    el.appendChild(tag);
-  }
-
-  box.appendChild(el);
-  if (box.children.length > 30) box.firstElementChild.remove();
-  box.scrollTop = box.scrollHeight;
+  el.className = `msg ${cls}`;
+  el.innerHTML = `<span class="msg-txt"><b>${name}:</b> ${txt}</span>`;
+  b.appendChild(el);
+  if (b.children.length > 25) b.firstElementChild.remove();
+  b.scrollTop = b.scrollHeight;
 }
 
-function burst(x, y, color, count=20) {
-  for (let i = 0; i < count; i++) {
-    const a = Math.random() * Math.PI * 2;
-    const speed = 1 + Math.random() * 4.5;
-    particles.push({
-      x, y,
-      vx: Math.cos(a) * speed,
-      vy: Math.sin(a) * speed - 0.5,
-      alpha: 1,
-      color,
-      size: 2 + Math.random() * 3
-    });
+// تشغيل الإشعار الحقيقي على الجهاز
+function triggerPushNotification(title, body) {
+  if ("Notification" in window && Notification.permission === "granted") {
+    new Notification(title, { body, icon: "👑" });
   }
 }
 
-function triggerElimination(ball, currentRound) {
-  if (roundId !== currentRound || winner) return;
-
-  SoundSystem.elim();
-  burst(ball.x, ball.y, ball.color, 25);
-
-  const kf = $("killFeed");
-  const item = document.createElement("div");
-  item.className = "kf-item";
-  item.textContent = `☠️ ${ball.name}`;
-  kf.prepend(item);
-  if (kf.children.length > 4) kf.lastChild.remove();
-  setTimeout(() => item.remove(), 2800);
-
-  addMsg("☠️ إقصاء", `سقط ${ball.name} في الثقب`, "hole", false);
-
-  const remaining = balls.filter(b => b.alive).length;
-  if (remaining <= 8) {
-    const sf = $("screenFlash");
-    sf.classList.remove("active");
-    void sf.offsetWidth;
-    sf.classList.add("active");
-
-    const arenaBox = $("arenaBox");
-    arenaBox.classList.remove("shake");
-    void arenaBox.offsetWidth;
-    arenaBox.classList.add("shake");
-  }
-}
-
-function showPhase(text, color, scale, dur) {
-  const el = $("finalBanner");
-  el.textContent = text;
-  el.style.color = color;
-  el.classList.remove("show");
-  void el.offsetWidth;
-  el.classList.add("show");
-
-  timeScale = scale;
-  const currentR = roundId;
-  setTimeout(() => {
-    if (roundId === currentR) timeScale = 1;
-  }, dur);
-}
-
-function checkMatchMilestones(aliveCount) {
-  if (aliveCount <= 2 && !phaseShown.p2) {
-    phaseShown.p2 = true;
-    const alive = balls.filter(b => b.alive);
-    if (alive.length === 2) {
-      $("duelN1").textContent = alive[0].name;
-      $("duelN2").textContent = alive[1].name;
-      $("finalDuel").classList.add("show");
-      SoundSystem.duel();
-      setTimeout(() => $("finalDuel").classList.remove("show"), 2800);
-    }
-    showPhase("⚔️ المواجهة الحاسمة", "#ff5252", 0.45, 3500);
-    return;
-  }
-  if (aliveCount <= 3 && !phaseShown.p3) {
-    phaseShown.p3 = true;
-    showPhase("⚠️ آخر 3 متنافسين!", "#ff5252", 0.6, 2500);
-    return;
-  }
-  if (aliveCount <= 5 && !phaseShown.p5) {
-    phaseShown.p5 = true;
-    showPhase("🔥 الخمسة الكبار!", "#ff8c00", 0.75, 2000);
-    return;
-  }
-  if (aliveCount <= 10 && !phaseShown.p10) {
-    phaseShown.p10 = true;
-    showPhase("⚡ توب 10 مشتعل!", "#ffd166", 0.85, 2000);
-    return;
-  }
-}
-
-function launchCity(name, fake=false) {
-  name = name.trim().slice(0, 20);
-  if (!name) return;
-
+// الترسانة التكتيكية
+function applyTactical(type) {
   SoundSystem.init();
+  if (!profile) return;
+  const inputVal = $("voteInput").value.trim();
+  const aliveList = balls.filter(b => b.alive);
+  let target = inputVal ? aliveList.find(b => b.name.toLowerCase() === inputVal.toLowerCase()) : null;
+  if (!target) target = aliveList[Math.floor(Math.random() * aliveList.length)];
+  if (!target) return;
 
-  if (!started || winner) {
-    addMsg("تنبيه", "المعركة غير نشطة حالياً", "", fake);
-    return;
-  }
-
-  let ball = balls.find(b => b.alive && b.name.toLowerCase() === name.toLowerCase());
-
-  if (!ball) {
-    // محاولة إحياء كرة إن لم تكن متواجدة
-    ball = balls.find(b => !b.alive);
-    if (ball) {
-      ball.alive = true;
-      ball.name = name;
-      ball.scale = 1;
-      ball.inVortex = false;
-      const spawnAngle = Math.random() * Math.PI * 2;
-      ball.x = CX + Math.cos(spawnAngle) * (arenaR - 35);
-      ball.y = CY + Math.sin(spawnAngle) * (arenaR - 35);
-      ball.vx = -Math.cos(spawnAngle) * 120;
-      ball.vy = -Math.sin(spawnAngle) * 120;
-      ball.flash = 0.8;
-      ball.isTargeted = 3;
-    }
-  } else {
-    // إعطاء دفعة طاقة وحصانة لحظية
-    const a = Math.random() * Math.PI * 2;
-    ball.vx += Math.cos(a) * 220;
-    ball.vy += Math.sin(a) * 220;
-    ball.flash = 0.8;
-    ball.isTargeted = 3;
-    SoundSystem.vote();
-  }
-
-  votes++;
-  addMsg(name, fake ? "صوّت عبر المحاكاة 🚀" : "أطلق تصويتاً معززاً! ⚡", "", fake);
-  updateUI();
-}
-
-// تحديث حركة المروحة لجميع الشفرات الأربع بدقة
-function updateFanPhysics(dt) {
-  fanAngle += FAN.speed * dt;
-  const bladeCount = FAN.blades;
-  const anglePerBlade = (Math.PI * 2) / bladeCount;
-  const coneWidth = 0.55;
-
-  const aliveBalls = balls.filter(b => b.alive && !b.inVortex);
-
-  for (const b of aliveBalls) {
-    const dx = b.x - CX;
-    const dy = b.y - CY;
-    const distSq = dx * dx + dy * dy;
-
-    if (distSq < (FAN.radius + b.r) * (FAN.radius + b.r) && distSq > (FAN.hubRadius * FAN.hubRadius)) {
-      const dist = Math.sqrt(distSq);
-      const ballAngle = Math.atan2(dy, dx);
-
-      for (let i = 0; i < bladeCount; i++) {
-        const bladeA = (fanAngle + i * anglePerBlade) % (Math.PI * 2);
-        let diff = ballAngle - bladeA;
-        while (diff > Math.PI) diff -= Math.PI * 2;
-        while (diff < -Math.PI) diff += Math.PI * 2;
-
-        if (Math.abs(diff) < coneWidth) {
-          const tangX = -Math.sin(ballAngle);
-          const tangY = Math.cos(ballAngle);
-          const radX = dx / dist;
-          const radY = dy / dist;
-
-          const force = FAN.pushForce * dt * (1 - (dist / (FAN.radius + b.r)));
-          b.vx += (tangX * 0.75 + radX * 0.65) * force;
-          b.vy += (tangY * 0.75 + radY * 0.65) * force;
-
-          if (Math.random() < 0.2) {
-            windParticles.push({
-              x: b.x, y: b.y,
-              vx: tangX * 40, vy: tangY * 40,
-              alpha: 0.8,
-              life: 12,
-              size: 2.5
-            });
-          }
-          break;
-        }
+  if (type === "boost") {
+    if (profile.sparks < 50) { openShop(); return; }
+    profile.sparks -= 50;
+    target.vx *= 2.3; target.vy *= 2.3; target.flash = 1;
+    showToast(`🚀 دفعة نفاثة لـ [${target.name}]!`);
+    addMsg(profile.name, `أطلق دفعة نفاثة دعماً لـ ${target.name}`, "system");
+  } else if (type === "shield") {
+    if (profile.sparks < 120) { openShop(); return; }
+    profile.sparks -= 120;
+    target.shield = 5;
+    showToast(`🛡️ درع حصانة لـ [${target.name}] لمدة 5 ثوانٍ!`);
+    addMsg(profile.name, `فعّل درع الحصانة لـ ${target.name}`, "system");
+  } else if (type === "strike") {
+    if (profile.sparks < 250) { openShop(); return; }
+    profile.sparks -= 250;
+    SoundSystem.strike();
+    aliveList.forEach(other => {
+      if (other.id !== target.id) {
+        const dx = other.x - target.x, dy = other.y - target.y;
+        const d = Math.hypot(dx, dy) || 1;
+        if (d < 180) { other.vx += (dx / d) * 340; other.vy += (dy / d) * 340; }
       }
-    }
+    });
+    $("screenFlash").classList.add("active");
+    setTimeout(() => $("screenFlash").classList.remove("active"), 300);
+    showToast(`⚡ صاعقة ملكية بتوجيه من [${profile.name}]!`);
+    addMsg("ضربة كبرى ⚡", `صاعقة ملكية تضرب محيط [${target.name}]!`, "strike");
   }
 
-  for (let i = windParticles.length - 1; i >= 0; i--) {
-    const p = windParticles[i];
-    p.x += p.vx * dt;
-    p.y += p.vy * dt;
-    p.alpha -= 0.05;
-    p.life--;
-    if (p.alpha <= 0 || p.life <= 0) windParticles.splice(i, 1);
-  }
+  localStorage.setItem("royal_user", JSON.stringify(profile));
+  updateProfileUI();
 }
 
-// المحرك الفيزيائي الرئيسي
+// الفيزياء
 function updatePhysics(dt) {
   if (!running || paused || winner) return;
-
-  const currentRound = roundId;
-  const effectiveDt = dt * timeScale;
   seconds -= dt;
-
-  // تقلص الحلبة تدريجياً
-  const targetR = 320 * (0.55 + 0.45 * Math.max(0, seconds) / 90);
-  arenaR = Math.max(160, targetR);
-
-  updateFanPhysics(effectiveDt);
+  arenaR = Math.max(160, 320 * (0.55 + 0.45 * Math.max(0, seconds) / 90));
+  fanAngle += FAN.speed * dt;
 
   const alive = balls.filter(b => b.alive);
 
   for (const b of alive) {
-    if (b.inVortex) {
-      // محاكاة السقوط والامتصاص داخل الثقب
-      b.scale -= effectiveDt * 1.6;
-      b.x += b.vx * effectiveDt;
-      b.y += b.vy * effectiveDt;
+    if (b.inHole) {
+      b.scale -= dt * 1.8;
       if (b.scale <= 0.05) {
-        b.alive = false;
-        b.inVortex = false;
-        triggerElimination(b, currentRound);
+        b.alive = false; b.inHole = false;
+        SoundSystem.elim();
+        addMsg("☠️ إقصاء", `سقط [${b.name}] في الحفرة`, "");
       }
       continue;
     }
 
-    // الحركة والاحتكاك
-    b.x += b.vx * effectiveDt;
-    b.y += b.vy * effectiveDt;
-    b.vx *= Math.pow(0.988, effectiveDt * 60);
-    b.vy *= Math.pow(0.988, effectiveDt * 60);
+    b.x += b.vx * dt; b.y += b.vy * dt;
+    b.vx *= Math.pow(0.99, dt * 60); b.vy *= Math.pow(0.99, dt * 60);
+    if (b.shield > 0) b.shield = Math.max(0, b.shield - dt);
+    if (b.flash > 0) b.flash = Math.max(0, b.flash - dt);
 
-    // الاصطدام بقلب المروحة المركزي
-    const dCenterSq = (b.x - CX) * (b.x - CX) + (b.y - CY) * (b.y - CY);
-    const minCenterDist = FAN.hubRadius + b.r;
-    if (dCenterSq < minCenterDist * minCenterDist) {
-      const dCenter = Math.sqrt(dCenterSq) || 1;
-      const nx = (b.x - CX) / dCenter;
-      const ny = (b.y - CY) / dCenter;
-      b.x = CX + nx * minCenterDist;
-      b.y = CY + ny * minCenterDist;
-      b.vx = nx * 140;
-      b.vy = ny * 140;
-    }
-
-    // فيزياء الثقوب والجاذبية
-    for (const h of holes) {
-      const hx = b.x - h.x;
-      const hy = b.y - h.y;
-      const hDistSq = hx * hx + hy * hy;
-
-      if (hDistSq < h.gravityRadius * h.gravityRadius) {
-        const hDist = Math.sqrt(hDistSq) || 0.1;
-        const pull = (1 - (hDist / h.gravityRadius)) * 280 * effectiveDt;
-        // السحب نحو مركز الثقب مع دوران حلزوني
-        b.vx -= (hx / hDist) * pull;
-        b.vy -= (hy / hDist) * pull;
-        b.vx += (-hy / hDist) * (pull * 0.4);
-        b.vy += (hx / hDist) * (pull * 0.4);
-
-        if (hDist < h.r * 0.75) {
-          b.inVortex = true;
-          b.vx *= 0.3;
-          b.vy *= 0.3;
+    // المروحة
+    const dx = b.x - CX, dy = b.y - CY, dist = Math.hypot(dx, dy);
+    if (dist < FAN.radius + b.r && dist > FAN.hubRadius) {
+      const ballA = Math.atan2(dy, dx);
+      for (let i = 0; i < 4; i++) {
+        let diff = (ballA - (fanAngle + i * Math.PI / 2)) % (Math.PI * 2);
+        while (diff > Math.PI) diff -= Math.PI * 2;
+        while (diff < -Math.PI) diff += Math.PI * 2;
+        if (Math.abs(diff) < 0.55) {
+          b.vx += (dx / dist) * FAN.pushForce * dt;
+          b.vy += (dy / dist) * FAN.pushForce * dt;
           break;
         }
       }
     }
 
-    if (b.inVortex) continue;
-
-    // جدران الحلبة مع معامل ارتداد طبيعي
-    const dWallSq = (b.x - CX) * (b.x - CX) + (b.y - CY) * (b.y - CY);
-    const maxR = arenaR - b.r;
-    if (dWallSq > maxR * maxR) {
-      const dWall = Math.sqrt(dWallSq) || 1;
-      const nx = (b.x - CX) / dWall;
-      const ny = (b.y - CY) / dWall;
-      b.x = CX + nx * maxR;
-      b.y = CY + ny * maxR;
-      const vNormal = b.vx * nx + b.vy * ny;
-      if (vNormal > 0) {
-        b.vx -= 1.82 * vNormal * nx;
-        b.vy -= 1.82 * vNormal * ny;
+    // الحفر
+    if (b.shield <= 0) {
+      for (const h of holes) {
+        const hx = b.x - h.x, hy = b.y - h.y, hd = Math.hypot(hx, hy);
+        if (hd < h.pullR) {
+          b.vx -= (hx / hd) * 260 * dt; b.vy -= (hy / hd) * 260 * dt;
+          if (hd < h.r * 0.7) { b.inHole = true; break; }
+        }
       }
     }
 
-    if (b.flash > 0) b.flash = Math.max(0, b.flash - effectiveDt * 1.5);
-    if (b.isTargeted > 0) b.isTargeted = Math.max(0, b.isTargeted - effectiveDt);
+    // ارتداد الحلبة
+    const dWall = Math.hypot(b.x - CX, b.y - CY);
+    if (dWall > arenaR - b.r) {
+      const nx = (b.x - CX) / dWall, ny = (b.y - CY) / dWall;
+      b.x = CX + nx * (arenaR - b.r); b.y = CY + ny * (arenaR - b.r);
+      const vNorm = b.vx * nx + b.vy * ny;
+      if (vNorm > 0) { b.vx -= 1.8 * vNorm * nx; b.vy -= 1.8 * vNorm * ny; }
+    }
   }
 
-  // تصادم الكرات مع بعضها
+  // تصادم الكرات
   for (let i = 0; i < alive.length; i++) {
-    const a = alive[i];
-    if (!a.alive || a.inVortex) continue;
-
     for (let j = i + 1; j < alive.length; j++) {
-      const b = alive[j];
-      if (!b.alive || b.inVortex) continue;
-
-      const dx = b.x - a.x;
-      const dy = b.y - a.y;
-      const minDist = a.r + b.r;
-
-      if (dx * dx + dy * dy < minDist * minDist) {
-        const d = Math.sqrt(dx * dx + dy * dy) || 0.1;
-        const nx = dx / d;
-        const ny = dy / d;
-        const overlap = minDist - d;
-
-        // فصل التداخل
-        a.x -= nx * overlap * 0.5;
-        a.y -= ny * overlap * 0.5;
-        b.x += nx * overlap * 0.5;
-        b.y += ny * overlap * 0.5;
-
-        // سرعة الارتداد
-        const rvx = b.vx - a.vx;
-        const rvy = b.vy - a.vy;
-        const velAlongNormal = rvx * nx + rvy * ny;
-
-        if (velAlongNormal < 0) {
-          const impulse = -1.75 * velAlongNormal / 2;
-          a.vx -= impulse * nx;
-          a.vy -= impulse * ny;
-          b.vx += impulse * nx;
-          b.vy += impulse * ny;
+      const a = alive[i], b = alive[j];
+      if (a.inHole || b.inHole) continue;
+      const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy);
+      if (d < a.r + b.r) {
+        const nx = dx / (d || 1), ny = dy / (d || 1);
+        const overlap = (a.r + b.r) - d;
+        a.x -= nx * overlap * 0.5; a.y -= ny * overlap * 0.5;
+        b.x += nx * overlap * 0.5; b.y += ny * overlap * 0.5;
+        const vel = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny;
+        if (vel < 0) {
+          const imp = -1.75 * vel / 2;
+          a.vx -= imp * nx; a.vy -= imp * ny;
+          b.vx += imp * nx; b.vy += imp * ny;
         }
       }
     }
   }
 
-  // التحقق من الإنجازات والعد التنازلي
-  const aliveRemaining = balls.filter(b => b.alive).length;
-  if (aliveRemaining !== lastAlive) {
-    lastAlive = aliveRemaining;
-    checkMatchMilestones(aliveRemaining);
+  // FINAL DUEL
+  if (alive.length === 2 && !$("finalDuel").classList.contains("show")) {
+    $("duelN1").textContent = alive[0].name;
+    $("duelN2").textContent = alive[1].name;
+    $("finalDuel").classList.add("show");
+    setTimeout(() => $("finalDuel").classList.remove("show"), 3000);
   }
 
-  // الحسم وإعلان الفائز
-  if (seconds <= 0 || aliveRemaining <= 1) {
-    seconds = Math.max(0, seconds);
-    const survivors = balls.filter(b => b.alive);
-    if (survivors.length > 1) {
-      survivors.sort((p1, p2) => {
-        const d1 = (p1.x - CX) ** 2 + (p1.y - CY) ** 2;
-        const d2 = (p2.x - CX) ** 2 + (p2.y - CY) ** 2;
-        return d1 - d2;
-      });
-      survivors.slice(1).forEach(b => { b.alive = false; });
-    }
-
-    winner = balls.find(b => b.alive) || null;
+  // الفائز
+  if (seconds <= 0 || alive.length <= 1) {
+    winner = alive[0] || null;
     running = false;
-
     $("banner").textContent = winner ? `👑 البطل: ${winner.name}` : "انتهت المعركة!";
-    $("banner").classList.remove("danger");
-
     if (winner) {
       $("winName").textContent = winner.name;
-      $("winnerOverlay").classList.add("active");
-      SoundSystem.win();
-      burst(CX, CY, winner.color, 40);
-      for (let i = 0; i < 3; i++) {
-        setTimeout(() => burst(CX + (Math.random()-0.5)*200, CY + (Math.random()-0.5)*200, winner.color, 25), i * 220);
-      }
-      addMsg("🏆 النتيجة", `توج ${winner.name} بطلاً للأرينا!`, "win", false);
+      $("winnerModal").classList.add("show");
+      addMsg("🏆 الفائز المتوج", `توج [${winner.name}] بطلاً للأرينا!`, "system");
+      spawnConfetti();
     }
   }
 
   updateUI();
 }
 
-// الرسم على الكانفاس
+function spawnConfetti() {
+  for (let i = 0; i < 60; i++) {
+    confetti.push({
+      x: CX, y: CY,
+      vx: (Math.random() - 0.5) * 200,
+      vy: (Math.random() - 0.5) * 200,
+      size: 4 + Math.random() * 4,
+      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+      alpha: 1
+    });
+  }
+}
+
 function render() {
   ctx.clearRect(0, 0, V_WIDTH, V_WIDTH);
 
-  // خلفية الكانفاس الحلبة
-  const bg = ctx.createRadialGradient(CX, CY, 40, CX, CY, 360);
-  bg.addColorStop(0, "#132135");
-  bg.addColorStop(1, "#070c14");
-  ctx.fillStyle = bg;
-  ctx.fillRect(0, 0, V_WIDTH, V_WIDTH);
-
-  // حدود الأرينا
+  // أرضية الأرينا الملكية
   ctx.save();
   ctx.beginPath();
   ctx.arc(CX, CY, arenaR, 0, Math.PI * 2);
-  ctx.fillStyle = "#0c1524";
+  ctx.fillStyle = "#070c14";
   ctx.fill();
-
-  const isDanger = seconds < 20 || (!running && winner);
-  ctx.strokeStyle = isDanger ? "#ff5252" : "#ffc857";
+  ctx.strokeStyle = seconds < 20 ? "#ff4757" : "#ffc857";
   ctx.lineWidth = 4;
-  ctx.shadowBlur = isDanger ? 22 : 12;
-  ctx.shadowColor = ctx.strokeStyle;
+  ctx.shadowBlur = 15; ctx.shadowColor = ctx.strokeStyle;
   ctx.stroke();
   ctx.restore();
 
-  // رسم المروحة وشفراتها الأربع
+  // المروحة المركزية
   if (started && !winner) {
     ctx.save();
     ctx.translate(CX, CY);
-
-    // هالة دوران المروحة
-    const fanGlow = ctx.createRadialGradient(0, 0, 10, 0, 0, FAN.radius * 1.2);
-    fanGlow.addColorStop(0, "rgba(255,82,82,0.18)");
-    fanGlow.addColorStop(1, "rgba(255,82,82,0)");
-    ctx.beginPath();
-    ctx.arc(0, 0, FAN.radius * 1.2, 0, Math.PI * 2);
-    ctx.fillStyle = fanGlow;
-    ctx.fill();
-
     ctx.rotate(fanAngle);
-    for (let i = 0; i < FAN.blades; i++) {
-      ctx.save();
-      ctx.rotate((i / FAN.blades) * Math.PI * 2);
-      const bladeGrad = ctx.createLinearGradient(0, 0, FAN.radius, 0);
-      bladeGrad.addColorStop(0, "#ff5252");
-      bladeGrad.addColorStop(1, "rgba(255,82,82,0.1)");
-      ctx.strokeStyle = bladeGrad;
-      ctx.lineWidth = 7;
-      ctx.lineCap = "round";
-      ctx.beginPath();
-      ctx.moveTo(FAN.hubRadius + 2, 0);
-      ctx.lineTo(FAN.radius, 0);
-      ctx.stroke();
-      ctx.restore();
+    for (let i = 0; i < 4; i++) {
+      ctx.rotate(Math.PI / 2);
+      ctx.strokeStyle = "rgba(255, 71, 87, 0.8)";
+      ctx.lineWidth = 6;
+      ctx.beginPath(); ctx.moveTo(FAN.hubRadius, 0); ctx.lineTo(FAN.radius, 0); ctx.stroke();
     }
     ctx.restore();
-
-    // قلب المروحة
-    ctx.beginPath();
-    ctx.arc(CX, CY, FAN.hubRadius, 0, Math.PI * 2);
-    ctx.fillStyle = "#e11d48";
-    ctx.fill();
-    ctx.strokeStyle = "#fff";
-    ctx.lineWidth = 2;
-    ctx.stroke();
   }
 
-  // رسم الثقوب السوداء مع دوامة الجاذبية
+  // الثقوب
   for (const h of holes) {
-    const vortexGrad = ctx.createRadialGradient(h.x, h.y, h.r * 0.3, h.x, h.y, h.gravityRadius);
-    vortexGrad.addColorStop(0, "rgba(0,0,0,1)");
-    vortexGrad.addColorStop(0.5, "rgba(255,82,82,0.25)");
-    vortexGrad.addColorStop(1, "rgba(0,0,0,0)");
-
-    ctx.beginPath();
-    ctx.arc(h.x, h.y, h.gravityRadius, 0, Math.PI * 2);
-    ctx.fillStyle = vortexGrad;
-    ctx.fill();
-
     ctx.beginPath();
     ctx.arc(h.x, h.y, h.r, 0, Math.PI * 2);
-    ctx.fillStyle = "#000";
-    ctx.fill();
-    ctx.strokeStyle = "#ff5252";
-    ctx.lineWidth = 2;
-    ctx.stroke();
+    ctx.fillStyle = "#000"; ctx.fill();
+    ctx.strokeStyle = "#ff4757"; ctx.lineWidth = 2; ctx.stroke();
   }
 
-  // جزيئات الرياح
-  for (const p of windParticles) {
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(255,160,160,${p.alpha})`;
-    ctx.fill();
-  }
-
-  // رسم الكرات
+  // الكرات
   for (const b of balls) {
     if (!b.alive) continue;
-
     const r = b.r * b.scale;
-    if (r <= 0.5) continue;
-
-    // ظل الكرة
-    ctx.beginPath();
-    ctx.arc(b.x, b.y + 3, r + 2, 0, Math.PI * 2);
-    ctx.fillStyle = "rgba(0,0,0,0.35)";
-    ctx.fill();
-
-    // مجسم الكرة ثلاثي الأبعاد
-    const grad = ctx.createRadialGradient(b.x - r * 0.3, b.y - r * 0.3, 1, b.x, b.y, r);
-    grad.addColorStop(0, "#ffffff");
-    grad.addColorStop(0.2, b.color);
-    grad.addColorStop(1, "#0d131a");
-
     ctx.beginPath();
     ctx.arc(b.x, b.y, r, 0, Math.PI * 2);
-    ctx.fillStyle = grad;
-    ctx.fill();
+    ctx.fillStyle = b.color; ctx.fill();
 
-    ctx.strokeStyle = b.flash > 0 ? "#ffffff" : b.color;
-    ctx.lineWidth = b.flash > 0 ? 3 : 1.5;
-    ctx.stroke();
+    if (b.shield > 0) { ctx.strokeStyle = "#38bdf8"; ctx.lineWidth = 3.5; ctx.stroke(); }
+    if (b.flash > 0) { ctx.strokeStyle = "#fff"; ctx.lineWidth = 4; ctx.stroke(); }
 
-    // مؤشر الاستهداف عند التصويت للكرة
-    if (b.isTargeted > 0) {
-      ctx.save();
-      ctx.strokeStyle = "#ffc857";
-      ctx.lineWidth = 2.5;
-      ctx.beginPath();
-      ctx.arc(b.x, b.y, r + 7, 0, Math.PI * 2);
-      ctx.stroke();
-
-      // سهم إشارة متحرك
-      ctx.fillStyle = "#ffc857";
-      ctx.beginPath();
-      ctx.moveTo(b.x, b.y - r - 16);
-      ctx.lineTo(b.x - 5, b.y - r - 23);
-      ctx.lineTo(b.x + 5, b.y - r - 23);
-      ctx.closePath();
-      ctx.fill();
-      ctx.restore();
-    }
-
-    // اسم الكرة بنطاق واضح
-    if (b.scale > 0.6) {
-      ctx.fillStyle = "#ffffff";
-      ctx.font = "bold 11px Cairo, sans-serif";
-      ctx.textAlign = "center";
-      const displayName = b.name.length > 7 ? b.name.slice(0, 7) + ".." : b.name;
-      ctx.fillText(displayName, b.x, b.y + r + 13);
-    }
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 11px Cairo, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(b.name, b.x, b.y + r + 13);
   }
 
-  // رسم الجزيئات المتناثرة
-  for (let i = particles.length - 1; i >= 0; i--) {
-    const p = particles[i];
-    p.x += p.vx;
-    p.y += p.vy;
-    p.alpha -= 0.025;
-    if (p.alpha <= 0) {
-      particles.splice(i, 1);
-      continue;
-    }
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-    ctx.fillStyle = p.color;
-    ctx.globalAlpha = Math.max(0, p.alpha);
-    ctx.fill();
+  // كونفيتي الفوز
+  for (let i = confetti.length - 1; i >= 0; i--) {
+    const c = confetti[i];
+    c.x += c.vx * 0.016; c.y += c.vy * 0.016; c.alpha -= 0.015;
+    if (c.alpha <= 0) { confetti.splice(i, 1); continue; }
+    ctx.fillStyle = c.color; ctx.globalAlpha = c.alpha;
+    ctx.fillRect(c.x, c.y, c.size, c.size);
     ctx.globalAlpha = 1;
   }
 }
 
-function gameLoop(time) {
-  if (!lastTime) lastTime = time;
-  const dt = Math.min((time - lastTime) / 1000, 0.033);
-  lastTime = time;
-
+function loop(t) {
+  if (!lastTime) lastTime = t;
+  const dt = Math.min((t - lastTime) / 1000, 0.033);
+  lastTime = t;
   updatePhysics(dt);
   render();
-
-  requestAnimationFrame(gameLoop);
+  requestAnimationFrame(loop);
 }
 
-function startGame() {
-  SoundSystem.init();
-  if (running) return;
+// نافذة الإعلان
+function showAd(callback) {
+  const modal = $("adModal");
+  const skipBtn = $("adSkipBtn");
+  const timerText = $("adTimerText");
+  modal.classList.add("show");
+  skipBtn.disabled = true;
+  skipBtn.classList.remove("ready");
 
-  if (winner || !started) {
-    roundId++;
-    initBalls();
-  }
+  let remain = 5;
+  timerText.textContent = `يمكنك التخطي بعد ${remain} ثوانٍ...`;
+  skipBtn.textContent = `انتظر ${remain} ثوانٍ`;
 
-  started = true;
-  running = true;
-  paused = false;
-  winner = null;
-
-  $("banner").textContent = "⚔️ المعركة مشتعلة الآن!";
-  $("banner").classList.remove("danger");
-  $("winnerOverlay").classList.remove("active");
-  $("finalDuel").classList.remove("show");
-  $("killFeed").innerHTML = "";
-  updateUI();
-}
-
-function resetGame() {
-  roundId++;
-  running = false;
-  paused = false;
-  started = false;
-  winner = null;
-
-  initBalls();
-
-  $("banner").textContent = "اضغط «ابدأ المعركة» للخوض في الصراع";
-  $("banner").classList.remove("danger");
-  $("winnerOverlay").classList.remove("active");
-  $("finalDuel").classList.remove("show");
-  $("killFeed").innerHTML = "";
-
-  updateUI();
-}
-
-// تبديل المحاكاة بطريقة آمنة
-function scheduleNextFake() {
-  if (!fakeOn) return;
-  const nextDelay = 1800 + Math.random() * 2000;
-  fakeTimer = setTimeout(() => {
-    if (!fakeOn) return;
-    const items = THEMES[currentTheme].items;
-    const chosen = items[Math.floor(Math.random() * items.length)];
-    const comments = [
-      `صوتوا لـ ${chosen}!`,
-      `فريق ${chosen} للمجد 🔥`,
-      `${chosen} بطل اليوم`,
-      `احذر الثقب يا ${chosen}!`,
-      `ادعموا ${chosen} 🚀`
-    ];
-    addMsg("مشاهد", comments[Math.floor(Math.random() * comments.length)], "", true);
-    if (running && !paused && !winner) {
-      launchCity(chosen, true);
+  const intv = setInterval(() => {
+    remain--;
+    if (remain > 0) {
+      timerText.textContent = `يمكنك التخطي بعد ${remain} ثوانٍ...`;
+      skipBtn.textContent = `انتظر ${remain} ثوانٍ`;
+    } else {
+      clearInterval(intv);
+      timerText.textContent = "يمكنك الآن تخطي الإعلان ومتابعة المعركة";
+      skipBtn.disabled = false;
+      skipBtn.classList.add("ready");
+      skipBtn.textContent = "تخطي الإعلان ⏭";
+      skipBtn.onclick = () => {
+        modal.classList.remove("show");
+        if (callback) callback();
+      };
     }
-    scheduleNextFake();
-  }, nextDelay);
+  }, 1000);
 }
 
-// الأحداث والتفاعل
+// المتجر ومحاكاة الدفع لبوابة Tap
+function openShop() { $("shopModal").classList.add("show"); }
+function closeShop() { $("shopModal").classList.remove("show"); }
+
+window.processPayment = (amt, price) => {
+  SoundSystem.init();
+  closeShop();
+  // إظهار نافذة إعلان ثم شحن الرصيد
+  showAd(() => {
+    profile.sparks += amt;
+    totalEarnings += price;
+    localStorage.setItem("royal_user", JSON.stringify(profile));
+    localStorage.setItem("royal_earnings", totalEarnings);
+    updateProfileUI();
+    SoundSystem.cash();
+    showToast(`⚡ أصبحت أغنى! شحنت +${amt} شرارة بنجاح`);
+    addMsg("عملية دفع ناجحة", `تم استلام ${price} ر.س من ${profile.name} (+${amt} شرارة)`, "system");
+  });
+};
+
+// عناصر التحكم الرئيسية
+$("enterGameBtn").addEventListener("click", () => {
+  SoundSystem.init();
+  if ("Notification" in window) Notification.requestPermission();
+  const n = $("regName").value.trim();
+  const p = $("regPhone").value.trim();
+  saveProfile(n, p);
+  $("splashScreen").classList.add("hide");
+});
+
+$("openShopBtn").addEventListener("click", openShop);
+$("btnBoost").addEventListener("click", () => applyTactical("boost"));
+$("btnShield").addEventListener("click", () => applyTactical("shield"));
+$("btnStrike").addEventListener("click", () => applyTactical("strike"));
+
+$("startBtn").addEventListener("click", () => {
+  SoundSystem.init();
+  if (winner || !started) initBalls();
+  started = true; running = true; paused = false;
+  $("banner").textContent = "⚔️ المعركة مشتعلة الآن!";
+  triggerPushNotification("⚔️ انطلق ديربي أرينا!", "ادخل وصوّت لحارتك وادعم كرتك بالصواعق الآن!");
+  updateUI();
+});
+
+window.resetGame = () => {
+  running = false; paused = false; started = false;
+  $("winnerModal").classList.remove("show");
+  initBalls();
+  $("banner").textContent = "اضغط «ابدأ المعركة» لإطلاق الصدام";
+};
+$("resetBtn").addEventListener("click", resetGame);
+
+$("pauseBtn").addEventListener("click", () => {
+  if (!started || winner) return;
+  paused = !paused;
+  updateUI();
+});
+
+$("voteForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const val = $("voteInput").value.trim();
+  if (!val) return;
+  const b = balls.find(x => x.alive && x.name.toLowerCase() === val.toLowerCase());
+  if (b) {
+    b.vx += (Math.random() - 0.5) * 160; b.vy += (Math.random() - 0.5) * 160;
+    b.flash = 0.6; votes++;
+    SoundSystem.play(650, 0.1);
+    addMsg(profile ? profile.name : "مشاهد", `صوّت لـ [${b.name}]`, "");
+  }
+  $("voteInput").value = "";
+  updateUI();
+});
+
+$("fakeChatToggle").addEventListener("click", () => {
+  fakeChatOn = !fakeChatOn;
+  $("fakeChatToggle").textContent = `شات المحاكاة: ${fakeChatOn ? "يعمل" : "متوقف"}`;
+  $("fakeChatToggle").className = `btn-act ${fakeChatOn ? "btn-green" : "btn-sec"}`;
+  if (fakeTimer) clearInterval(fakeTimer);
+  if (fakeChatOn) {
+    fakeTimer = setInterval(() => {
+      if (!running || paused || winner) return;
+      const pool = THEMES[currentTheme].items;
+      const pick = pool[Math.floor(Math.random() * pool.length)];
+      addMsg("مشاهد", `عاش ${pick}! 🔥`);
+      const t = balls.find(b => b.alive && b.name === pick);
+      if (t) { t.vx += (Math.random() - 0.5) * 70; t.vy += (Math.random() - 0.5) * 70; votes++; }
+    }, 1800);
+  }
+});
+
+// التبديل بين السلاسل الست
 document.querySelectorAll(".theme-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".theme-btn").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
     currentTheme = btn.dataset.theme;
     resetGame();
-    addMsg("النظام", `تم التحويل إلى ثيم: ${THEMES[currentTheme].label}`, "");
   });
 });
 
-$("start").addEventListener("click", startGame);
-$("reset").addEventListener("click", resetGame);
-$("pause").addEventListener("click", () => {
-  if (!started || winner) return;
-  paused = !paused;
-  $("banner").textContent = paused ? "⏸ المعركة متوقفة مؤقتاً" : "⚔️ المعركة مشتعلة الآن!";
-  updateUI();
-});
+window.addEventListener("resize", resizeCanvas);
 
-$("voteForm").addEventListener("submit", e => {
-  e.preventDefault();
-  const val = $("cityInput").value.trim();
-  if (val) {
-    launchCity(val, false);
-    $("cityInput").value = "";
-  }
-});
-
-$("fakeToggle").addEventListener("click", () => {
-  fakeOn = !fakeOn;
-  const btn = $("fakeToggle");
-  btn.textContent = fakeOn ? "المحاكاة: تعمل" : "المحاكاة: متوقفة";
-  btn.className = fakeOn ? "green" : "secondary";
-
-  if (fakeTimer) {
-    clearTimeout(fakeTimer);
-    fakeTimer = null;
-  }
-
-  if (fakeOn) {
-    addMsg("النظام", "بدأت المحاكاة التفاعلية للشات", "");
-    scheduleNextFake();
-  }
-});
-
-// نافذة الـ CTA
-const modal = $("ctaModal");
-$("ctaBtn").addEventListener("click", () => modal.classList.add("show"));
-$("modalCloseBtn").addEventListener("click", () => modal.classList.remove("show"));
-$("modalLaterBtn").addEventListener("click", () => modal.classList.remove("show"));
-
-$("whatsappBtn").addEventListener("click", () => {
-  const user = $("userName").value.trim() || "مهتم بالبث";
-  const text = encodeURIComponent(`مرحباً، أنا ${user}، شاهدت تجربة ديربي أرينا وأرغب في الحصول على النسخة المخصصة للبث المباشر بكامل المزايا.`);
-  window.open(`https://wa.me/966592859590?text=${text}`, "_blank");
-});
-
-window.addEventListener("resize", setupHiDPI);
-
-// التهيئة والإقلاع
-setupHiDPI();
+// بدء النظام
+if (profile) {
+  $("splashScreen").classList.add("hide");
+  updateProfileUI();
+}
+resizeCanvas();
 initBalls();
-requestAnimationFrame(gameLoop);
+requestAnimationFrame(loop);
 
 })();
 </script>
