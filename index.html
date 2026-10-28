@@ -1,21 +1,689 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>اختبار ديربي القبائل</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        body { margin: 0; background-color: #0b0b0d; color: #d4af37; font-family: 'Cairo', sans-serif; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; }
-        h1 { font-size: 2rem; text-shadow: 0 0 10px rgba(212,175,55,0.5); }
-        .message { font-size: 1.2rem; color: #fff; margin-top: 20px; }
-        .btn { background: #d4af37; color: #000; padding: 10px 20px; border-radius: 10px; text-decoration: none; font-weight: bold; margin-top: 20px; display: inline-block; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0b0b0d">
+<meta name="description" content="ديربي القبائل — لعبة إقصاء فيزيائية حية">
+<title>ديربي القبائل | Tribes Arena</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gold:#d4af37;--gold-light:#f2d77a;--bg:#0b0b0d;--bg-2:#12141a;
+  --surface:rgba(20,22,28,.85);--border:rgba(212,175,55,.25);
+  --text:#f4efe1;--text-dim:#a9adaf;--danger:#ff3b3b;
+  --success:#00ff88;--cyan:#00e5ff;--radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--text);
+  font-family:'Cairo',system-ui,sans-serif;overflow:hidden;
+  -webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;
+  user-select:none;-webkit-user-select:none}
+#app{display:flex;flex-direction:column;height:100vh;height:100dvh;
+  max-width:640px;margin:0 auto;position:relative}
+
+/* TOP BAR */
+.top-bar{display:flex;justify-content:space-around;align-items:center;
+  padding:10px 12px;background:var(--surface);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);z-index:10;gap:8px}
+.stat{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700}
+.stat-label{font-size:16px}
+.stat-value{color:var(--gold);font-size:16px;min-width:38px;text-align:center;
+  font-variant-numeric:tabular-nums}
+
+/* ARENA */
+.arena-wrapper{position:relative;flex:1 1 auto;min-height:0;
+  background:radial-gradient(ellipse at center,#141a25 0%,#05070a 100%);
+  overflow:hidden;touch-action:none}
+#arena{display:block;position:absolute;inset:0;width:100%;height:100%}
+.status-overlay{position:absolute;top:10px;left:50%;transform:translateX(-50%);
+  background:rgba(0,0,0,.75);color:var(--gold);padding:8px 20px;
+  border-radius:100px;font-size:13px;font-weight:700;border:1px solid var(--border);
+  backdrop-filter:blur(10px);white-space:nowrap;max-width:92%;
+  overflow:hidden;text-overflow:ellipsis;z-index:5;
+  transition:opacity .3s}
+.status-overlay.danger{color:var(--danger);border-color:var(--danger);
+  animation:pulse .8s infinite}
+@keyframes pulse{0%,100%{transform:translateX(-50%) scale(1)}
+  50%{transform:translateX(-50%) scale(1.05)}}
+
+/* CONTROLS */
+.controls{padding:10px 12px;background:var(--surface);
+  border-top:1px solid var(--border);z-index:10}
+.btn-primary{width:100%;padding:14px;background:linear-gradient(135deg,var(--gold-light),var(--gold));
+  color:#1a1400;border:none;border-radius:var(--radius);font-family:'Cairo',sans-serif;
+  font-size:16px;font-weight:900;cursor:pointer;transition:transform .15s,box-shadow .15s;
+  box-shadow:0 4px 20px rgba(212,175,55,.35)}
+.btn-primary:active{transform:scale(.97)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+/* CHAT */
+.chat-panel{background:var(--surface);border-top:1px solid var(--border);
+  padding:8px 12px 12px;display:flex;flex-direction:column;gap:6px;z-index:10}
+.chat-history{overflow-y:auto;max-height:14vh;display:flex;flex-direction:column;
+  gap:3px;scrollbar-width:thin;scrollbar-color:var(--gold) transparent}
+.chat-history::-webkit-scrollbar{width:3px}
+.chat-history::-webkit-scrollbar-thumb{background:var(--gold);border-radius:3px}
+.chat-msg{font-size:11.5px;line-height:1.4;padding:3px 8px;border-radius:8px;
+  background:rgba(30,32,40,.6);display:flex;gap:6px;
+  animation:slideIn .2s ease-out}
+@keyframes slideIn{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
+.chat-prefix{flex-shrink:0}
+.chat-text{color:var(--text-dim);word-break:break-word}
+.chat-input-row{display:flex;gap:8px}
+#chat-input{flex:1;padding:11px 16px;background:rgba(255,255,255,.06);
+  border:1px solid var(--border);border-radius:100px;color:var(--text);
+  font-family:'Cairo',sans-serif;font-size:14px;outline:none;
+  transition:border-color .2s,background .2s}
+#chat-input:focus{border-color:var(--gold);background:rgba(212,175,55,.08)}
+#chat-input::placeholder{color:#666}
+.btn-send{width:44px;height:44px;border-radius:50%;
+  background:linear-gradient(135deg,var(--gold-light),var(--gold));
+  color:#1a1400;border:none;font-size:20px;font-weight:900;cursor:pointer;
+  display:grid;place-items:center;transition:transform .15s;flex-shrink:0}
+.btn-send:active{transform:scale(.9)}
+
+/* LEADERBOARD (drawer) */
+.leaderboard-panel{position:fixed;bottom:0;left:0;right:0;max-width:640px;margin:0 auto;
+  background:var(--bg-2);border-top:2px solid var(--gold);
+  border-radius:20px 20px 0 0;padding:16px;transform:translateY(calc(100% - 48px));
+  transition:transform .35s cubic-bezier(.2,.8,.2,1);z-index:100;
+  max-height:75vh;box-shadow:0 -8px 30px rgba(0,0,0,.7)}
+.leaderboard-panel.open{transform:translateY(0)}
+.leaderboard-handle{width:50px;height:4px;background:var(--gold);
+  border-radius:2px;margin:0 auto 12px;cursor:pointer}
+.leaderboard-title{display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:14px;cursor:pointer}
+.leaderboard-title h2{font-size:16px;color:var(--gold)}
+.leaderboard-title .chev{color:var(--gold);font-size:20px;transition:transform .3s}
+.leaderboard-panel.open .chev{transform:rotate(180deg)}
+.leaderboard-list{display:flex;flex-direction:column;gap:6px;
+  max-height:55vh;overflow-y:auto;padding-bottom:8px}
+.lb-row{display:grid;grid-template-columns:30px 1fr auto;gap:10px;
+  align-items:center;padding:8px 12px;background:rgba(30,32,40,.6);
+  border-radius:10px;border:1px solid transparent;font-size:13px}
+.lb-row.rank-1{background:linear-gradient(135deg,rgba(212,175,55,.25),rgba(212,175,55,.05));
+  border-color:var(--gold)}
+.lb-row.rank-2{background:linear-gradient(135deg,rgba(192,192,192,.2),rgba(192,192,192,.05))}
+.lb-row.rank-3{background:linear-gradient(135deg,rgba(205,127,50,.2),rgba(205,127,50,.05))}
+.lb-rank{color:var(--gold);font-weight:900;text-align:center}
+.lb-country{display:flex;align-items:center;gap:6px;font-weight:700}
+.lb-wins{color:var(--gold);font-weight:900;font-variant-numeric:tabular-nums}
+.lb-empty{text-align:center;padding:20px;color:var(--text-dim);font-size:13px}
+
+/* WINNER BANNER */
+.winner-banner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);
+  background:linear-gradient(135deg,var(--gold-light),var(--gold));
+  color:#1a1400;padding:20px 40px;border-radius:20px;text-align:center;
+  box-shadow:0 0 60px rgba(212,175,55,.7);z-index:20;
+  transition:transform .5s cubic-bezier(.2,1.5,.3,1)}
+.winner-banner.show{transform:translate(-50%,-50%) scale(1)}
+.winner-banner .emoji{font-size:48px;line-height:1}
+.winner-banner .name{font-size:22px;font-weight:900;margin-top:6px}
+.winner-banner .sub{font-size:12px;opacity:.8;margin-top:4px}
+
+@media(min-width:600px){.top-bar{padding:12px 20px}.stat{font-size:14px}
+  .stat-value{font-size:18px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{
+  animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
 </head>
 <body>
-    <h1>🎯 ديربي القبائل</h1>
-    <div class="message">هذه صفحة اختبار تجريبية 🚀</div>
-    <div class="message">إذا رأيت هذا النص، فالمستودع يعمل بنجاح!</div>
-    <a href="https://mkhld0336-cmyk.github.io/dallah-app/" class="btn">اضغط هنا لرؤية النتيجة</a>
+
+<div id="app">
+  <header class="top-bar">
+    <div class="stat"><span class="stat-label">⏱️</span>
+      <span class="stat-value" id="timer">1:30</span></div>
+    <div class="stat"><span class="stat-label">👥</span>
+      <span class="stat-value" id="alive-count">0</span></div>
+    <div class="stat"><span class="stat-label">🔄</span>
+      <span class="stat-value" id="cycle">0</span></div>
+    <div class="stat"><span class="stat-label">🗳️</span>
+      <span class="stat-value" id="vote-count">0</span></div>
+  </header>
+
+  <main class="arena-wrapper">
+    <canvas id="arena"></canvas>
+    <div id="status-text" class="status-overlay">اضغط "ابدأ المعركة" للبدء</div>
+    <div id="winner-banner" class="winner-banner">
+      <div class="emoji">🏆</div>
+      <div class="name" id="winner-name">—</div>
+      <div class="sub">الفائز في هذه الدورة</div>
+    </div>
+  </main>
+
+  <section class="controls">
+    <button id="start-btn" class="btn-primary">🎮 ابدأ المعركة</button>
+  </section>
+
+  <section class="chat-panel">
+    <div id="chat-history" class="chat-history"></div>
+    <div class="chat-input-row">
+      <input type="text" id="chat-input" maxlength="30" autocomplete="off"
+             placeholder="اكتب اسم دولة (مثال: السعودية)...">
+      <button id="chat-send" class="btn-send" aria-label="إرسال">↑</button>
+    </div>
+  </section>
+
+  <aside class="leaderboard-panel" id="lb-panel">
+    <div class="leaderboard-handle"></div>
+    <div class="leaderboard-title" id="lb-toggle">
+      <h2>🏆 لوحة الفائزين</h2>
+      <span class="chev">▲</span>
+    </div>
+    <div class="leaderboard-list" id="lb-list"></div>
+  </aside>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ═══════ CONFIG ═══════ */
+const CONFIG={
+  ARENA_INITIAL_RADIUS:280, ARENA_MIN_RADIUS:110,
+  ARENA_SHRINK_RATE:0.6, ARENA_SUDDEN_SHRINK:2.5,
+  BALL_RADIUS:14, SUPER_BALL_RADIUS:22,
+  BALL_MASS:1, SUPER_BALL_MASS:4,
+  MAX_BALLS:64,
+  FRICTION:0.998, WALL_RESTITUTION:0.85, BALL_RESTITUTION:0.9,
+  VOTE_COOLDOWN_MS:3000, VOTE_BOOST_IMPULSE:2.5,
+  SUPER_VOTE_MULTIPLIER:3, MAX_BALL_SPEED:14,
+  ROUND_DURATION_MS:90000, SUDDEN_DEATH_AFTER_MS:70000,
+  MAX_CHAT_HISTORY:30, LEADERBOARD_TOP_N:10,
+  SK_STATE:'dallah_state_v2', SK_LB:'dallah_lb_v2',
+  SK_VOTES:'dallah_votes_v2', SK_WINS:'dallah_wins_v2',
+  GOLD:'#d4af37', GOLD_LIGHT:'#f2d77a', CYAN:'#00e5ff',
+  BG:'#0b0b0d', TEXT:'#f4efe1', DANGER:'#ff3b3b', SUCCESS:'#00ff88'
+};
+
+/* ═══════ COUNTRIES (compact — ~130) ═══════ */
+const COUNTRIES=[
+['🇸🇦','SA','السعودية'],['🇦🇪','AE','الإمارات'],['🇰🇼','KW','الكويت'],['🇶🇦','QA','قطر'],
+['🇧🇭','BH','البحرين'],['🇴🇲','OM','عمان'],['🇾🇪','YE','اليمن'],['🇯🇴','JO','الأردن'],
+['🇱🇧','LB','لبنان'],['🇸🇾','SY','سوريا'],['🇮🇶','IQ','العراق'],['🇵🇸','PS','فلسطين'],
+['🇪🇬','EG','مصر'],['🇱🇾','LY','ليبيا'],['🇹🇳','TN','تونس'],['🇩🇿','DZ','الجزائر'],
+['🇲🇦','MA','المغرب'],['🇸🇩','SD','السودان'],['🇲🇷','MR','موريتانيا'],['🇸🇴','SO','الصومال'],
+['🇩🇯','DJ','جيبوتي'],['🇰🇲','KM','القمر'],
+['🇺🇸','US','أمريكا'],['🇬🇧','GB','بريطانيا'],['🇫🇷','FR','فرنسا'],['🇩🇪','DE','ألمانيا'],
+['🇮🇹','IT','إيطاليا'],['🇪🇸','ES','إسبانيا'],['🇵🇹','PT','البرتغال'],['🇷🇺','RU','روسيا'],
+['🇨🇳','CN','الصين'],['🇯🇵','JP','اليابان'],['🇰🇷','KR','كوريا'],['🇮🇳','IN','الهند'],
+['🇧🇷','BR','البرازيل'],['🇦🇷','AR','الأرجنتين'],['🇲🇽','MX','المكسيك'],['🇨🇦','CA','كندا'],
+['🇦🇺','AU','أستراليا'],['🇹🇷','TR','تركيا'],['🇮🇷','IR','إيران'],['🇵🇰','PK','باكستان'],
+['🇦🇫','AF','أفغانستان'],['🇧🇩','BD','بنغلاديش'],['🇮🇩','ID','إندونيسيا'],['🇲🇾','MY','ماليزيا'],
+['🇵🇭','PH','الفلبين'],['🇹🇭','TH','تايلاند'],['🇻🇳','VN','فيتنام'],['🇸🇬','SG','سنغافورة'],
+['🇳🇱','NL','هولندا'],['🇧🇪','BE','بلجيكا'],['🇨🇭','CH','سويسرا'],['🇦🇹','AT','النمسا'],
+['🇸🇪','SE','السويد'],['🇳🇴','NO','النرويج'],['🇩🇰','DK','الدنمارك'],['🇫🇮','FI','فنلندا'],
+['🇵🇱','PL','بولندا'],['🇺🇦','UA','أوكرانيا'],['🇬🇷','GR','اليونان'],['🇿🇦','ZA','جنوب أفريقيا'],
+['🇳🇬','NG','نيجيريا'],['🇰🇪','KE','كينيا'],['🇪🇹','ET','إثيوبيا'],['🇬🇭','GH','غانا'],
+['🇸🇳','SN','السنغال'],['🇹🇿','TZ','تنزانيا'],['🇺🇬','UG','أوغندا'],['🇳🇿','NZ','نيوزيلندا'],
+['🇨🇱','CL','تشيلي'],['🇨🇴','CO','كولومبيا'],['🇵🇪','PE','بيرو'],['🇻🇪','VE','فنزويلا'],
+['🇨🇺','CU','كوبا'],['🇯🇲','JM','جامايكا'],['🇭🇹','HT','هايتي'],['🇩🇴','DO','الدومينيكان'],
+['🇬🇹','GT','غواتيمالا'],['🇭🇳','HN','هندوراس'],['🇸🇻','SV','السلفادور'],['🇳🇮','NI','نيكاراغوا'],
+['🇨🇷','CR','كوستاريكا'],['🇵🇦','PA','بنما'],['🇪🇨','EC','الإكوادور'],['🇧🇴','BO','بوليفيا'],
+['🇵🇾','PY','باراغواي'],['🇺🇾','UY','أوروغواي'],['🇦🇲','AM','أرمينيا'],['🇦🇿','AZ','أذربيجان'],
+['🇬🇪','GE','جورجيا'],['🇰🇿','KZ','كازاخستان'],['🇺🇿','UZ','أوزبكستان'],['🇹🇲','TM','تركمانستان'],
+['🇹🇯','TJ','طاجيكستان'],['🇰🇬','KG','قيرغيزستان'],['🇲🇳','MN','منغوليا'],['🇳🇵','NP','نيبال'],
+['🇱🇰','LK','سريلانكا'],['🇲🇲','MM','ميانمار'],['🇰🇭','KH','كمبوديا'],['🇱🇦','LA','لاوس'],
+['🇧🇳','BN','بروناي'],['🇹🇱','TL','تيمور'],['🇵🇬','PG','بابوا'],['🇫🇯','FJ','فيجي'],
+['🇸🇧','SB','سليمان'],['🇻🇺','VU','فانواتو'],['🇼🇸','WS','ساموا'],['🇹🇴','TO','تونغا'],
+['🇮🇸','IS','آيسلندا'],['🇮🇪','IE','أيرلندا'],['🇱🇺','LU','لوكسمبورغ'],['🇲🇹','MT','مالطا'],
+['🇨🇾','CY','قبرص'],['🇲🇪','ME','الجبل الأسود'],['🇧🇦','BA','البوسنة'],['🇭🇷','HR','كرواتيا'],
+['🇸🇮','SI','سلوفينيا'],['🇷🇸','RS','صربيا'],['🇲🇰','MK','مقدونيا'],['🇦🇱','AL','ألبانيا'],
+['🇧🇬','BG','بلغاريا'],['🇷🇴','RO','رومانيا'],['🇭🇺','HU','هنغاريا'],['🇨🇿','CZ','التشيك'],
+['🇸🇰','SK','سلوفاكيا'],['🇱🇹','LT','ليتوانيا'],['🇱🇻','LV','لاتفيا'],['🇪🇪','EE','إستونيا']
+];
+
+/* ═══════ PHYSICS ═══════ */
+class PhysicsWorld{
+  constructor(radius){this.arenaRadius=radius;this.balls=[];this.nextId=1}
+  addBall(cfg){
+    const b={id:this.nextId++,name:cfg.name,emoji:cfg.emoji,iso:cfg.iso,
+      x:cfg.x||0,y:cfg.y||0,vx:cfg.vx||0,vy:cfg.vy||0,
+      radius:cfg.radius,mass:cfg.mass,color:cfg.color,
+      alive:true,votes:0,isSuper:cfg.isSuper||false};
+    this.balls.push(b);return b;
+  }
+  applyVoteBoost(id,isSuper){
+    const b=this.balls.find(x=>x.id===id);
+    if(!b||!b.alive)return false;
+    const ang=Math.atan2(-b.y,-b.x)+(Math.random()-.5)*1.2;
+    const imp=isSuper?4:CONFIG.VOTE_BOOST_IMPULSE;
+    b.vx+=Math.cos(ang)*imp;b.vy+=Math.sin(ang)*imp;
+    b.votes+=isSuper?5:1;
+    const sp=Math.hypot(b.vx,b.vy);
+    if(sp>CONFIG.MAX_BALL_SPEED){
+      b.vx=(b.vx/sp)*CONFIG.MAX_BALL_SPEED;
+      b.vy=(b.vy/sp)*CONFIG.MAX_BALL_SPEED;
+    }
+    return true;
+  }
+  update(dt){
+    // motion + friction
+    for(const b of this.balls){
+      if(!b.alive)continue;
+      b.vx*=CONFIG.FRICTION;b.vy*=CONFIG.FRICTION;
+      b.x+=b.vx;b.y+=b.vy;
+    }
+    // ball-ball collisions
+    const alive=this.balls.filter(b=>b.alive);
+    for(let i=0;i<alive.length;i++){
+      for(let j=i+1;j<alive.length;j++){
+        this.resolve(alive[i],alive[j]);
+      }
+    }
+    // wall collision
+    const maxR=this.arenaRadius;
+    for(const b of this.balls){
+      if(!b.alive)continue;
+      const d=Math.hypot(b.x,b.y);
+      const lim=maxR-b.radius;
+      if(d>lim&&d>0){
+        const nx=b.x/d,ny=b.y/d;
+        b.x=nx*lim;b.y=ny*lim;
+        const dot=b.vx*nx+b.vy*ny;
+        b.vx-=2*dot*nx*CONFIG.WALL_RESTITUTION;
+        b.vy-=2*dot*ny*CONFIG.WALL_RESTITUTION;
+      }
+      if(d>maxR+b.radius*2)b.alive=false;
+    }
+  }
+  resolve(a,b){
+    const dx=b.x-a.x,dy=b.y-a.y;
+    const dist=Math.hypot(dx,dy);
+    const minD=a.radius+b.radius;
+    if(dist>=minD||dist===0)return;
+    const nx=dx/dist,ny=dy/dist;
+    const overlap=minD-dist;
+    const tm=a.mass+b.mass;
+    a.x-=nx*overlap*(b.mass/tm);a.y-=ny*overlap*(b.mass/tm);
+    b.x+=nx*overlap*(a.mass/tm);b.y+=ny*overlap*(a.mass/tm);
+    const rvx=b.vx-a.vx,rvy=b.vy-a.vy;
+    const vn=rvx*nx+rvy*ny;
+    if(vn>0)return;
+    const j=-(1+CONFIG.BALL_RESTITUTION)*vn/(1/a.mass+1/b.mass);
+    a.vx-=(j*nx)/a.mass;a.vy-=(j*ny)/a.mass;
+    b.vx+=(j*nx)/b.mass;b.vy+=(j*ny)/b.mass;
+  }
+  getAlive(){return this.balls.filter(b=>b.alive)}
+  getWinner(){const a=this.getAlive();return a.length===1?a[0]:null}
+}
+
+/* ═══════ AUDIO ═══════ */
+class AudioEngine{
+  constructor(){this.ctx=null;this.enabled=true;this.vol=.3}
+  init(){
+    if(this.ctx)return;
+    try{this.ctx=new(window.AudioContext||window.webkitAudioContext)()}catch(e){this.enabled=false}
+  }
+  _tone(freq,dur,type='sine',gain=.1){
+    if(!this.enabled||!this.ctx)return;
+    if(this.ctx.state==='suspended')this.ctx.resume();
+    const o=this.ctx.createOscillator(),g=this.ctx.createGain();
+    o.type=type;o.frequency.value=freq;
+    g.gain.setValueAtTime(gain*this.vol,this.ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001,this.ctx.currentTime+dur);
+    o.connect(g);g.connect(this.ctx.destination);
+    o.start();o.stop(this.ctx.currentTime+dur);
+  }
+  vote(){this._tone(660,.1,'sine',.15)}
+  superVote(){this._tone(880,.15,'triangle',.2);
+    setTimeout(()=>this._tone(1320,.2,'triangle',.2),80)}
+  eliminate(){this._tone(200,.3,'sawtooth',.15)}
+  victory(){[523,659,784,1047].forEach((f,i)=>
+    setTimeout(()=>this._tone(f,.4,'sine',.25),i*120))}
+  click(){this._tone(440,.05,'square',.05)}
+}
+
+/* ═══════ STORAGE ═══════ */
+const Storage={
+  save(k,d){try{localStorage.setItem(k,JSON.stringify(d));return true}catch(e){return false}},
+  load(k,fb=null){try{const r=localStorage.getItem(k);return r?JSON.parse(r):fb}catch(e){return fb}},
+  getCooldowns(){return this.load(CONFIG.SK_VOTES,{})||{}},
+  canVote(iso){const c=this.getCooldowns();return Date.now()-(c[iso]||0)>=CONFIG.VOTE_COOLDOWN_MS},
+  recordVote(iso){const c=this.getCooldowns();c[iso]=Date.now();
+    const cutoff=Date.now()-60000;
+    for(const k in c)if(c[k]<cutoff)delete c[k];
+    this.save(CONFIG.SK_VOTES,c)},
+  getLB(){return this.load(CONFIG.SK_LB,{})||{}},
+  recordWin(iso,name,emoji){
+    const lb=this.getLB();
+    if(!lb[iso])lb[iso]={name,emoji,iso,wins:0};
+    lb[iso].wins+=1;lb[iso].lastWin=Date.now();
+    this.save(CONFIG.SK_LB,lb);
+  },
+  getTop(n=10){
+    return Object.values(this.getLB()).sort((a,b)=>b.wins-a.wins).slice(0,n)
+  },
+  getTotalWins(){
+    return Object.values(this.getLB()).reduce((s,x)=>s+x.wins,0)
+  }
+};
+
+/* ═══════ LEADERBOARD UI ═══════ */
+class Leaderboard{
+  constructor(el){this.el=el}
+  render(){
+    const top=Storage.getTop(CONFIG.LEADERBOARD_TOP_N);
+    const total=Storage.getTotalWins();
+    if(top.length===0){
+      this.el.innerHTML=`<div class="lb-empty">
+        لا يوجد فائزون بعد — ابدأ معركة واكتب اسم دولتك!</div>`;
+      return;
+    }
+    const medals=['🥇','🥈','🥉'];
+    this.el.innerHTML=top.map((it,i)=>{
+      const rank=i<3?medals[i]:(i+1);
+      return `<div class="lb-row rank-${i+1}">
+        <span class="lb-rank">${rank}</span>
+        <span class="lb-country">${it.emoji} ${it.name}</span>
+        <span class="lb-wins">${it.wins}</span>
+      </div>`;
+    }).join('');
+  }
+}
+
+/* ═══════ MAIN GAME ═══════ */
+class Game{
+  constructor(){
+    this.canvas=document.getElementById('arena');
+    this.ctx=this.canvas.getContext('2d',{alpha:false});
+    this.dpr=Math.min(window.devicePixelRatio||1,2);
+    this.physics=null;
+    this.arenaRadius=CONFIG.ARENA_INITIAL_RADIUS;
+    this.state='IDLE';
+    this.startTime=0;
+    this.cycle=0;
+    this.lastTick=performance.now();
+    this.audio=new AudioEngine();
+    this.leaderboard=new Leaderboard(document.getElementById('lb-list'));
+    this.voteTotal=0;
+    this.els={
+      status:document.getElementById('status-text'),
+      timer:document.getElementById('timer'),
+      alive:document.getElementById('alive-count'),
+      cycle:document.getElementById('cycle'),
+      vote:document.getElementById('vote-count'),
+      start:document.getElementById('start-btn'),
+      chatInput:document.getElementById('chat-input'),
+      chatSend:document.getElementById('chat-send'),
+      chatHistory:document.getElementById('chat-history'),
+      winnerBanner:document.getElementById('winner-banner'),
+      winnerName:document.getElementById('winner-name')
+    };
+    this.resize();
+    this.bindUI();
+    this.leaderboard.render();
+    this.physics=new PhysicsWorld(this.arenaRadius);
+    requestAnimationFrame(t=>this.loop(t));
+  }
+  resize(){
+    const wrap=this.canvas.parentElement;
+    const rect=wrap.getBoundingClientRect();
+    this.width=rect.width;this.height=rect.height;
+    this.canvas.width=Math.floor(rect.width*this.dpr);
+    this.canvas.height=Math.floor(rect.height*this.dpr);
+    this.canvas.style.width=rect.width+'px';
+    this.canvas.style.height=rect.height+'px';
+    this.ctx.setTransform(this.dpr,0,0,this.dpr,0,0);
+    this.cx=this.width/2;this.cy=this.height/2;
+    this.scale=Math.min(this.width,this.height)/(CONFIG.ARENA_INITIAL_RADIUS*2.2);
+  }
+  bindUI(){
+    window.addEventListener('resize',()=>this.resize());
+    this.els.start.addEventListener('click',()=>{
+      this.audio.init();this.audio.click();this.startBattle();
+    });
+    this.els.chatSend.addEventListener('click',()=>this.handleChat());
+    this.els.chatInput.addEventListener('keypress',e=>{
+      if(e.key==='Enter')this.handleChat();
+    });
+    // leaderboard drawer
+    const panel=document.getElementById('lb-panel');
+    const toggle=()=>panel.classList.toggle('open');
+    document.getElementById('lb-toggle').addEventListener('click',toggle);
+    panel.querySelector('.leaderboard-handle').addEventListener('click',toggle);
+  }
+  pickColor(i){
+    const pal=['#00e5ff','#ff0055','#00ff88','#ffaa00','#8a2be2',
+      '#ff4500','#1e90ff','#32cd32','#ff69b4','#dda0dd',
+      '#ffd700','#40e0d0','#dc143c','#7fffd4','#ff6347',
+      '#9370db','#20b2aa','#ffb6c1','#3cb371','#f08080'];
+    return pal[i%pal.length];
+  }
+  startBattle(){
+    this.cycle++;
+    this.els.cycle.textContent=this.cycle;
+    this.state='PREPARING';
+    this.els.status.textContent='جاري التحضير...';
+    this.els.status.classList.remove('danger');
+    this.els.start.disabled=true;
+    this.els.winnerBanner.classList.remove('show');
+
+    // shuffle + pick
+    const pool=[...COUNTRIES];
+    for(let i=pool.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [pool[i],pool[j]]=[pool[j],pool[i]];
+    }
+    const chosen=pool.slice(0,CONFIG.MAX_BALLS);
+    this.physics=new PhysicsWorld(CONFIG.ARENA_INITIAL_RADIUS);
+    this.arenaRadius=CONFIG.ARENA_INITIAL_RADIUS;
+    this.voteTotal=0;this.els.vote.textContent=0;
+
+    chosen.forEach((c,i)=>{
+      const ang=(i/chosen.length)*Math.PI*2;
+      const r=60+Math.random()*120;
+      this.physics.addBall({
+        name:c[2],emoji:c[0],iso:c[1],
+        x:Math.cos(ang)*r,y:Math.sin(ang)*r,
+        vx:(Math.random()-.5)*3,vy:(Math.random()-.5)*3,
+        radius:CONFIG.BALL_RADIUS,mass:CONFIG.BALL_MASS,
+        color:this.pickColor(i),isSuper:false
+      });
+    });
+    this.addChat('🤖',`بدأت المعركة #${this.cycle} بـ ${chosen.length} دولة`);
+    this.addChat('💡','اكتب اسم دولة (مثال: السعودية) للتصويت لها');
+    this.startTime=performance.now();
+    this.lastTick=this.startTime;
+
+    setTimeout(()=>{
+      if(this.state!=='PREPARING')return;
+      this.state='BATTLE';
+      this.els.status.textContent='⚔️ المعركة جارية';
+      this.els.start.disabled=false;
+      this.els.start.textContent='🔄 معركة جديدة';
+    },1500);
+  }
+  handleChat(){
+    const text=this.els.chatInput.value.trim();
+    if(!text)return;
+    this.els.chatInput.value='';
+    this.audio.init();
+    if(this.state!=='BATTLE'&&this.state!=='SUDDEN_DEATH'){
+      this.addChat('👤',`${text}: المعركة لم تبدأ بعد`);
+      return;
+    }
+    // match by name or ISO
+    const target=this.physics.balls.find(b=>b.alive&&
+      (b.name===text||b.name.includes(text)||b.iso===text.toUpperCase()));
+    if(!target){
+      this.addChat('👤',`"${text}" ليس في الحلبة`);
+      return;
+    }
+    if(!Storage.canVote(target.iso)){
+      const rem=Math.ceil(CONFIG.VOTE_COOLDOWN_MS/1000);
+      this.addChat('⏳',`انتظر ${rem} ثوانٍ قبل التصويت مجدداً`);
+      return;
+    }
+    this.physics.applyVoteBoost(target.id,false);
+    Storage.recordVote(target.iso);
+    this.audio.vote();
+    this.voteTotal++;
+    this.els.vote.textContent=this.voteTotal;
+    this.addChat('⚡',`دعم ${target.emoji} ${target.name}`);
+  }
+  addChat(prefix,text){
+    const m=document.createElement('div');
+    m.className='chat-msg';
+    m.innerHTML=`<span class="chat-prefix">${prefix}</span><span class="chat-text">${this._esc(text)}</span>`;
+    this.els.chatHistory.prepend(m);
+    while(this.els.chatHistory.children.length>CONFIG.MAX_CHAT_HISTORY){
+      this.els.chatHistory.lastChild.remove();
+    }
+  }
+  _esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+  loop(now){
+    requestAnimationFrame(t=>this.loop(t));
+    const dt=Math.min((now-this.lastTick)/1000,1/30);
+    this.lastTick=now;
+    if(this.state==='BATTLE'||this.state==='SUDDEN_DEATH'){
+      const shrink=this.state==='SUDDEN_DEATH'?
+        CONFIG.ARENA_SUDDEN_SHRINK:CONFIG.ARENA_SHRINK_RATE;
+      if(this.arenaRadius>CONFIG.ARENA_MIN_RADIUS){
+        this.arenaRadius=Math.max(CONFIG.ARENA_MIN_RADIUS,
+          this.arenaRadius-shrink*dt);
+      }
+      this.physics.arenaRadius=this.arenaRadius;
+      this.physics.update(dt);
+      const elapsed=now-this.startTime;
+      const remaining=Math.max(0,CONFIG.ROUND_DURATION_MS-elapsed);
+      this.els.timer.textContent=this._fmt(remaining);
+      this.els.alive.textContent=this.physics.getAlive().length;
+      if(this.state==='BATTLE'&&elapsed>CONFIG.SUDDEN_DEATH_AFTER_MS){
+        this.state='SUDDEN_DEATH';
+        this.els.status.textContent='⏱️ الموت المفاجئ — الحلبة تتقلص!';
+        this.els.status.classList.add('danger');
+        this.addChat('⚠️','بدأت المرحلة الحرجة!');
+      }
+      const aliveN=this.physics.getAlive().length;
+      if(aliveN<=1||remaining<=0)this.endBattle();
+    }
+    this.render(now);
+  }
+  _fmt(ms){
+    const s=Math.ceil(ms/1000);
+    const m=Math.floor(s/60);
+    return `${m}:${String(s%60).padStart(2,'0')}`;
+  }
+  endBattle(){
+    this.state='FINISHED';
+    const w=this.physics.getWinner()||this.physics.getAlive()[0];
+    if(w){
+      Storage.recordWin(w.iso,w.name,w.emoji);
+      this.audio.victory();
+      this.els.status.textContent=`🏆 الفائز: ${w.emoji} ${w.name}`;
+      this.els.status.classList.remove('danger');
+      this.els.winnerName.textContent=`${w.emoji} ${w.name}`;
+      this.els.winnerBanner.classList.add('show');
+      this.addChat('🏆',`الفائز: ${w.emoji} ${w.name}!`);
+      this.confetti(w);
+      this.leaderboard.render();
+    }else{
+      this.els.status.textContent='انتهت المعركة بدون فائز';
+    }
+    this.els.start.disabled=true;
+    setTimeout(()=>{
+      this.els.start.disabled=false;
+      this.els.start.textContent='🎮 ابدأ معركة جديدة';
+      this.els.winnerBanner.classList.remove('show');
+    },3500);
+  }
+  confetti(winner){
+    const cx=this.cx,cy=this.cy;
+    const colors=[CONFIG.GOLD,CONFIG.CYAN,'#ff0055',CONFIG.SUCCESS];
+    const parts=[];
+    for(let i=0;i<120;i++){
+      const a=Math.random()*Math.PI*2;
+      const sp=4+Math.random()*10;
+      parts.push({x:cx,y:cy,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,
+        color:colors[Math.floor(Math.random()*colors.length)],life:1,size:2+Math.random()*3});
+    }
+    const animate=()=>{
+      let any=false;
+      for(const p of parts){
+        if(p.life<=0)continue;
+        p.x+=p.vx;p.y+=p.vy;p.vy+=.25;p.life-=.012;
+        if(p.life>0){
+          any=true;
+          this.ctx.save();
+          this.ctx.globalAlpha=p.life;
+          this.ctx.fillStyle=p.color;
+          this.ctx.beginPath();
+          this.ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
+          this.ctx.fill();
+          this.ctx.restore();
+        }
+      }
+      if(any)requestAnimationFrame(animate);
+    };
+    animate();
+  }
+  render(now){
+    const ctx=this.ctx;
+    // bg
+    ctx.fillStyle=CONFIG.BG;
+    ctx.fillRect(0,0,this.width,this.height);
+    const cx=this.cx,cy=this.cy;
+    const rPix=this.arenaRadius*this.scale;
+    // glow
+    const grad=ctx.createRadialGradient(cx,cy,0,cx,cy,rPix);
+    grad.addColorStop(0,'rgba(0,229,255,.15)');
+    grad.addColorStop(.7,'rgba(0,100,150,.05)');
+    grad.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=grad;
+    ctx.beginPath();ctx.arc(cx,cy,rPix,0,Math.PI*2);ctx.fill();
+    // border
+    ctx.strokeStyle=this.state==='SUDDEN_DEATH'?'#ff3b3b':CONFIG.CYAN;
+    ctx.lineWidth=4;
+    ctx.shadowColor=ctx.strokeStyle;
+    ctx.shadowBlur=this.state==='SUDDEN_DEATH'?30:20;
+    ctx.beginPath();ctx.arc(cx,cy,rPix,0,Math.PI*2);ctx.stroke();
+    ctx.shadowBlur=0;
+    // rotating decor
+    ctx.save();ctx.translate(cx,cy);
+    ctx.rotate(now*.0002);
+    ctx.strokeStyle='rgba(0,229,255,.12)';ctx.lineWidth=2;
+    for(let i=0;i<8;i++){
+      ctx.rotate(Math.PI/4);
+      ctx.beginPath();
+      ctx.moveTo(rPix*.3,0);ctx.lineTo(rPix*.72,0);ctx.stroke();
+    }
+    ctx.restore();
+    // balls
+    if(!this.physics)return;
+    for(const b of this.physics.balls){
+      if(!b.alive)continue;
+      const bx=cx+b.x*this.scale;
+      const by=cy+b.y*this.scale;
+      const br=b.radius*this.scale;
+      ctx.shadowColor=b.color;
+      ctx.shadowBlur=b.isSuper?22:10;
+      ctx.fillStyle=b.color;
+      ctx.beginPath();ctx.arc(bx,by,br,0,Math.PI*2);ctx.fill();
+      ctx.shadowBlur=0;
+      ctx.strokeStyle=b.isSuper?CONFIG.GOLD:'rgba(255,255,255,.5)';
+      ctx.lineWidth=b.isSuper?3:1.2;
+      ctx.stroke();
+      // label
+      if(br>6){
+        ctx.fillStyle='#fff';
+        ctx.font=`bold ${Math.max(9,Math.floor(br*.85))}px Cairo`;
+        ctx.textAlign='center';ctx.textBaseline='middle';
+        ctx.fillText(b.emoji||b.name,bx,by-br*.1);
+      }
+    }
+  }
+}
+
+/* ═══════ BOOT ═══════ */
+window.addEventListener('DOMContentLoaded',()=>{
+  window.__game=new Game();
+});
+
+})();
+</script>
 </body>
 </html>
