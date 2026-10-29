@@ -1,0 +1,8 @@
+{
+  "name": "royal-derby-arena",
+  "version": "1.0.0",
+  "description": "Derby Arena Royal Game",
+  "dependencies": {
+    "firebase-admin": "^11.10.0"
+  }
+}
