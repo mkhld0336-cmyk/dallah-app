@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0b0b0d">
-<title>ديربي أرينا الملكي | Royal Derby</title>
+<title>ديربي أرينا الملكي | Royal Derby V6</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Cinzel:wght@700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -35,7 +35,22 @@ button:active{transform:scale(.95)}
 @keyframes pulseDemo{0%,100%{box-shadow:0 0 10px rgba(212,175,55,.5)}50%{box-shadow:0 0 25px rgba(212,175,55,.9)}}
 
 .arena-container{flex:1;position:relative;display:flex;justify-content:center;align-items:center;padding:10px;overflow:hidden}
-canvas{background:#000;border-radius:50%;box-shadow:0 0 50px rgba(212,175,55,.15),inset 0 0 40px rgba(56,189,248,.25);max-width:100%;max-height:100%;aspect-ratio:1}
+canvas{background:#000;border-radius:50%;box-shadow:0 0 60px rgba(212,175,55,.2),inset 0 0 50px rgba(56,189,248,.3);max-width:100%;max-height:100%;aspect-ratio:1; position:relative; z-index:5;}
+
+/* شبكة الخلفية */
+.arena-grid {
+  position: absolute;
+  width: 90%;
+  height: 90%;
+  border-radius: 50%;
+  background-image: 
+    linear-gradient(rgba(56, 189, 248, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56, 189, 248, 0.05) 1px, transparent 1px);
+  background-size: 30px 30px;
+  z-index: 1;
+  pointer-events: none;
+}
+
 .kill-feed{position:absolute;top:15px;right:15px;display:flex;flex-direction:column;gap:5px;pointer-events:none;z-index:10;max-width:200px}
 .kill-item{background:rgba(239,68,68,.85);color:white;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;animation:slideIn .3s}
 @keyframes slideIn{from{transform:translateX(30px);opacity:0}to{transform:translateX(0);opacity:1}}
@@ -56,27 +71,28 @@ body.demo-mode .fake-chat{display:flex}
 .overlay-title{font-size:26px;font-weight:900;color:var(--gold);margin-bottom:10px;text-shadow:0 0 20px rgba(212,175,55,.4)}
 .overlay-sub{font-size:15px;color:var(--muted);margin-bottom:20px}
 
-.controls{padding:12px 15px;background:var(--bg-panel);border-top:1px solid #2a2518;display:flex;flex-direction:column;gap:10px;z-index:20}
+/* تحسين الشريط السفلي */
+.controls{padding:15px;background:rgba(20,20,25,0.85);backdrop-filter:blur(15px);border-top:1px solid var(--gold-dim);display:flex;flex-direction:column;gap:12px;z-index:20;box-shadow:0 -10px 30px rgba(0,0,0,0.5);}
 .main-btns{display:flex;gap:10px}
-.btn-main{flex:1;padding:12px;border-radius:12px;font-weight:900;font-size:15px;background:var(--gold-gradient);color:#0b0b0d;box-shadow:0 4px 15px rgba(212,175,55,.3);border:none}
+.btn-main{flex:1;padding:12px;border-radius:12px;font-weight:900;font-size:15px;background:var(--gold-gradient);color:#0b0b0d;box-shadow:0 4px 15px rgba(212,175,55,.4);border:none}
 .btn-sec{padding:12px 15px;border-radius:12px;font-weight:700;background:var(--bg-card);color:var(--text);border:1px solid #334155;font-family:inherit}
 
 .tactical{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.tac-btn{background:var(--bg-card);border:1px solid var(--gold-dim);padding:10px 6px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text);font-family:inherit}
+.tac-btn{background:var(--bg-card);border:1px solid var(--gold-dim);padding:10px 6px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text);font-family:inherit;box-shadow:inset 0 0 10px rgba(212,175,55,0.1);}
 .tac-btn span{font-size:12px;font-weight:900}
 .tac-btn small{color:var(--gold);font-size:10px;margin-top:2px}
 .tac-btn:disabled{opacity:.5;cursor:not-allowed}
 
 .input-area{display:flex;gap:8px}
-.input-area input{flex:1;background:#02040a;border:1px solid #334155;border-radius:10px;padding:10px 12px;color:white;font-family:inherit;font-size:14px;outline:none}
-.input-area input:focus{border-color:var(--gold)}
+.input-area input{flex:1;background:#02040a;border:1px solid #334155;border-radius:10px;padding:10px 12px;color:white;font-family:inherit;font-size:14px;outline:none;box-shadow:inset 0 0 5px rgba(0,0,0,0.8);}
+.input-area input:focus{border-color:var(--gold);box-shadow:0 0 10px rgba(212,175,55,0.3);}
 .input-area button{background:var(--gold-gradient);color:#0b0b0d;font-weight:900;padding:0 20px;border-radius:10px;font-family:inherit}
 
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;justify-content:center;align-items:center;z-index:100;backdrop-filter:blur(5px)}
 .modal.active{display:flex}
-.modal-content{background:var(--bg-panel);border:2px solid var(--gold);border-radius:20px;padding:20px;width:90%;max-width:380px;text-align:center}
+.modal-content{background:var(--bg-panel);border:2px solid var(--gold);border-radius:20px;padding:20px;width:90%;max-width:380px;text-align:center;box-shadow:0 0 50px rgba(212,175,55,0.2);}
 .pack{background:var(--bg-card);border:1px solid #334155;padding:12px 15px;border-radius:12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;color:var(--text);font-family:inherit}
-.pack:hover{border-color:var(--gold)}
+.pack:hover{border-color:var(--gold); background:rgba(212,175,55,0.1);}
 .pack .p-sparks{font-weight:900;color:var(--gold);font-size:15px}
 .pack .p-price{background:#1e293b;padding:4px 10px;border-radius:15px;font-size:13px;border:1px solid #334155;color:var(--muted)}
 
@@ -103,6 +119,7 @@ body.demo-mode .fake-chat{display:flex}
 </div>
 
 <div class="arena-container">
+  <div class="arena-grid"></div>
   <div class="kill-feed" id="killFeed"></div>
   <div class="fake-chat" id="fakeChat"></div>
   <canvas id="gameCanvas"></canvas>
@@ -166,7 +183,7 @@ body.demo-mode .fake-chat{display:flex}
    1. FIREBASE & USER DATA (الخزنة والبنك)
    ============================================================ */
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY", // ضع مفتاح الويب من Firebase هنا لتفعيل المزامنة
+  apiKey: "YOUR_API_KEY", // ضع مفتاح الويب من Firebase هنا لتفعيل المزامنة الحقيقية
   authDomain: "royalderby-89ab1.firebaseapp.com",
   databaseURL: "https://royalderby-89ab1-default-rtdb.firebaseio.com",
   projectId: "royalderby-89ab1",
@@ -379,10 +396,16 @@ function updatePhysics(dt){
     }
   }
 
-  FanAngle+=.035*dt*60; const fanDistSq=(Arena.radius*.25)*(Arena.radius*.25);
+  // 🌀 الفيزياء الجديدة: قلب البلازما (يزيد من قوة الدفع)
+  FanAngle+=.05*dt*60; const fanDistSq=(Arena.radius*.25)*(Arena.radius*.25);
   for(let b of Balls){
     if(!b.alive)continue; const fdx=b.x-Arena.cx,fdy=b.y-Arena.cy;
-    if(fdx*fdx+fdy*fdy<fanDistSq){ const angle=Math.atan2(fdy,fdx); const force=.4*dt*60; b.vx+=Math.cos(angle+Math.PI/2)*force; b.vy+=Math.sin(angle+Math.PI/2)*force; }
+    if(fdx*fdx+fdy*fdy<fanDistSq){ 
+      const angle=Math.atan2(fdy,fdx); 
+      const force=.6*dt*60; // دفع أقوى
+      b.vx+=Math.cos(angle+Math.PI/2)*force; b.vy+=Math.sin(angle+Math.PI/2)*force;
+      if(Math.random() > 0.9) spawnSparks(b.x, b.y, '#38bdf8', 1); // شرارات عند الاصطدام بالشفرة
+    }
   }
 
   for(let i=Particles.length-1;i>=0;i--){ let p=Particles[i]; p.x+=p.vx*dt*60;p.y+=p.vy*dt*60; p.vy+=.1*dt*60;p.life-=dt*1.5; if(p.life<=0)Particles.splice(i,1); }
@@ -417,33 +440,96 @@ function spawnSparks(x,y,color,count=10){
   }
 }
 
+/* ============================================================
+   5. RENDER (التصميم الأسطوري الجديد)
+   ============================================================ */
 function render(){
   const w=canvas.width/window.devicePixelRatio,h=canvas.height/window.devicePixelRatio;
   ctx.clearRect(0,0,w,h); if(Arena.radius<=0)return;
+  
   ctx.save();
   if(ScreenShake>0){ ctx.translate((Math.random()-.5)*ScreenShake,(Math.random()-.5)*ScreenShake); ScreenShake*=.9;if(ScreenShake<.5)ScreenShake=0; }
 
+  // 1. رسم أرضية الحلبة (شبكة وتوهج)
   ctx.beginPath();ctx.arc(Arena.cx,Arena.cy,Arena.radius,0,Math.PI*2);
-  ctx.fillStyle='#080e1a';ctx.fill(); ctx.strokeStyle='#d4af37';ctx.lineWidth=4; ctx.shadowColor='#d4af37';ctx.shadowBlur=15;ctx.stroke();ctx.shadowBlur=0;
+  ctx.fillStyle='#060b13';ctx.fill(); 
+  
+  // خطوط الشبكة الدائرية
+  ctx.strokeStyle='rgba(56,189,248,0.05)'; ctx.lineWidth=1;
+  for(let r = Arena.radius*0.2; r < Arena.radius; r += Arena.radius*0.2) {
+    ctx.beginPath(); ctx.arc(Arena.cx, Arena.cy, r, 0, Math.PI*2); ctx.stroke();
+  }
+  
+  // الحافة الذهبية
+  ctx.beginPath();ctx.arc(Arena.cx,Arena.cy,Arena.radius,0,Math.PI*2);
+  ctx.strokeStyle='#d4af37';ctx.lineWidth=5; ctx.shadowColor='#d4af37';ctx.shadowBlur=25;ctx.stroke();ctx.shadowBlur=0;
 
+  // 2. رسم الثقوب السوداء (دوامة)
   for(let h of Holes){
-    ctx.beginPath();ctx.arc(h.x,h.y,h.r*1.3,0,Math.PI*2); ctx.strokeStyle='rgba(239,68,68,.3)';ctx.lineWidth=2;ctx.stroke();
-    ctx.beginPath();ctx.arc(h.x,h.y,h.r,0,Math.PI*2); ctx.fillStyle='#000';ctx.fill(); ctx.strokeStyle='#ef4444';ctx.lineWidth=2;ctx.stroke();
+    // توهج خارجي
+    let grad = ctx.createRadialGradient(h.x, h.y, h.r*0.2, h.x, h.y, h.r*1.5);
+    grad.addColorStop(0, 'rgba(239,68,68,0.6)');
+    grad.addColorStop(1, 'rgba(239,68,68,0)');
+    ctx.beginPath();ctx.arc(h.x,h.y,h.r*1.5,0,Math.PI*2); ctx.fillStyle=grad;ctx.fill();
+    
+    // الدوامة (Swirl)
+    ctx.save(); ctx.translate(h.x, h.y); ctx.rotate(Date.now()*0.002);
+    for(let i=0; i<3; i++){
+        ctx.rotate(Math.PI*2/3);
+        ctx.beginPath(); ctx.ellipse(0, h.r*0.3, h.r*0.8, h.r*0.2, 0, 0, Math.PI*2);
+        ctx.fillStyle = 'rgba(0,0,0,0.8)'; ctx.fill();
+    }
+    ctx.restore();
+    
+    ctx.beginPath();ctx.arc(h.x,h.y,h.r*0.6,0,Math.PI*2); ctx.fillStyle='#000';ctx.fill();
+    ctx.strokeStyle='#ef4444';ctx.lineWidth=2;ctx.stroke();
   }
 
-  ctx.save(); ctx.translate(Arena.cx,Arena.cy);ctx.rotate(FanAngle);
-  for(let i=0;i<4;i++){ ctx.rotate(Math.PI/2); ctx.beginPath();ctx.moveTo(0,0); ctx.lineTo(Arena.radius*.22,-Arena.radius*.06); ctx.lineTo(Arena.radius*.22,Arena.radius*.06); ctx.fillStyle='rgba(56,189,248,.4)';ctx.fill(); }
+  // 3. رسم قلب البلازما (بدلاً من المروحة المملة)
+  ctx.save(); ctx.translate(Arena.cx,Arena.cy); ctx.rotate(FanAngle);
+  
+  // الشفرات الدوارة
+  for(let i=0;i<4;i++){ 
+    ctx.rotate(Math.PI/2); 
+    ctx.beginPath();
+    ctx.moveTo(0,0); 
+    ctx.lineTo(Arena.radius*.3, -Arena.radius*.05); 
+    ctx.lineTo(Arena.radius*.35, 0); 
+    ctx.lineTo(Arena.radius*.3, Arena.radius*.05); 
+    ctx.fillStyle='rgba(56,189,248,0.6)'; 
+    ctx.shadowColor = '#38bdf8'; ctx.shadowBlur = 15;
+    ctx.fill(); 
+    ctx.shadowBlur = 0;
+  }
   ctx.restore();
 
+  // نواة الطاقة النابضة
+  let pulse = 1 + Math.sin(Date.now()*0.005)*0.1;
+  let coreGrad = ctx.createRadialGradient(Arena.cx, Arena.cy, 0, Arena.cx, Arena.cy, Arena.radius*.15 * pulse);
+  coreGrad.addColorStop(0, '#fff');
+  coreGrad.addColorStop(0.5, '#d4af37');
+  coreGrad.addColorStop(1, 'rgba(212,175,55,0)');
+  ctx.beginPath(); ctx.arc(Arena.cx, Arena.cy, Arena.radius*.15 * pulse, 0, Math.PI*2); ctx.fillStyle = coreGrad; ctx.fill();
+
+  // 4. رسم الجزيئات
   for(let p of Particles){ ctx.globalAlpha=p.life;ctx.fillStyle=p.color; ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill(); }
   ctx.globalAlpha=1;
 
+  // 5. رسم الكرات
   for(let b of Balls){
     if(!b.alive)continue;
-    ctx.save(); ctx.shadowColor=b.color;ctx.shadowBlur=b.isPlayer?18:10;
+    ctx.save(); ctx.shadowColor=b.color;ctx.shadowBlur=b.isPlayer?20:12;
     ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2); ctx.fillStyle=b.color;ctx.fill();ctx.shadowBlur=0;
-    if(b.shield){ ctx.beginPath();ctx.arc(b.x,b.y,b.r+6,0,Math.PI*2); ctx.strokeStyle='rgba(56,189,248,.9)';ctx.lineWidth=3;ctx.stroke(); }
+    
+    // تأثير زجاجي داخلي للكرة
+    let bGrad = ctx.createRadialGradient(b.x - b.r*0.3, b.y - b.r*0.3, b.r*0.1, b.x, b.y, b.r);
+    bGrad.addColorStop(0, 'rgba(255,255,255,0.4)');
+    bGrad.addColorStop(1, 'rgba(0,0,0,0.2)');
+    ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2); ctx.fillStyle=bGrad;ctx.fill();
+
+    if(b.shield){ ctx.beginPath();ctx.arc(b.x,b.y,b.r+6,0,Math.PI*2); ctx.strokeStyle='rgba(56,189,248,0.9)';ctx.lineWidth=3;ctx.stroke(); }
     if(b.isPlayer){ ctx.beginPath();ctx.arc(b.x,b.y,b.r+4,0,Math.PI*2); ctx.strokeStyle='#d4af37';ctx.lineWidth=2.5;ctx.stroke(); }
+    
     ctx.fillStyle='#fff'; ctx.font=`bold ${Math.max(9,b.r*.75)}px Cairo`; ctx.textAlign='center';ctx.textBaseline='middle'; ctx.fillText(b.name,b.x,b.y);
     ctx.restore();
   }
@@ -456,7 +542,7 @@ function gameLoop(timestamp){
 }
 
 /* ============================================================
-   5. GAME ENGINE & UI CONTROLLER
+   6. GAME ENGINE & UI CONTROLLER
    ============================================================ */
 const GameEngine={
   startBattle(){
@@ -554,7 +640,6 @@ const UIController={
   }
 };
 
-// دالة الشراء الحقيقية عبر PayPal
 const PaymentSystem={
   buyPayPal(amount, url){
     AudioFX.click();
@@ -567,7 +652,7 @@ const PaymentSystem={
 };
 
 /* ============================================================
-   6. GHOST BUTTON (الزر الشبح)
+   7. GHOST BUTTON (الزر الشبح)
    ============================================================ */
 let secretTapCount = 0;
 document.getElementById('secretTrigger').addEventListener('click', (e) => {
@@ -588,7 +673,7 @@ document.getElementById('secretTrigger').addEventListener('click', (e) => {
 });
 
 /* ============================================================
-   7. BOOT
+   8. BOOT
    ============================================================ */
 function boot(){
   resizeCanvas(); UIController.updateUI(); transitionTo(STATES.LOBBY);
