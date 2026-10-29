@@ -4,681 +4,229 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0b0b0d">
-<title>ديربي أرينا الملكي | Royal Derby V6</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<title>ديربي أرينا الملكي | YouTube Streamer Edition</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
-<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 <style>
 :root{
   --bg:#0b0b0d;--bg-panel:#141419;--bg-card:#1a1814;
-  --gold:#d4af37;--gold-light:#fcf6ba;--gold-dim:#aa771c;
-  --gold-gradient:linear-gradient(135deg,#bf953f,#fcf6ba 25%,#b38728 50%,#fbf5b7 75%,#aa771c);
-  --neon:#38bdf8;--danger:#ef4444;--green:#22c55e;
+  --gold:#d4af37;--gold-gradient:linear-gradient(135deg,#bf953f,#fcf6ba 25%,#b38728 50%,#fbf5b7 75%,#aa771c);
+  --neon:#38bdf8;--danger:#ef4444;--green:#22c55e;--purple:#a855f7;
   --text:#f5f5f7;--muted:#a1a1a6;
 }
 *{box-sizing:border-box;margin:0;padding:0;user-select:none;-webkit-tap-highlight-color:transparent}
-body{font-family:'Cairo',sans-serif;background:radial-gradient(circle at center,#1f1b13,#0b0b0d);color:var(--text);height:100vh;overflow:hidden;display:flex;flex-direction:column}
-button{font-family:inherit;cursor:pointer;border:none;outline:none;transition:transform .1s;min-height:44px;min-width:44px}
-button:active{transform:scale(.95)}
+body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;display:flex;flex-direction:column}
 
-.header{padding:10px 15px;display:flex;justify-content:space-between;align-items:center;background:rgba(20,20,25,.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--gold-dim);z-index:20}
-.user-info{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700; cursor:pointer;}
-.user-info .rank{color:var(--neon);font-size:11px;background:#1e293b;padding:3px 8px;border-radius:10px;border:1px solid #334155}
-.wallet{display:flex;align-items:center;gap:8px;background:#1e293b;padding:5px 12px;border-radius:20px;border:1px solid var(--gold-dim)}
-.wallet span{color:var(--gold);font-weight:900}
-.demo-toggle{background:transparent;border:1px solid var(--gold-dim);color:var(--gold);padding:6px 10px;border-radius:10px;font-size:14px;cursor:pointer;margin-inline-start:8px;display:none;}
-.demo-toggle.active{background:var(--gold);color:#0b0b0d;animation:pulseDemo 1s infinite}
-@keyframes pulseDemo{0%,100%{box-shadow:0 0 10px rgba(212,175,55,.5)}50%{box-shadow:0 0 25px rgba(212,175,55,.9)}}
+/* ================= 16:9 STREAM LAYOUT ================= */
+.stream-layout { display: flex; flex: 1; width: 100%; height: 100vh; overflow: hidden; }
+.sidebar { width: 20%; min-width: 250px; background: rgba(20,20,25,0.95); border-inline: 1px solid var(--gold-dim); display: flex; flex-direction: column; padding: 10px; z-index: 10; }
+.center-area { flex: 1; display: flex; flex-direction: column; position: relative; background: radial-gradient(circle at center, #1f1b13, #0b0b0d); overflow: hidden; }
 
-.arena-container{flex:1;position:relative;display:flex;justify-content:center;align-items:center;padding:10px;overflow:hidden}
-canvas{background:#000;border-radius:50%;box-shadow:0 0 60px rgba(212,175,55,.2),inset 0 0 50px rgba(56,189,248,.3);max-width:100%;max-height:100%;aspect-ratio:1; position:relative; z-index:5;}
-
-/* شبكة الخلفية */
-.arena-grid {
-  position: absolute;
-  width: 90%;
-  height: 90%;
-  border-radius: 50%;
-  background-image: 
-    linear-gradient(rgba(56, 189, 248, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(56, 189, 248, 0.05) 1px, transparent 1px);
-  background-size: 30px 30px;
-  z-index: 1;
-  pointer-events: none;
+/* Hides sidebars on mobile (so shorts recording remains clean) */
+@media (max-width: 900px) {
+  .sidebar { display: none !important; }
+  .stream-layout { flex-direction: column; }
 }
 
-.kill-feed{position:absolute;top:15px;right:15px;display:flex;flex-direction:column;gap:5px;pointer-events:none;z-index:10;max-width:200px}
-.kill-item{background:rgba(239,68,68,.85);color:white;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;animation:slideIn .3s}
-@keyframes slideIn{from{transform:translateX(30px);opacity:0}to{transform:translateX(0);opacity:1}}
+/* Top Goal Bar */
+.goal-bar-container { width: 100%; padding: 10px 20px; background: rgba(0,0,0,0.8); border-bottom: 1px solid var(--gold-dim); z-index: 15; text-align: center; }
+.goal-text { font-size: 14px; font-weight: bold; color: var(--gold); margin-bottom: 5px; text-shadow: 0 0 10px rgba(212,175,55,0.5); }
+.goal-progress-bg { width: 100%; height: 12px; background: #1e293b; border-radius: 10px; overflow: hidden; border: 1px solid #334155; }
+.goal-progress-fill { height: 100%; width: 0%; background: var(--gold-gradient); transition: width 0.3s ease; box-shadow: 0 0 15px var(--gold); }
 
-.commentator-text{display:none;position:absolute;top:15%;left:50%;transform:translateX(-50%);font-size:26px;font-weight:900;color:#fff;text-align:center;text-shadow:0 0 10px #ff0000,0 0 20px #ff0000;z-index:30;pointer-events:none;opacity:0;transition:opacity .3s;width:90%;line-height:1.2}
-.commentator-text.show{opacity:1;animation:popIn .5s cubic-bezier(.175,.885,.32,1.275)}
-@keyframes popIn{0%{transform:translateX(-50%) scale(.5)}100%{transform:translateX(-50%) scale(1)}}
-body.demo-mode .commentator-text{display:block}
+/* Arena */
+.arena-container { flex: 1; position: relative; display: flex; justify-content: center; align-items: center; padding: 10px; }
+canvas { background: #000; border-radius: 50%; box-shadow: 0 0 60px rgba(212,175,55,.2),inset 0 0 50px rgba(56,189,248,.3); max-width: 100%; max-height: 100%; aspect-ratio: 1; z-index: 5;}
 
-.fake-chat{display:none;position:absolute;bottom:15px;left:15px;flex-direction:column;gap:5px;z-index:10;pointer-events:none;max-width:200px}
-.chat-msg{background:rgba(0,0,0,.6);padding:4px 10px;border-radius:15px;font-size:11px;color:#ccc;animation:slideUp .3s;border-inline-start:3px solid var(--gold)}
-.chat-msg b{color:var(--gold)}
-@keyframes slideUp{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
-body.demo-mode .fake-chat{display:flex}
+/* Sidebars Content */
+.sidebar-title { font-size: 14px; font-weight: 900; color: var(--gold); margin-bottom: 10px; text-align: center; border-bottom: 1px solid #334155; padding-bottom: 5px; }
+.chat-msg { background: rgba(255,255,255,0.05); padding: 6px 10px; border-radius: 8px; margin-bottom: 5px; font-size: 12px; border-right: 3px solid var(--neon); animation: slideUp .3s; }
+.chat-msg b { color: var(--gold); }
+@keyframes slideUp { from{transform:translateY(10px);opacity:0} to{transform:translateY(0);opacity:1} }
+.leaderboard-item { display: flex; justify-content: space-between; font-size: 13px; padding: 8px; border-bottom: 1px dashed #334155; }
+.leaderboard-item span:first-child { color: var(--neon); font-weight: bold; }
+.leaderboard-item span:last-child { color: var(--gold); font-weight: 900; }
 
-.overlay-screen{position:absolute;inset:0;background:rgba(5,8,16,.85);backdrop-filter:blur(8px);display:none;flex-direction:column;justify-content:center;align-items:center;z-index:50;text-align:center;padding:20px;border-radius:50%}
-.overlay-screen.active{display:flex}
-.overlay-title{font-size:26px;font-weight:900;color:var(--gold);margin-bottom:10px;text-shadow:0 0 20px rgba(212,175,55,.4)}
-.overlay-sub{font-size:15px;color:var(--muted);margin-bottom:20px}
+/* Streamer Control Panel (Hidden by default) */
+.streamer-panel { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(10,10,15,0.95); border: 2px solid var(--gold); border-radius: 15px; padding: 20px; z-index: 9999; display: none; flex-direction: column; gap: 10px; width: 300px; box-shadow: 0 0 50px rgba(212,175,55,0.3); text-align: center;}
+.streamer-panel h3 { color: var(--gold); margin-bottom: 10px; }
+.sc-btn { padding: 12px; border-radius: 10px; font-weight: 900; font-family: inherit; color: #fff; cursor: pointer; border: none; display: flex; justify-content: space-between; align-items: center; }
+.sc-btn:active { transform: scale(0.95); }
+.sc-btn.bomb { background: linear-gradient(135deg, #a855f7, #6b21a8); }
+.sc-btn.strike { background: linear-gradient(135deg, #38bdf8, #0284c7); }
+.sc-btn.gold { background: linear-gradient(135deg, #d4af37, #aa771c); color: #000; }
 
-/* تحسين الشريط السفلي */
-.controls{padding:15px;background:rgba(20,20,25,0.85);backdrop-filter:blur(15px);border-top:1px solid var(--gold-dim);display:flex;flex-direction:column;gap:12px;z-index:20;box-shadow:0 -10px 30px rgba(0,0,0,0.5);}
-.main-btns{display:flex;gap:10px}
-.btn-main{flex:1;padding:12px;border-radius:12px;font-weight:900;font-size:15px;background:var(--gold-gradient);color:#0b0b0d;box-shadow:0 4px 15px rgba(212,175,55,.4);border:none}
-.btn-sec{padding:12px 15px;border-radius:12px;font-weight:700;background:var(--bg-card);color:var(--text);border:1px solid #334155;font-family:inherit}
+/* Bottom Controls */
+.controls { padding: 10px; background: rgba(20,20,25,0.9); border-top: 1px solid var(--gold-dim); display: flex; gap: 10px; z-index: 20; }
+.btn-main { flex: 1; padding: 12px; border-radius: 10px; font-weight: 900; font-size: 14px; background: var(--gold-gradient); color: #0b0b0d; border: none; }
+.btn-sec { padding: 12px; border-radius: 10px; font-weight: 700; background: var(--bg-card); color: var(--text); border: 1px solid #334155; }
 
-.tactical{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.tac-btn{background:var(--bg-card);border:1px solid var(--gold-dim);padding:10px 6px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text);font-family:inherit;box-shadow:inset 0 0 10px rgba(212,175,55,0.1);}
-.tac-btn span{font-size:12px;font-weight:900}
-.tac-btn small{color:var(--gold);font-size:10px;margin-top:2px}
-.tac-btn:disabled{opacity:.5;cursor:not-allowed}
-
-.input-area{display:flex;gap:8px}
-.input-area input{flex:1;background:#02040a;border:1px solid #334155;border-radius:10px;padding:10px 12px;color:white;font-family:inherit;font-size:14px;outline:none;box-shadow:inset 0 0 5px rgba(0,0,0,0.8);}
-.input-area input:focus{border-color:var(--gold);box-shadow:0 0 10px rgba(212,175,55,0.3);}
-.input-area button{background:var(--gold-gradient);color:#0b0b0d;font-weight:900;padding:0 20px;border-radius:10px;font-family:inherit}
-
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;justify-content:center;align-items:center;z-index:100;backdrop-filter:blur(5px)}
-.modal.active{display:flex}
-.modal-content{background:var(--bg-panel);border:2px solid var(--gold);border-radius:20px;padding:20px;width:90%;max-width:380px;text-align:center;box-shadow:0 0 50px rgba(212,175,55,0.2);}
-.pack{background:var(--bg-card);border:1px solid #334155;padding:12px 15px;border-radius:12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;color:var(--text);font-family:inherit}
-.pack:hover{border-color:var(--gold); background:rgba(212,175,55,0.1);}
-.pack .p-sparks{font-weight:900;color:var(--gold);font-size:15px}
-.pack .p-price{background:#1e293b;padding:4px 10px;border-radius:15px;font-size:13px;border:1px solid #334155;color:var(--muted)}
-
-.toast-container{position:fixed;top:70px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;gap:6px;z-index:200;pointer-events:none;width:90%;max-width:320px}
-.toast{background:rgba(20,20,25,.95);border:1px solid var(--gold);color:white;padding:10px 15px;border-radius:10px;font-size:13px;font-weight:700;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,.5);animation:fadeInOut 2.5s forwards}
-@keyframes fadeInOut{0%{opacity:0;transform:translateY(-10px)}15%{opacity:1;transform:translateY(0)}85%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-10px)}}
+/* Toast */
+.toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 6px; z-index: 2000; pointer-events: none; width: 90%; max-width: 400px; }
+.toast { background: rgba(20,20,25,.95); border: 1px solid var(--gold); color: white; padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 700; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,.6); animation: fadeInOut 3s forwards; }
+@keyframes fadeInOut { 0%{opacity:0;transform:translateY(-20px)} 15%{opacity:1;transform:translateY(0)} 85%{opacity:1;transform:translateY(0)} 100%{opacity:0;transform:translateY(-20px)} }
 </style>
 </head>
 <body>
 
 <div class="toast-container" id="toastContainer"></div>
-<div class="commentator-text" id="commentatorText"></div>
 
-<div class="header">
-  <div class="user-info" id="secretTrigger">
-    <span>👑 <span id="uiName">ضيف</span></span>
-    <span class="rank" id="uiRank">مبتدئ</span>
-    <button class="demo-toggle" id="demoBtn" onclick="DemoMode.toggle()" title="وضع التسجيل">🎬</button>
-  </div>
-  <div class="wallet">
-    <span id="uiSparks">0</span> ⚡
-    <button class="buy-btn" style="background:var(--gold-gradient);color:#0b0b0d;font-weight:900;padding:5px 12px;border-radius:12px;font-size:12px;margin-inline-start:6px" onclick="UIController.openStore()">شحن</button>
-  </div>
+<!-- STREAMER SECRET PANEL -->
+<div class="streamer-panel" id="streamerPanel">
+  <h3>🎛️ لوحة تحكم المذيع (Super Chat)</h3>
+  <button class="sc-btn bomb" onclick="triggerBlackHole()"><span>☄️ ثقب أسود</span><span>$10+</span></button>
+  <button class="sc-btn strike" onclick="triggerLightning()"><span>⚡ صاعقة</span><span>$5+</span></button>
+  <button class="sc-btn gold" onclick="triggerWhaleDrop('داعم ملكي')"><span>💰 مطر ذهب</span><span>$1+</span></button>
+  <button class="btn-sec" style="margin-top:10px;" onclick="document.getElementById('streamerPanel').style.display='none'">إغلاق</button>
 </div>
 
-<div class="arena-container">
-  <div class="arena-grid"></div>
-  <div class="kill-feed" id="killFeed"></div>
-  <div class="fake-chat" id="fakeChat"></div>
-  <canvas id="gameCanvas"></canvas>
-
-  <div class="overlay-screen" id="overlayScreen">
-    <div class="overlay-title" id="overlayTitle">انتهت المعركة</div>
-    <div class="overlay-sub" id="overlaySub">أداء بطولي رائع!</div>
-    <button class="btn-main" style="max-width:200px" onclick="GameEngine.resetGame()">إعادة الجولة</button>
-  </div>
-</div>
-
-<div class="controls">
-  <div class="main-btns">
-    <button class="btn-main" id="startBtn" onclick="GameEngine.startBattle()">▶ ابدأ المعركة</button>
-    <button class="btn-sec" onclick="GameEngine.resetGame()">↺ تصفير</button>
-  </div>
-
-  <div class="tactical">
-    <button class="tac-btn" id="tacBoost" onclick="TacticalSystem.use('boost')">
-      <span>⚡ Boost</span><small>50 ⚡</small>
-    </button>
-    <button class="tac-btn" id="tacShield" onclick="TacticalSystem.use('shield')">
-      <span>🛡️ Shield</span><small>120 ⚡</small>
-    </button>
-    <button class="tac-btn" id="tacStrike" onclick="TacticalSystem.use('strike')">
-      <span>⚔️ Strike</span><small>250 ⚡</small>
-    </button>
-  </div>
-
-  <div class="input-area">
-    <input type="text" id="ballName" placeholder="اكتب اسم حيّك/مدينتك..." maxlength="12">
-    <button onclick="GameEngine.spawnPlayerBall()">إطلاق 🚀</button>
-  </div>
-</div>
-
-<div class="modal" id="storeModal">
-  <div class="modal-content">
-    <h2 style="color:var(--gold);margin-bottom:10px">⚡ متجر الشارات الحقيقي</h2>
-    <p style="font-size:11px;color:var(--muted);margin-bottom:15px">الدفع الآمن عبر PayPal</p>
+<div class="stream-layout">
+  <!-- LEFT SIDEBAR (Leaderboard) -->
+  <div class="sidebar">
+    <div class="sidebar-title">🏆 المتصدرون</div>
+    <div class="leaderboard-item"><span>الرياض</span> <span>1250</span></div>
+    <div class="leaderboard-item"><span>جدة</span> <span>980</span></div>
+    <div class="leaderboard-item"><span>الدمام</span> <span>750</span></div>
+    <div class="leaderboard-item" id="playerRankBox"><span>قائد</span> <span id="playerRankScore">0</span></div>
     
-    <div class="pack" onclick="PaymentSystem.buyPayPal(500, 'https://www.paypal.com/ncp/payment/YR6MF6C7QMJPA')">
-      <div class="p-sparks">500 شرارة</div>
-      <div class="p-price">$1.35</div>
+    <div class="sidebar-title" style="margin-top:20px;">🌪️ مؤشر الفوضى</div>
+    <div style="width:100%; height:10px; background:#1e293b; border-radius:5px; overflow:hidden;">
+      <div id="chaosMeter" style="width:20%; height:100%; background:var(--danger); transition:width 0.5s;"></div>
     </div>
-    <div class="pack" onclick="PaymentSystem.buyPayPal(1600, 'https://www.paypal.com/ncp/payment/G2PZE5QB6MV5N')">
-      <div class="p-sparks">1600 شرارة</div>
-      <div class="p-price">$4.00</div>
+    <p style="font-size:10px; color:var(--muted); margin-top:5px; text-align:center;">كلما زادت الفوضى، زادت الأرباح!</p>
+  </div>
+
+  <!-- CENTER AREA (Game) -->
+  <div class="center-area">
+    <div class="goal-bar-container">
+      <div class="goal-text" id="goalText">الهدف القادم: قنبلة الفيزياء عند 1000 لايك (0/1000)</div>
+      <div class="goal-progress-bg"><div class="goal-progress-fill" id="goalProgress"></div></div>
     </div>
-    <div class="pack" onclick="PaymentSystem.buyPayPal(3800, 'https://www.paypal.com/ncp/payment/L893U4GE7FMTL')">
-      <div class="p-sparks">3800 شرارة</div>
-      <div class="p-price">$8.00</div>
+
+    <div class="arena-container">
+      <canvas id="gameCanvas"></canvas>
     </div>
-    <button class="btn-sec" style="width:100%;margin-top:10px" onclick="UIController.closeStore()">إغلاق</button>
+
+    <div class="controls">
+      <button class="btn-main" id="startBtn" onclick="GameEngine.startBattle()">▶ ابدأ البث</button>
+      <button class="btn-sec" onclick="GameEngine.resetGame()">↺ تصفير</button>
+      <!-- Secret Button to open Streamer Panel -->
+      <button class="btn-sec" onclick="document.getElementById('streamerPanel').style.display='flex'" title="لوحة المذيع">🎛️</button>
+    </div>
+  </div>
+
+  <!-- RIGHT SIDEBAR (Live Chat) -->
+  <div class="sidebar">
+    <div class="sidebar-title">💬 الشات المباشر</div>
+    <div id="liveChatBox" style="flex:1; overflow-y:hidden; display:flex; flex-direction:column; justify-content:flex-end;">
+      <!-- Chat messages injected here -->
+    </div>
   </div>
 </div>
 
 <script>
 'use strict';
+// (Game Logic - Physics & Audio)
+const AudioFX = { ctx:null, init(){ if(!this.ctx) this.ctx=new (window.AudioContext||window.webkitAudioContext)(); if(this.ctx.state==='suspended')this.ctx.resume(); }, play(f,t,d,v){ try{ this.init(); if(!this.ctx)return; const o=this.ctx.createOscillator(),g=this.ctx.createGain(); o.type=t; o.frequency.setValueAtTime(f,this.ctx.currentTime); g.gain.setValueAtTime(v,this.ctx.currentTime); g.gain.exponentialRampToValueAtTime(.001,this.ctx.currentTime+d); o.connect(g);g.connect(this.ctx.destination);o.start();o.stop(this.ctx.currentTime+d); }catch(e){} }, hit(){this.play(300,'triangle',.1,.08)}, elim(){this.play(120,'sawtooth',.3,.15)}, win(){[523,659,784,1047].forEach((f,i)=>setTimeout(()=>this.play(f,'sine',.25,.12),i*140))}, bass(){this.play(40,'sine',1.5,.4)}, click(){this.play(600,'sine',.04,.04)} };
 
-/* ============================================================
-   1. FIREBASE & USER DATA (الخزنة والبنك)
-   ============================================================ */
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY", // ضع مفتاح الويب من Firebase هنا لتفعيل المزامنة الحقيقية
-  authDomain: "royalderby-89ab1.firebaseapp.com",
-  databaseURL: "https://royalderby-89ab1-default-rtdb.firebaseio.com",
-  projectId: "royalderby-89ab1",
-  storageBucket: "royalderby-89ab1.appspot.com",
-  messagingSenderId: "108186871000525070975",
-  appId: "1:108186871000525070975:web:123456789"
-};
-try { if (!firebase.apps.length) firebase.initializeApp(firebaseConfig); } catch(e) { console.log("Firebase Offline Mode"); }
-
-const UserId = localStorage.getItem('derby_user') || "hero_" + Math.floor(Math.random() * 89999 + 10000);
-localStorage.setItem('derby_user', UserId);
-
-const UserData = {
-  name: 'قائد',
-  _sparks: parseInt(localStorage.getItem('derby_sparks')) || 1000,
-  prestige: parseInt(localStorage.getItem('derby_prestige')) || 0,
-  
-  get sparks() { return this._sparks; },
-  set sparks(val) {
-    this._sparks = Math.max(0, val);
-    localStorage.setItem('derby_sparks', this._sparks);
-    UIController.updateUI();
-    try {
-      if (window.firebase && firebase.apps.length) {
-        firebase.database().ref('players/' + UserId).update({ sparks: this._sparks });
-      }
-    } catch(e) {}
-  },
-  
-  get rank() {
-    if(this.prestige > 10000) return 'السيادة المطلقة';
-    if(this.prestige > 3000) return 'أمير الحرب';
-    if(this.prestige > 500) return 'نبيل الحلبة';
-    return 'مواطن سيليكوني';
-  }
-};
-
-try {
-  if (window.firebase && firebase.apps.length) {
-    firebase.database().ref('players/' + UserId + '/sparks').on('value', (snap) => {
-      if(snap.val() !== null) {
-        UserData._sparks = snap.val();
-        UIController.updateUI();
-      }
-    });
-  }
-} catch(e) {}
-
-/* ============================================================
-   2. AUDIO FX
-   ============================================================ */
-const AudioFX={
-  ctx:null,
-  init(){ if(!this.ctx) this.ctx=new (window.AudioContext||window.webkitAudioContext)(); if(this.ctx.state==='suspended')this.ctx.resume(); },
-  play(freq,type,dur,vol){
-    try{
-      this.init();if(!this.ctx)return;
-      const osc=this.ctx.createOscillator(),gain=this.ctx.createGain();
-      osc.type=type;osc.frequency.setValueAtTime(freq,this.ctx.currentTime);
-      gain.gain.setValueAtTime(vol,this.ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(.001,this.ctx.currentTime+dur);
-      osc.connect(gain);gain.connect(this.ctx.destination);osc.start();osc.stop(this.ctx.currentTime+dur);
-    }catch(e){}
-  },
-  hit(){this.play(300,'triangle',.1,.08)},
-  elim(){this.play(120,'sawtooth',.3,.15)},
-  win(){[523,659,784,1047].forEach((f,i)=>setTimeout(()=>this.play(f,'sine',.25,.12),i*140))},
-  bass(){this.play(60,'sine',.8,.3)},
-  click(){this.play(600,'sine',.04,.04)}
-};
-
-/* ============================================================
-   3. STATE & DEMO MODE
-   ============================================================ */
-const STATES={BOOT:'BOOT',LOBBY:'LOBBY',BATTLE:'BATTLE',FINAL_DUEL:'FINAL_DUEL',VICTORY:'VICTORY'};
-let CurrentState=STATES.BOOT;
-function transitionTo(newState){ CurrentState=newState; }
-
-const DemoMode={
-  active:false, demoTimers:[],
-  toggle(){
-    this.active=!this.active;
-    const btn=document.getElementById('demoBtn');
-    if(this.active){
-      document.body.classList.add('demo-mode');
-      btn.classList.add('active');
-      UIController.showToast('🎬 وضع التسجيل مُفعّل');
-      this.start();
-    }else{
-      document.body.classList.remove('demo-mode');
-      btn.classList.remove('active');
-      UIController.showToast('🎬 وضع التسجيل مُعطّل');
-      this.stop();
-    }
-  },
-  start(){
-    if(CurrentState===STATES.LOBBY) GameEngine.startBattle();
-    UIController.fakeChat('أبو فهد','أنا مع الرياض!');
-    UIController.fakeChat('سلطان','جدة بتفوز 💪');
-
-    const timer=setInterval(()=>{
-      if(!this.active)return;
-      const alive=Balls.filter(b=>b.alive);
-      if(alive.length<=1){
-        setTimeout(()=>{GameEngine.resetGame();setTimeout(()=>GameEngine.startBattle(),1500)},3000); return;
-      }
-      const rand=Math.random();
-      if(rand>0.75){ UIController.triggerWhaleDrop('أبو فهد'); }
-      else if(rand>0.45){
-        UIController.commentate(['يا إلهي! تصادم مدمر!','هل ستصمد الكرة الذهبية؟','الرياض في خطر!','لا أصدق هذا الأداء!'][Math.floor(Math.random()*4)]);
-        ScreenShake=10;
-      }else if(rand>0.25){
-        UIController.fakeChat(['ناصر','سالم','فهد','عبدالله'][Math.floor(Math.random()*4)],['1','2','الذهبي!','يلا جدة!','غش!!'][Math.floor(Math.random()*5)]);
-      }
-    },3500);
-    this.demoTimers.push(timer);
-  },
-  stop(){ this.demoTimers.forEach(t=>clearInterval(t)); this.demoTimers=[]; document.getElementById('fakeChat').innerHTML=''; }
-};
-
-/* ============================================================
-   4. ARENA & PHYSICS
-   ============================================================ */
 const Config={MAX_BALLS:20,ARENA_RADIUS_RATIO:.44,BALL_RADIUS_RATIO:.055,FRICTION:.988,HOLE_PULL:.25,MAX_VELOCITY:16,EPSILON:.0001};
-const canvas=document.getElementById('gameCanvas');
-const ctx=canvas.getContext('2d');
+const canvas=document.getElementById('gameCanvas'), ctx=canvas.getContext('2d');
+let Arena={cx:0,cy:0,radius:0}, Balls=[], Holes=[], Particles=[], FanAngle=0, lastTime=performance.now(), ScreenShake=0, HitStop=0;
+let CurrentState = 'LOBBY';
+let playerKills=0;
 
-let Arena={cx:0,cy:0,radius:0};
-let Balls=[],Holes=[],Particles=[];
-let FanAngle=0,PlayerBallId=null,lastTime=performance.now();
-let playerKills=0,playerDeaths=0,ScreenShake=0,HitStop=0;
-
-function resizeCanvas(){
-  const container=canvas.parentElement;
-  const size=Math.min(container.clientWidth-20,container.clientHeight-20,480);
-  canvas.width=size*window.devicePixelRatio; canvas.height=size*window.devicePixelRatio;
-  canvas.style.width=size+'px'; canvas.style.height=size+'px';
-  ctx.setTransform(window.devicePixelRatio,0,0,window.devicePixelRatio,0,0);
-  Arena.cx=size/2;Arena.cy=size/2;Arena.radius=size*Config.ARENA_RADIUS_RATIO;
-  setupHoles();
-}
+function resizeCanvas(){ const c=canvas.parentElement; const s=Math.min(c.clientWidth-20,c.clientHeight-20,480); canvas.width=s*window.devicePixelRatio; canvas.height=s*window.devicePixelRatio; canvas.style.width=s+'px'; canvas.style.height=s+'px'; ctx.setTransform(window.devicePixelRatio,0,0,window.devicePixelRatio,0,0); Arena.cx=s/2;Arena.cy=s/2;Arena.radius=s*Config.ARENA_RADIUS_RATIO; setupHoles(); }
 window.addEventListener('resize',resizeCanvas);
 
-function setupHoles(){
-  Holes=[]; const holeR=Math.max(12,Arena.radius*.11); const dist=Arena.radius*.64;
-  for(let i=0;i<6;i++){ const angle=(i*Math.PI*2)/6; Holes.push({x:Arena.cx+Math.cos(angle)*dist,y:Arena.cy+Math.sin(angle)*dist,r:holeR}); }
-}
+function setupHoles(){ Holes=[]; const hr=Math.max(12,Arena.radius*.11); const dist=Arena.radius*.64; for(let i=0;i<6;i++){ const a=(i*Math.PI*2)/6; Holes.push({x:Arena.cx+Math.cos(a)*dist,y:Arena.cy+Math.sin(a)*dist,r:hr}); } }
 
-function getSafeSpawnPosition(radius){
-  for(let attempt=0;attempt<50;attempt++){
-    const angle=Math.random()*Math.PI*2; const dist=Math.random()*(Arena.radius*.48);
-    const x=Arena.cx+Math.cos(angle)*dist; const y=Arena.cy+Math.sin(angle)*dist;
-    let safeFromHoles=true;
-    for(const h of Holes){ const dx=h.x-x,dy=h.y-y; if(Math.sqrt(dx*dx+dy*dy)<h.r+radius+10){safeFromHoles=false;break} }
-    if(!safeFromHoles)continue;
-    let safeFromBalls=true;
-    for(const b of Balls){ if(!b.alive)continue; const dx=b.x-x,dy=b.y-y; if(Math.sqrt(dx*dx+dy*dy)<b.r+radius+8){safeFromBalls=false;break} }
-    if(safeFromBalls)return{x,y};
-  }
-  return null;
-}
-
-function createBall(name,isPlayer=false){
-  const bR=Math.max(10,Arena.radius*Config.BALL_RADIUS_RATIO);
-  const pos=getSafeSpawnPosition(bR);
-  if(!pos){UIController.showToast('⚠️ الحلبة مكتظة، تعذر توليد الكرة!');return false}
-  const ball={ id:Math.random().toString(36).substr(2,9), name,x:pos.x,y:pos.y,
-    vx:(Math.random()-.5)*6,vy:(Math.random()-.5)*6, r:bR,
-    color:isPlayer?'#d4af37':`hsl(${Math.floor(Math.random()*360)},75%,55%)`,
-    alive:true,shield:false,shieldTimer:0,isPlayer,lastHitBy:null };
-  Balls.push(ball); if(isPlayer)PlayerBallId=ball.id; return true;
-}
+function createBall(name,isPlayer=false){ const br=Math.max(10,Arena.radius*Config.BALL_RADIUS_RATIO); let safe, tries=0; do{ const a=Math.random()*Math.PI*2,d=Math.random()*(Arena.radius*.4); safe={x:Arena.cx+Math.cos(a)*d, y:Arena.cy+Math.sin(a)*d}; tries++; }while(tries<20 && Holes.some(h=>Math.hypot(h.x-safe.x,h.y-safe.y)<h.r+br+10)); const b={ id:Math.random().toString(36).substr(2,6),name,x:safe.x,y:safe.y,vx:(Math.random()-.5)*6,vy:(Math.random()-.5)*6,r:br,color:isPlayer?'#d4af37':`hsl(${Math.random()*360},75%,55%)`,alive:true,shield:false,isPlayer }; Balls.push(b); return true; }
 
 function updatePhysics(dt){
-  if(CurrentState!==STATES.BATTLE&&CurrentState!==STATES.FINAL_DUEL)return;
+  if(CurrentState!=='BATTLE')return;
   if(HitStop>0){HitStop--;return}
-
-  for(let b of Balls){
-    if(!b.alive)continue;
-    if(b.shield){b.shieldTimer-=dt;if(b.shieldTimer<=0)b.shield=false}
+  Balls.forEach(b=>{
+    if(!b.alive)return;
     b.vx*=Math.pow(Config.FRICTION,dt*60); b.vy*=Math.pow(Config.FRICTION,dt*60);
-    if(isNaN(b.vx)||isNaN(b.vy)){b.vx=0;b.vy=0}
-    const speedSq=b.vx*b.vx+b.vy*b.vy,maxV=Config.MAX_VELOCITY;
-    if(speedSq>maxV*maxV){ const speed=Math.sqrt(speedSq); b.vx=(b.vx/speed)*maxV;b.vy=(b.vy/speed)*maxV; }
-    for(let h of Holes){
-      const dx=h.x-b.x,dy=h.y-b.y; const distSq=dx*dx+dy*dy,dist=Math.sqrt(distSq);
-      if(dist<h.r*2.5&&dist>Config.EPSILON){ const pull=Config.HOLE_PULL*(1-dist/(h.r*2.5))*60*dt; b.vx+=(dx/dist)*pull;b.vy+=(dy/dist)*pull; }
-      if(dist<h.r*.85&&!b.shield){ eliminateBall(b);break; }
-    }
-    if(!b.alive)continue;
-    b.x+=b.vx*dt*60;b.y+=b.vy*dt*60;
-    const adx=b.x-Arena.cx,ady=b.y-Arena.cy; const aDist=Math.sqrt(adx*adx+ady*ady),maxR=Arena.radius-b.r;
-    if(aDist>maxR&&aDist>Config.EPSILON){ const nx=adx/aDist,ny=ady/aDist; b.x=Arena.cx+nx*maxR;b.y=Arena.cy+ny*maxR; const dot=b.vx*nx+b.vy*ny; if(dot>0){b.vx-=1.8*dot*nx;b.vy-=1.8*dot*ny} }
-  }
-
-  const len=Balls.length;
-  for(let i=0;i<len;i++){
-    const b1=Balls[i];if(!b1.alive)continue;
-    for(let j=i+1;j<len;j++){
-      const b2=Balls[j];if(!b2.alive)continue;
-      const dx=b2.x-b1.x,dy=b2.y-b1.y; const distSq=dx*dx+dy*dy,minDist=b1.r+b2.r;
-      if(distSq<minDist*minDist&&distSq>Config.EPSILON){
-        const dist=Math.sqrt(distSq),nx=dx/dist,ny=dy/dist; const overlap=.5*(minDist-dist);
-        b1.x-=nx*overlap;b1.y-=ny*overlap; b2.x+=nx*overlap;b2.y+=ny*overlap;
-        const kx=b1.vx-b2.vx,ky=b1.vy-b2.vy; const p=(nx*kx+ny*ky);
-        b1.vx-=p*nx*.95;b1.vy-=p*ny*.95; b2.vx+=p*nx*.95;b2.vy+=p*ny*.95;
-        const impactSpeed=Math.sqrt(kx*kx+ky*ky);
-        if(impactSpeed>8){ ScreenShake=Math.min(15,impactSpeed); AudioFX.hit(); b2.lastHitBy=b1.id; b1.lastHitBy=b2.id; spawnSparks(b1.x+nx*b1.r,b1.y+ny*b1.r,b1.color,8); }
-      }
-    }
-  }
-
-  // 🌀 الفيزياء الجديدة: قلب البلازما (يزيد من قوة الدفع)
-  FanAngle+=.05*dt*60; const fanDistSq=(Arena.radius*.25)*(Arena.radius*.25);
-  for(let b of Balls){
-    if(!b.alive)continue; const fdx=b.x-Arena.cx,fdy=b.y-Arena.cy;
-    if(fdx*fdx+fdy*fdy<fanDistSq){ 
-      const angle=Math.atan2(fdy,fdx); 
-      const force=.6*dt*60; // دفع أقوى
-      b.vx+=Math.cos(angle+Math.PI/2)*force; b.vy+=Math.sin(angle+Math.PI/2)*force;
-      if(Math.random() > 0.9) spawnSparks(b.x, b.y, '#38bdf8', 1); // شرارات عند الاصطدام بالشفرة
-    }
-  }
-
-  for(let i=Particles.length-1;i>=0;i--){ let p=Particles[i]; p.x+=p.vx*dt*60;p.y+=p.vy*dt*60; p.vy+=.1*dt*60;p.life-=dt*1.5; if(p.life<=0)Particles.splice(i,1); }
-
-  const aliveBalls=Balls.filter(b=>b.alive);
-  if(CurrentState===STATES.BATTLE){
-    if(aliveBalls.length===2){ transitionTo(STATES.FINAL_DUEL); UIController.showToast('⚡ منافسة حاسمة!'); }
-    else if(aliveBalls.length<=1){ finishGame(aliveBalls); }
-  }else if(CurrentState===STATES.FINAL_DUEL){ if(aliveBalls.length<=1)finishGame(aliveBalls); }
+    Holes.forEach(h=>{ const dx=h.x-b.x,dy=h.y-b.y,d=Math.hypot(dx,dy); if(d<h.r*2.5){ b.vx+=(dx/d)*Config.HOLE_PULL; b.vy+=(dy/d)*Config.HOLE_PULL; } if(d<h.r*.85){ b.alive=false; AudioFX.elim(); spawnParticles(b.x,b.y,b.color,20); } });
+    if(!b.alive)return;
+    b.x+=b.vx*dt*60; b.y+=b.vy*dt*60;
+    const adx=b.x-Arena.cx,ady=b.y-Arena.cy, adist=Math.hypot(adx,ady), maxR=Arena.radius-b.r;
+    if(adist>maxR){ const nx=adx/adist,ny=ady/adist; b.x=Arena.cx+nx*maxR; b.y=Arena.cy+ny*maxR; const dot=b.vx*nx+b.vy*ny; if(dot>0){b.vx-=1.8*dot*nx;b.vy-=1.8*dot*ny} }
+  });
+  for(let i=0;i<Balls.length;i++){ if(!Balls[i].alive)continue; for(let j=i+1;j<Balls.length;j++){ if(!Balls[j].alive)continue; const b1=Balls[i],b2=Balls[j],dx=b2.x-b1.x,dy=b2.y-b1.y,d=Math.hypot(dx,dy); if(d<b1.r+b2.r){ const nx=dx/d,ny=dy/d,ov=(b1.r+b2.r-d)/2; b1.x-=nx*ov;b1.y-=ny*ov;b2.x+=nx*ov;b2.y+=ny*ov; const kx=b1.vx-b2.vx,ky=b1.vy-b2.vy,p=(nx*kx+ny*ky); b1.vx-=p*nx*.95;b1.vy-=p*ny*.95;b2.vx+=p*nx*.95;b2.vy+=p*ny*.95; if(Math.hypot(kx,ky)>8){ScreenShake=10;AudioFX.hit();spawnParticles((b1.x+b2.x)/2,(b1.y+b2.y)/2,'#fff',5);} } } }
+  for(let i=Particles.length-1;i>=0;i--){ let p=Particles[i]; p.x+=p.vx;p.y+=p.vy;p.life-=0.02; if(p.life<=0)Particles.splice(i,1); }
+  if(Balls.filter(b=>b.alive).length<=1){ CurrentState='LOBBY'; document.getElementById('startBtn').innerText='▶ ابدأ البث'; }
 }
+function spawnParticles(x,y,c,n){ for(let i=0;i<n&&Particles.length<200;i++){ const a=Math.random()*Math.PI*2,s=Math.random()*5+2; Particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,color:c,life:1,size:Math.random()*4+1.5}); } }
 
-function eliminateBall(ball){
-  ball.alive=false; AudioFX.elim(); spawnSparks(ball.x,ball.y,ball.color,25);
-  UIController.addKillFeed(`💀 ${ball.name} تم إقصاؤه`);
-  if(ball.isPlayer){ playerDeaths++; UIController.showToast('❌ تم إقصاء كرتك!'); }
-  else if(ball.lastHitBy===PlayerBallId){ playerKills++; UIController.showToast(`🎯 إقصاء! (${playerKills} ضدك)`); }
-}
-
-function finishGame(aliveBalls){
-  const winner=aliveBalls.length===1?aliveBalls[0]:{name:'تعادل',isPlayer:false};
-  const isPlayerWin=winner.isPlayer||false;
-  transitionTo(STATES.VICTORY);
-  UIController.showVictory(winner.name, isPlayerWin);
-  AudioFX.win();
-  if(isPlayerWin) { UserData.sparks += 250; UserData.prestige += 50; }
-}
-
-function spawnSparks(x,y,color,count=10){
-  for(let i=0;i<count&&Particles.length<150;i++){
-    const angle=Math.random()*Math.PI*2; const speed=Math.random()*5+2;
-    Particles.push({x,y,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,color,life:1,size:Math.random()*3+1.5});
-  }
-}
-
-/* ============================================================
-   5. RENDER (التصميم الأسطوري الجديد)
-   ============================================================ */
 function render(){
   const w=canvas.width/window.devicePixelRatio,h=canvas.height/window.devicePixelRatio;
-  ctx.clearRect(0,0,w,h); if(Arena.radius<=0)return;
-  
-  ctx.save();
-  if(ScreenShake>0){ ctx.translate((Math.random()-.5)*ScreenShake,(Math.random()-.5)*ScreenShake); ScreenShake*=.9;if(ScreenShake<.5)ScreenShake=0; }
-
-  // 1. رسم أرضية الحلبة (شبكة وتوهج)
-  ctx.beginPath();ctx.arc(Arena.cx,Arena.cy,Arena.radius,0,Math.PI*2);
-  ctx.fillStyle='#060b13';ctx.fill(); 
-  
-  // خطوط الشبكة الدائرية
-  ctx.strokeStyle='rgba(56,189,248,0.05)'; ctx.lineWidth=1;
-  for(let r = Arena.radius*0.2; r < Arena.radius; r += Arena.radius*0.2) {
-    ctx.beginPath(); ctx.arc(Arena.cx, Arena.cy, r, 0, Math.PI*2); ctx.stroke();
-  }
-  
-  // الحافة الذهبية
-  ctx.beginPath();ctx.arc(Arena.cx,Arena.cy,Arena.radius,0,Math.PI*2);
-  ctx.strokeStyle='#d4af37';ctx.lineWidth=5; ctx.shadowColor='#d4af37';ctx.shadowBlur=25;ctx.stroke();ctx.shadowBlur=0;
-
-  // 2. رسم الثقوب السوداء (دوامة)
-  for(let h of Holes){
-    // توهج خارجي
-    let grad = ctx.createRadialGradient(h.x, h.y, h.r*0.2, h.x, h.y, h.r*1.5);
-    grad.addColorStop(0, 'rgba(239,68,68,0.6)');
-    grad.addColorStop(1, 'rgba(239,68,68,0)');
-    ctx.beginPath();ctx.arc(h.x,h.y,h.r*1.5,0,Math.PI*2); ctx.fillStyle=grad;ctx.fill();
-    
-    // الدوامة (Swirl)
-    ctx.save(); ctx.translate(h.x, h.y); ctx.rotate(Date.now()*0.002);
-    for(let i=0; i<3; i++){
-        ctx.rotate(Math.PI*2/3);
-        ctx.beginPath(); ctx.ellipse(0, h.r*0.3, h.r*0.8, h.r*0.2, 0, 0, Math.PI*2);
-        ctx.fillStyle = 'rgba(0,0,0,0.8)'; ctx.fill();
-    }
-    ctx.restore();
-    
-    ctx.beginPath();ctx.arc(h.x,h.y,h.r*0.6,0,Math.PI*2); ctx.fillStyle='#000';ctx.fill();
-    ctx.strokeStyle='#ef4444';ctx.lineWidth=2;ctx.stroke();
-  }
-
-  // 3. رسم قلب البلازما (بدلاً من المروحة المملة)
-  ctx.save(); ctx.translate(Arena.cx,Arena.cy); ctx.rotate(FanAngle);
-  
-  // الشفرات الدوارة
-  for(let i=0;i<4;i++){ 
-    ctx.rotate(Math.PI/2); 
-    ctx.beginPath();
-    ctx.moveTo(0,0); 
-    ctx.lineTo(Arena.radius*.3, -Arena.radius*.05); 
-    ctx.lineTo(Arena.radius*.35, 0); 
-    ctx.lineTo(Arena.radius*.3, Arena.radius*.05); 
-    ctx.fillStyle='rgba(56,189,248,0.6)'; 
-    ctx.shadowColor = '#38bdf8'; ctx.shadowBlur = 15;
-    ctx.fill(); 
-    ctx.shadowBlur = 0;
-  }
-  ctx.restore();
-
-  // نواة الطاقة النابضة
-  let pulse = 1 + Math.sin(Date.now()*0.005)*0.1;
-  let coreGrad = ctx.createRadialGradient(Arena.cx, Arena.cy, 0, Arena.cx, Arena.cy, Arena.radius*.15 * pulse);
-  coreGrad.addColorStop(0, '#fff');
-  coreGrad.addColorStop(0.5, '#d4af37');
-  coreGrad.addColorStop(1, 'rgba(212,175,55,0)');
-  ctx.beginPath(); ctx.arc(Arena.cx, Arena.cy, Arena.radius*.15 * pulse, 0, Math.PI*2); ctx.fillStyle = coreGrad; ctx.fill();
-
-  // 4. رسم الجزيئات
-  for(let p of Particles){ ctx.globalAlpha=p.life;ctx.fillStyle=p.color; ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill(); }
-  ctx.globalAlpha=1;
-
-  // 5. رسم الكرات
-  for(let b of Balls){
-    if(!b.alive)continue;
-    ctx.save(); ctx.shadowColor=b.color;ctx.shadowBlur=b.isPlayer?20:12;
-    ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2); ctx.fillStyle=b.color;ctx.fill();ctx.shadowBlur=0;
-    
-    // تأثير زجاجي داخلي للكرة
-    let bGrad = ctx.createRadialGradient(b.x - b.r*0.3, b.y - b.r*0.3, b.r*0.1, b.x, b.y, b.r);
-    bGrad.addColorStop(0, 'rgba(255,255,255,0.4)');
-    bGrad.addColorStop(1, 'rgba(0,0,0,0.2)');
-    ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2); ctx.fillStyle=bGrad;ctx.fill();
-
-    if(b.shield){ ctx.beginPath();ctx.arc(b.x,b.y,b.r+6,0,Math.PI*2); ctx.strokeStyle='rgba(56,189,248,0.9)';ctx.lineWidth=3;ctx.stroke(); }
-    if(b.isPlayer){ ctx.beginPath();ctx.arc(b.x,b.y,b.r+4,0,Math.PI*2); ctx.strokeStyle='#d4af37';ctx.lineWidth=2.5;ctx.stroke(); }
-    
-    ctx.fillStyle='#fff'; ctx.font=`bold ${Math.max(9,b.r*.75)}px Cairo`; ctx.textAlign='center';ctx.textBaseline='middle'; ctx.fillText(b.name,b.x,b.y);
-    ctx.restore();
-  }
+  ctx.clearRect(0,0,w,h); ctx.save();
+  if(ScreenShake>0){ctx.translate((Math.random()-.5)*ScreenShake,(Math.random()-.5)*ScreenShake);ScreenShake*=.9;if(ScreenShake<.5)ScreenShake=0;}
+  ctx.beginPath();ctx.arc(Arena.cx,Arena.cy,Arena.radius,0,Math.PI*2);ctx.fillStyle='#060b13';ctx.fill();
+  ctx.strokeStyle='#d4af37';ctx.lineWidth=5;ctx.shadowColor='#d4af37';ctx.shadowBlur=25;ctx.stroke();ctx.shadowBlur=0;
+  Holes.forEach(h=>{ let g=ctx.createRadialGradient(h.x,h.y,h.r*.2,h.x,h.y,h.r*1.5); g.addColorStop(0,'rgba(239,68,68,0.6)');g.addColorStop(1,'rgba(239,68,68,0)'); ctx.beginPath();ctx.arc(h.x,h.y,h.r*1.5,0,Math.PI*2);ctx.fillStyle=g;ctx.fill(); ctx.beginPath();ctx.arc(h.x,h.y,h.r*.6,0,Math.PI*2);ctx.fillStyle='#000';ctx.fill();ctx.strokeStyle='#ef4444';ctx.stroke(); });
+  Particles.forEach(p=>{ctx.globalAlpha=p.life;ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill();});ctx.globalAlpha=1;
+  Balls.forEach(b=>{ if(!b.alive)return; ctx.save(); ctx.shadowColor=b.color;ctx.shadowBlur=b.isPlayer?20:12; ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2);ctx.fillStyle=b.color;ctx.fill();ctx.shadowBlur=0; if(b.isPlayer){ctx.beginPath();ctx.arc(b.x,b.y,b.r+4,0,Math.PI*2);ctx.strokeStyle='#d4af37';ctx.lineWidth=2.5;ctx.stroke();} ctx.fillStyle='#fff';ctx.font=`bold ${Math.max(9,b.r*.75)}px Cairo`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(b.name,b.x,b.y); ctx.restore(); });
   ctx.restore();
 }
 
-function gameLoop(timestamp){
-  const dt=Math.min((timestamp-lastTime)/1000,.1); lastTime=timestamp;
-  updatePhysics(dt); render(); requestAnimationFrame(gameLoop);
-}
+function gameLoop(t){ const dt=Math.min((t-lastTime)/1000,.1);lastTime=t;updatePhysics(dt);render();requestAnimationFrame(gameLoop); }
 
-/* ============================================================
-   6. GAME ENGINE & UI CONTROLLER
-   ============================================================ */
+// UI & Streamer Functions
+function showToast(msg){ const c=document.getElementById('toastContainer'); const t=document.createElement('div'); t.className='toast';t.innerText=msg;c.appendChild(t);setTimeout(()=>t.remove(),3000); }
+function addChat(user,msg,isSuper=false){ const box=document.getElementById('liveChatBox'); const el=document.createElement('div'); el.className='chat-msg'; if(isSuper){el.style.borderColor='#d4af37';el.style.background='rgba(212,175,55,0.2)';} el.innerHTML=`<b>${user}</b>: ${msg}`; box.appendChild(el); if(box.children.length>10)box.firstChild.remove(); }
+
 const GameEngine={
-  startBattle(){
-    if(CurrentState!==STATES.LOBBY)return;
-    AudioFX.click();
-    if(Balls.filter(b=>b.alive).length<2){
-      const names=['الرياض','جدة','الدمام','الطائف','أبها','حائل','تبوك','بريدة','الخبر','جازان'];
-      const shuffled=names.sort(()=>.5-Math.random());
-      if(!Balls.some(b=>b.isPlayer)){
-        const inputName=document.getElementById('ballName').value.trim()||UserData.name;
-        createBall(inputName,true);
-      }
-      for(let i=0;i<7&&Balls.length<Config.MAX_BALLS;i++){ createBall(shuffled[i%shuffled.length],false); }
-    }
-    transitionTo(STATES.BATTLE);
-    document.getElementById('startBtn').innerText='⏸ المعركة دائرة';
-    UIController.showToast('🚀 بدأت المعركة الملكية!');
-  },
-  resetGame(){
-    AudioFX.click(); Balls=[];Particles=[];PlayerBallId=null; playerKills=0;playerDeaths=0;ScreenShake=0;HitStop=0;
-    transitionTo(STATES.LOBBY);
-    document.getElementById('startBtn').innerText='▶ ابدأ المعركة';
-    document.getElementById('killFeed').innerHTML='';
-    document.getElementById('overlayScreen').classList.remove('active');
-    UIController.showToast('🔄 تم إعادة تعيين الحلبة');
-  },
-  spawnPlayerBall(){
-    if(CurrentState!==STATES.LOBBY){UIController.showToast('⚠️ لا يمكن إضافة كرات أثناء المعركة!');return}
-    const input=document.getElementById('ballName'); const name=input.value.trim()||UserData.name;
-    if(Balls.some(b=>b.isPlayer)){UIController.showToast('⚠️ لديك كرة بالفعل!');return}
-    if(createBall(name,true)){ input.value='';UserData.name=name; UIController.updateUI(); AudioFX.play(800,'sine',.1,.08); UIController.showToast(`✨ تم إطلاق كرة "${name}"!`); }
-  }
+  startBattle(){ if(CurrentState==='BATTLE')return; AudioFX.click(); Balls=[]; createBall('قائد',true); const n=['الرياض','جدة','الدمام','مكة','المدينة']; n.forEach(name=>createBall(name,false)); CurrentState='BATTLE'; document.getElementById('startBtn').innerText='⚔️ البث مباشر'; },
+  resetGame(){ CurrentState='LOBBY'; Balls=[];Particles=[]; ScreenShake=0;HitStop=0; document.getElementById('startBtn').innerText='▶ ابدأ البث'; }
 };
 
-const TacticalSystem={
-  costs:{boost:50,shield:120,strike:250},
-  use(type){
-    if(CurrentState!==STATES.BATTLE&&CurrentState!==STATES.FINAL_DUEL){UIController.showToast('⚠️ ابدأ المعركة أولاً!');return}
-    const cost=this.costs[type];
-    if(UserData.sparks<cost){UIController.showToast('⚠️ عملات غير كافية!');UIController.openStore();return}
-    const pBall=Balls.find(b=>b.id===PlayerBallId&&b.alive);
-    if(!pBall){UIController.showToast('⚠️ كرتك غير موجودة!');return}
-    
-    UserData.sparks-=cost;
-    
-    if(type==='boost'){
-      const speed=Math.sqrt(pBall.vx*pBall.vx+pBall.vy*pBall.vy);
-      if(speed<.5){ const angle=Math.random()*Math.PI*2; pBall.vx=Math.cos(angle)*12;pBall.vy=Math.sin(angle)*12; }
-      else{pBall.vx*=2.8;pBall.vy*=2.8}
-      AudioFX.play(400,'square',.2,.1); UIController.showToast('⚡ دفعة السرعة!');
-    }else if(type==='shield'){
-      pBall.shield=true;pBall.shieldTimer=4; AudioFX.play(900,'sine',.3,.1); UIController.showToast('🛡️ درع 4 ثوان!');
-    }else if(type==='strike'){
-      AudioFX.play(100,'sawtooth',.4,.15); HitStop=8;ScreenShake=20;
-      for(let b of Balls){ if(b.id!==pBall.id&&b.alive){ const dx=b.x-pBall.x,dy=b.y-pBall.y; const dist=Math.sqrt(dx*dx+dy*dy); if(dist<160&&dist>Config.EPSILON){ const force=(1-dist/160)*22; b.vx+=(dx/dist)*force;b.vy+=(dy/dist)*force; b.lastHitBy=pBall.id; } } }
-      spawnSparks(pBall.x,pBall.y,'#38bdf8',20); UIController.showToast('⚔️ موجة صدمة!');
-    }
-  }
-};
-
-const UIController={
-  updateUI(){
-    document.getElementById('uiName').innerText=UserData.name;
-    document.getElementById('uiSparks').innerText=UserData.sparks;
-    document.getElementById('uiRank').innerText=UserData.rank;
-  },
-  showToast(msg){
-    const c=document.getElementById('toastContainer'); const t=document.createElement('div');
-    t.className='toast';t.innerText=msg; c.appendChild(t);setTimeout(()=>t.remove(),2600);
-  },
-  addKillFeed(msg){
-    const feed=document.getElementById('killFeed'); const item=document.createElement('div');
-    item.className='kill-item';item.innerText=msg; feed.appendChild(item);setTimeout(()=>item.remove(),3500);
-  },
-  commentate(text){
-    const el=document.getElementById('commentatorText'); el.innerText=text;el.classList.remove('show');
-    void el.offsetWidth;el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),2000);
-  },
-  fakeChat(user,msg){
-    const chat=document.getElementById('fakeChat'); const el=document.createElement('div');
-    el.className='chat-msg';el.innerHTML=`<b>${user}</b>: ${msg}`; chat.appendChild(el);
-    if(chat.children.length>4)chat.firstChild.remove(); setTimeout(()=>el.remove(),4000);
-  },
-  triggerWhaleDrop(sponsorName){
-    AudioFX.bass(); this.commentate(`💰 ${sponsorName} دفع 5000 شارة! مطر ذهب!`); ScreenShake=20;
-    for(let i=0;i<200;i++){ Particles.push({x:Math.random()*Arena.radius*2+(Arena.cx-Arena.radius),y:-20,vx:(Math.random()-.5)*4,vy:Math.random()*8+4,life:2,color:'#d4af37',size:Math.random()*4+2}); }
-    const alive=Balls.filter(b=>b.alive); if(alive.length>0){ const target=alive[Math.floor(Math.random()*alive.length)]; target.vx*=3;target.vy*=3; }
-  },
-  openStore(){AudioFX.click();document.getElementById('storeModal').classList.add('active')},
-  closeStore(){AudioFX.click();document.getElementById('storeModal').classList.remove('active')},
-  showVictory(winnerName,isPlayerWin){
-    document.getElementById('overlayTitle').innerText=isPlayerWin?`👑 فزت يا ${winnerName}!`:`الفائز: ${winnerName}`;
-    document.getElementById('overlaySub').innerText=isPlayerWin?`🏆 ${playerKills} إقصاء — أداء بطولي!`:'حاول مرة أخرى، المجد ينتظرك!';
-    document.getElementById('overlayScreen').classList.add('active');
-  }
-};
-
-const PaymentSystem={
-  buyPayPal(amount, url){
-    AudioFX.click();
-    UIController.closeStore();
-    UIController.showToast(`⏳ جاري تحويلك لدفع ${amount} شرارة...`);
-    setTimeout(() => {
-      window.location.href = url + "?custom_id=" + UserId;
-    }, 1500);
-  }
-};
-
-/* ============================================================
-   7. GHOST BUTTON (الزر الشبح)
-   ============================================================ */
-let secretTapCount = 0;
-document.getElementById('secretTrigger').addEventListener('click', (e) => {
-    if (e.target.id === 'demoBtn' || e.target.closest('#demoBtn')) return;
-    secretTapCount++;
-    if (secretTapCount >= 3) {
-        const btn = document.getElementById('demoBtn');
-        if (btn.style.display === 'none' || btn.style.display === '') {
-            btn.style.display = 'block';
-            UIController.showToast('🛠️ تم إظهار زر التسجيل');
-        } else {
-            btn.style.display = 'none';
-            UIController.showToast('🛠️ تم إخفاء زر التسجيل');
-        }
-        secretTapCount = 0;
-    }
-    setTimeout(() => { secretTapCount = 0; }, 600);
-});
-
-/* ============================================================
-   8. BOOT
-   ============================================================ */
-function boot(){
-  resizeCanvas(); UIController.updateUI(); transitionTo(STATES.LOBBY);
-  requestAnimationFrame(gameLoop);
+// Streamer Commands (Mapped to Super Chat)
+function triggerBlackHole(){
+  AudioFX.bass(); showToast('☄️ سوبر شات: ثقب أسود!'); addChat('أبو فهد','أرسل 50$',true);
+  ScreenShake=30; const bx=Arena.cx+(Math.random()-.5)*Arena.radius*.5, by=Arena.cy+(Math.random()-.5)*Arena.radius*.5;
+  for(let i=0;i<50;i++)Particles.push({x:bx,y:by,vx:(Math.random()-.5)*20,vy:(Math.random()-.5)*20,life:2,color:'#a855f7',size:Math.random()*5+2});
+  Balls.forEach(b=>{ if(!b.alive)return; const dx=bx-b.x,dy=by-b.y,d=Math.hypot(dx,dy); if(d>0){b.vx+=(dx/d)*25;b.vy+=(dy/d)*25;} });
+  document.getElementById('chaosMeter').style.width='80%';
 }
+function triggerLightning(){
+  AudioFX.play(1000,'sawtooth',.5,.2); showToast('⚡ سوبر شات: صاعقة!'); addChat('سلطان','أرسل 20$',true);
+  ScreenShake=20; const a=Balls.filter(b=>b.alive); if(a.length>0){ const t=a[Math.floor(Math.random()*a.length)]; const ang=Math.random()*Math.PI*2; t.vx=Math.cos(ang)*30;t.vy=Math.sin(ang)*30; for(let i=0;i<30;i++)Particles.push({x:t.x,y:t.y,vx:(Math.random()-.5)*15,vy:(Math.random()-.5)*15,life:1.5,color:'#38bdf8',size:Math.random()*3+1}); }
+  document.getElementById('chaosMeter').style.width='50%';
+}
+function triggerWhaleDrop(name){
+  AudioFX.win(); showToast('💰 مطر ذهب من '+name); addChat(name,'أرسل 5$',true);
+  for(let i=0;i<150;i++)Particles.push({x:Math.random()*Arena.radius*2+(Arena.cx-Arena.radius),y:-20,vx:(Math.random()-.5)*4,vy:Math.random()*8+4,life:2,color:'#d4af37',size:Math.random()*4+2});
+  const a=Balls.filter(b=>b.alive); if(a.length>0){ const t=a[Math.floor(Math.random()*a.length)]; t.vx*=2;t.vy*=2; }
+  document.getElementById('chaosMeter').style.width='35%';
+}
+
+// Fake Goal Bar Simulation (In real life, connect to YouTube API)
+let likes = 0;
+setInterval(() => {
+  if(CurrentState === 'BATTLE') {
+    likes += Math.floor(Math.random() * 50); // Simulate incoming likes
+    let percent = Math.min(100, (likes / 1000) * 100);
+    document.getElementById('goalProgress').style.width = percent + '%';
+    document.getElementById('goalText').innerText = `الهدف القادم: قنبلة الفيزياء عند 1000 لايك (${likes}/1000)`;
+    
+    if (likes >= 1000) {
+      // MEGA BOMB!
+      AudioFX.bass();
+      showToast('💥 قنبلة الفيزياء! تم الوصول لـ 1000 لايك!');
+      ScreenShake = 50;
+      Balls.forEach(b => { b.vx *= -3; b.vy *= -3; }); // Explode everything
+      likes = 0; // Reset
+      document.getElementById('goalProgress').style.width = '0%';
+    }
+  }
+}, 2000);
+
+function boot(){ resizeCanvas(); addChat('يوتيوب','مرحباً بكم في البث المباشر!',false); addChat('النظام','الهدف: 1000 لايك لتفجير الحلبة',false); requestAnimationFrame(gameLoop); }
 window.onload=boot;
 </script>
 </body>
