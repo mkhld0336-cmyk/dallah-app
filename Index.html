@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ديربي أرينا الملكي | Royal Derby Arena</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Cairo', sans-serif; background: #030712; color: #fff; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        
+        .cyber-border { border: 1px solid rgba(255, 215, 0, 0.4); box-shadow: 0 0 15px rgba(255, 215, 0, 0.2), inset 0 0 10px rgba(255, 215, 0, 0.1); }
+        .neon-text { color: #FFD700; text-shadow: 0 0 10px #FFD700, 0 0 20px #FFD700; }
+        .btn-gold { background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); color: #000; font-weight: 900; transition: all 0.2s; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.5); }
+        .btn-gold:active { transform: scale(0.95); }
+        .btn-paypal { background: linear-gradient(135deg, #003087, #009cde); border: 1px solid #00d4ff; color: #fff; }
+        
+        #gameCanvas { width: 100%; height: 100%; display: block; background: radial-gradient(circle at center, #0f172a 0%, #030712 100%); touch-action: none; }
+        
+        .notification { position: fixed; top: 20%; left: 50%; transform: translate(-50%, -50%) scale(0.8); background: rgba(3, 7, 18, 0.95); border: 2px solid #FFD700; padding: 15px 30px; border-radius: 12px; z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); text-align: center; width: 85%; max-width: 320px; box-shadow: 0 0 30px rgba(255, 215, 0, 0.4); }
+        .notification.show { transform: translate(-50%, -50%) scale(1); opacity: 1; visibility: visible; }
+        
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7); } 70% { box-shadow: 0 0 0 12px rgba(255, 215, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); } }
+        .pulse { animation: pulse 1.8s infinite; }
+    </style>
+</head>
+<body>
+
+    <div id="notification" class="notification z-50">
+        <span id="notif-text" class="text-yellow-400 font-bold text-lg"></span>
+    </div>
+
+    <!-- الشريط العلوي (السيادة والرصيد) -->
+    <header class="relative z-20 p-3 bg-black/85 backdrop-blur-md border-b border-yellow-500/30 flex flex-col gap-1.5 rounded-b-2xl">
+        <div class="flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <div class="text-2xl animate-bounce">👑</div>
+                <div>
+                    <div class="text-yellow-400 font-black text-sm neon-text">ديربي أرينا</div>
+                    <div id="statusTier" class="text-cyan-400 text-[10px] font-bold tracking-widest">الرتبة: مواطن سيليكوني</div>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <div class="flex items-center gap-1 bg-black/60 rounded-full px-3 py-1 cyber-border">
+                    <span class="text-yellow-400 text-xs">⚡</span>
+                    <span id="sparkCount" class="text-yellow-400 font-bold text-sm">1000</span>
+                </div>
+                <button id="buyBtn" class="btn-paypal px-2.5 py-1 rounded-lg text-xs font-bold">💳 شحن</button>
+            </div>
+        </div>
+
+        <div class="flex justify-between items-center text-[10px] bg-white/5 px-2.5 py-1 rounded-lg border border-white/10">
+            <div class="flex items-center gap-1">
+                <span class="text-yellow-400">🏆 راعي الحلبة:</span>
+                <span id="sponsorName" class="text-cyan-300 font-bold">الجيش الملكي</span>
+            </div>
+            <div id="timerBox" class="text-yellow-300 font-bold hidden">
+                ⏱️ المتبقي: <span id="timerVal" class="text-red-400 font-black">20</span> ث
+            </div>
+        </div>
+    </header>
+
+    <!-- الحلبة -->
+    <main class="relative flex-grow z-10">
+        <canvas id="gameCanvas"></canvas>
+    </main>
+
+    <!-- الشريط السفلي -->
+    <footer class="relative z-20 p-3 bg-black/85 backdrop-blur-md border-t border-yellow-500/30 flex flex-col gap-2 rounded-t-2xl">
+        <div class="grid grid-cols-3 gap-2">
+            <button onclick="openMysteryBox()" class="bg-purple-900/40 border border-purple-500/60 active:bg-purple-700 text-purple-200 rounded-lg py-1.5 font-bold text-[10px] flex flex-col items-center">
+                <span>🎁 صندوق الغموض</span>
+                <span class="text-[9px] text-purple-400 font-mono">(200⚡)</span>
+            </button>
+            <button onclick="placeBet(100)" class="bg-emerald-900/40 border border-emerald-500/60 active:bg-emerald-700 text-emerald-200 rounded-lg py-1.5 font-bold text-[10px] flex flex-col items-center">
+                <span>🎰 راهن واربح</span>
+                <span class="text-[9px] text-emerald-400 font-mono">(100⚡)</span>
+            </button>
+            <button onclick="sponsorArena(500)" class="bg-yellow-900/40 border border-yellow-500/60 active:bg-yellow-700 text-yellow-200 rounded-lg py-1.5 font-bold text-[10px] flex flex-col items-center">
+                <span>👑 كن الراعي</span>
+                <span class="text-[9px] text-yellow-400 font-mono">(500⚡)</span>
+            </button>
+        </div>
+
+        <div class="flex gap-2">
+            <button onclick="triggerAction('strike')" class="flex-1 bg-red-600/25 border border-red-500 active:bg-red-600/50 text-red-400 rounded-lg py-2 font-bold flex flex-col items-center">
+                <span class="text-sm">⚡ ضربة قاضية</span>
+                <span class="text-[9px] text-red-300 font-mono">(100⚡)</span>
+            </button>
+            <button onclick="triggerAction('boost')" class="flex-1 bg-blue-600/25 border border-blue-500 active:bg-blue-600/50 text-blue-400 rounded-lg py-2 font-bold flex flex-col items-center">
+                <span class="text-sm">🚀 تعزيز النفاث</span>
+                <span class="text-[9px] text-blue-300 font-mono">(50⚡)</span>
+            </button>
+        </div>
+
+        <button onclick="startGame()" id="startBtn" class="btn-gold w-full py-2.5 rounded-xl text-base font-black pulse">
+            ▶ ابدأ المعركة الملكية
+        </button>
+    </footer>
+
+    <script>
+        // ==========================================================
+        // 1. نظام السيادة والدوبامين (Sovereignty & Dopamine System)
+        // ==========================================================
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // --- نظام الأصوات الرياضية (Procedural Audio) ---
+        function playSound(type) {
+            try {
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain); gain.connect(audioCtx.destination);
+
+                if (type === 'hit') {
+                    osc.type = 'triangle'; osc.frequency.setValueAtTime(220, now); osc.frequency.exponentialRampToValueAtTime(80, now + 0.08); gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.08); osc.start(now); osc.stop(now + 0.08);
+                } else if (type === 'coin') {
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(987.77, now); osc.frequency.setValueAtTime(1318.51, now + 0.08); gain.gain.setValueAtTime(0.3, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.25); osc.start(now); osc.stop(now + 0.25);
+                } else if (type === 'victory') {
+                    // نغمة النصر الرياضية (دو، ري، مي، صول)
+                    [523.25, 587.33, 659.25, 783.99].forEach((freq, idx) => {
+                        const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
+                        o.connect(g); g.connect(audioCtx.destination);
+                        o.type = 'triangle'; o.frequency.value = freq;
+                        g.gain.setValueAtTime(0.2, now + idx * 0.1);
+                        g.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.1 + 0.4);
+                        o.start(now + idx * 0.1); o.stop(now + idx * 0.1 + 0.4);
+                    });
+                }
+            } catch(e) {}
+        }
+
+        // --- نظام الرتب (Sovereignty Manager) ---
+        const statusTiers = ['مواطن سيليكوني', 'نبيل الحلبة', 'أمير الحرب', 'السيادة المطلقة'];
+        let currentPrestige = parseInt(localStorage.getItem('derby_prestige')) || 0;
+        
+        function updatePrestige(amount) {
+            currentPrestige += amount;
+            localStorage.setItem('derby_prestige', currentPrestige);
+            
+            let tierIndex = 0;
+            if (currentPrestige > 10000) tierIndex = 3;
+            else if (currentPrestige > 3000) tierIndex = 2;
+            else if (currentPrestige > 500) tierIndex = 1;
+            
+            const tierElement = document.getElementById('statusTier');
+            tierElement.innerText = "الرتبة: " + statusTiers[tierIndex];
+            
+            if (tierIndex === 3) tierElement.style.color = '#FFD700'; // ذهبي
+            else if (tierIndex === 2) tierElement.style.color = '#FF0055'; // أحمر
+            else if (tierIndex === 1) tierElement.style.color = '#00F0FF'; // أزرق
+        }
+        updatePrestige(0); // تحديث الواجهة عند الدخول
+
+        // ==========================================================
+        // 2. الخزنة والاقتصاد (Firebase + Local Fallback)
+        // ==========================================================
+        const firebaseConfig = { apiKey: "YOUR_API_KEY", databaseURL: "https://royalderby-89ab1-default-rtdb.firebaseio.com" };
+        try { if (!firebase.apps.length) firebase.initializeApp(firebaseConfig); } catch(e) { console.log("Offline mode"); }
+
+        const userId = localStorage.getItem('derby_user') || "hero_" + Math.floor(Math.random() * 89999 + 10000);
+        localStorage.setItem('derby_user', userId);
+        let sparks = parseInt(localStorage.getItem('derby_sparks')) || 1000;
+
+        function updateSparks(newAmount) {
+            sparks = Math.max(0, newAmount);
+            localStorage.setItem('derby_sparks', sparks);
+            document.getElementById('sparkCount').innerText = sparks;
+            try { if (window.firebase && firebase.apps.length) firebase.database().ref('players/' + userId).update({ sparks: sparks }); } catch(e) {}
+        }
+        updateSparks(sparks);
+
+        document.getElementById('buyBtn').onclick = () => {
+            playSound('coin');
+            showNotify("جاري تحويلك لبوابة PayPal...", "#00F0FF");
+            setTimeout(() => { window.location.href = "https://www.paypal.com/ncp/payment/YR6MF6C7QMJPA?custom_id=" + userId; }, 1200);
+        };
+
+        // ==========================================================
+        // 3. محرك اللعبة (Canvas & Particles)
+        // ==========================================================
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        let balls = [], particles = [];
+        let isRunning = false, screenShake = 0, timeLeft = 20, battleTimer = null;
+        let isBetting = false, chosenColor = null;
+
+        const COLORS = [
+            { name: "الذهبي", hex: "#FFD700" }, { name: "السماوي", hex: "#00F0FF" },
+            { name: "القرمزي", hex: "#FF0055" }, { name: "الأخضر", hex: "#39FF14" }, { name: "الأرجواني", hex: "#A855F7" }
+        ];
+
+        function resizeCanvas() { canvas.width = canvas.parentElement.clientWidth; canvas.height = canvas.parentElement.clientHeight; }
+        window.addEventListener('resize', resizeCanvas); resizeCanvas();
+
+        class Ball {
+            constructor(x, y, colorData) {
+                this.x = x; this.y = y; this.colorData = colorData; this.radius = 20; this.hits = 0;
+                const speed = 4.5 + Math.random() * 2.5, angle = Math.random() * Math.PI * 2;
+                this.vx = Math.cos(angle) * speed; this.vy = Math.sin(angle) * speed;
+            }
+            update() {
+                this.x += this.vx; this.y += this.vy;
+                if (this.x <= this.radius || this.x >= canvas.width - this.radius) { this.vx *= -1; this.x = Math.max(this.radius, Math.min(this.x, canvas.width - this.radius)); spawnParticles(this.x, this.y, this.colorData.hex, 3); playSound('hit'); }
+                if (this.y <= this.radius || this.y >= canvas.height - this.radius) { this.vy *= -1; this.y = Math.max(this.radius, Math.min(this.y, canvas.height - this.radius)); spawnParticles(this.x, this.y, this.colorData.hex, 3); playSound('hit'); }
+            }
+            draw() {
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.fillStyle = this.colorData.hex; ctx.shadowColor = this.colorData.hex; ctx.shadowBlur = 18; ctx.fill(); ctx.shadowBlur = 0; ctx.strokeStyle = "#FFF"; ctx.lineWidth = 2.5; ctx.stroke(); ctx.closePath();
+            }
+        }
+
+        class Particle {
+            constructor(x, y, color, isGold = false) {
+                this.x = x; this.y = y; this.vx = (Math.random() - 0.5) * (isGold ? 8 : 12); this.vy = isGold ? (Math.random() * 6 + 2) : (Math.random() - 0.5) * 12;
+                this.size = Math.random() * 4 + 1.5; this.life = 1.0; this.color = color; this.isGold = isGold;
+            }
+            update() { this.x += this.vx; this.y += this.vy; this.life -= this.isGold ? 0.015 : 0.035; }
+            draw() { ctx.fillStyle = this.color; ctx.globalAlpha = Math.max(0, this.life); ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1.0; }
+        }
+
+        function spawnParticles(x, y, color, count = 10, isGold = false) { for (let i = 0; i < count; i++) particles.push(new Particle(x, y, color, isGold)); }
+
+        // ==========================================================
+        // 4. منطق المعركة والاقتصاد
+        // ==========================================================
+        function startGame() {
+            if (isRunning) return; playSound('hit');
+            isRunning = true; balls = []; timeLeft = 20;
+            COLORS.forEach((col) => { balls.push(new Ball(Math.random() * (canvas.width - 80) + 40, Math.random() * (canvas.height - 80) + 40, col)); });
+            document.getElementById('timerBox').classList.remove('hidden');
+            document.getElementById('timerVal').innerText = timeLeft;
+            document.getElementById('startBtn').innerText = "⚔️ المعركة مستمرة...";
+            document.getElementById('startBtn').classList.remove('pulse');
+            showNotify("🔥 انطلقت معركة الديربي!", "#00F0FF");
+            clearInterval(battleTimer);
+            battleTimer = setInterval(() => { timeLeft--; document.getElementById('timerVal').innerText = timeLeft; if (timeLeft <= 0) endBattle(); }, 1000);
+        }
+
+        function endBattle() {
+            clearInterval(battleTimer); isRunning = false;
+            document.getElementById('timerBox').classList.add('hidden');
+            document.getElementById('startBtn').innerText = "▶ ابدأ معركة جديدة";
+            document.getElementById('startBtn').classList.add('pulse');
+            const winner = balls.reduce((prev, current) => (prev.hits > current.hits) ? prev : current, balls[0]);
+            playSound('victory'); screenShake = 20;
+            for (let i = 0; i < 100; i++) { setTimeout(() => { spawnParticles(Math.random() * canvas.width, 0, winner.colorData.hex, 1, true); }, i * 25); }
+
+            if (isBetting && chosenColor) {
+                if (chosenColor.hex === winner.colorData.hex) { 
+                    updateSparks(sparks + 250); 
+                    updatePrestige(50); // زيادة الوجاهة
+                    showNotify(`🎉 فزت! (${winner.colorData.name}) +250⚡ و +50 وجاهة!`, "#39FF14"); 
+                } else { 
+                    showNotify(`💔 فازت (${winner.colorData.name})، حظ أوفر!`, "#FF0055"); 
+                }
+                isBetting = false; chosenColor = null;
+            } else { 
+                showNotify(`🏆 الفائز: الكرة ${winner.colorData.name}!`, winner.colorData.hex); 
+            }
+        }
+
+        function placeBet(amount) {
+            playSound('coin'); if (sparks < amount) { showNotify("رصيدك غير كافٍ!", "#FF0055"); return; }
+            if (isBetting) { showNotify("لديك رهان نشط!", "#FFD700"); return; }
+            chosenColor = COLORS[Math.floor(Math.random() * COLORS.length)];
+            isBetting = true; updateSparks(sparks - amount); 
+            showNotify(`🎰 راهنت بـ 100⚡ على: ${chosenColor.name}!`, chosenColor.hex);
+            if (!isRunning) startGame();
+        }
+
+        function openMysteryBox() {
+            playSound('coin'); if (sparks < 200) { showNotify("تحتاج 200⚡!", "#FF0055"); return; }
+            updateSparks(sparks - 200); showNotify("🎁 جاري الفتح...", "#A855F7");
+            setTimeout(() => {
+                const rand = Math.random(); let prize = 0, text = "";
+                if (rand > 0.90) { prize = 800; text = "جائزة كبرى! 800⚡"; playSound('victory'); }
+                else if (rand > 0.50) { prize = 300; text = "300⚡"; playSound('coin'); }
+                else if (rand > 0.2) { prize = 100; text = "100⚡"; playSound('coin'); }
+                else { text = "صندوق فارغ!"; }
+                if (prize > 0) { updateSparks(sparks + prize); spawnParticles(canvas.width / 2, canvas.height / 2, '#FFD700', 40, true); showNotify(`🎉 ${text}`, "#39FF14"); }
+                else { showNotify(`💨 ${text}`, "#FF0055"); }
+            }, 1200);
+        }
+
+        function sponsorArena(amount) {
+            playSound('victory'); if (sparks < amount) { showNotify("تحتاج 500⚡!", "#FF0055"); return; }
+            updateSparks(sparks - amount); updatePrestige(100); // الوجاهة تزيد بسرعة للهوامير
+            const name = prompt("اكتب اسمك الذي سيظهر كراعي رسمي:") || "القائد";
+            document.getElementById('sponsorName').innerText = name;
+            for (let i = 0; i < 100; i++) { setTimeout(() => spawnParticles(Math.random() * canvas.width, 0, '#FFD700', 1, true), i * 20); }
+            showNotify(`👑 أنت الراعي الرسمي يا ${name}! (+100 وجاهة)`, "#FFD700");
+        }
+
+        function triggerAction(type) {
+            playSound('hit'); if (!isRunning) { showNotify("ابدأ المعركة أولاً!", "#FFD700"); return; }
+            if (type === 'strike') {
+                if (sparks < 100) { showNotify("تحتاج 100⚡!", "#FF0055"); return; }
+                updateSparks(sparks - 100); screenShake = 18;
+                balls.forEach(b => { b.vx *= -1.8; b.vy *= -1.8; spawnParticles(b.x, b.y, '#FF0055', 8); });
+                showNotify("⚡ ضربة قاضية!", "#FF0055");
+            } else if (type === 'boost') {
+                if (sparks < 50) { showNotify("تحتاج 50⚡!", "#FF0055"); return; }
+                updateSparks(sparks - 50);
+                balls.forEach(b => { b.vx *= 1.5; b.vy *= 1.5; });
+                showNotify("🚀 تعزيز!", "#00F0FF");
+            }
+        }
+
+        // ==========================================================
+        // 5. الحلقة الرئيسية والرسم
+        // ==========================================================
+        function loop() {
+            ctx.save();
+            if (screenShake > 0) { ctx.translate((Math.random() - 0.5) * screenShake, (Math.random() - 0.5) * screenShake); screenShake *= 0.88; if (screenShake < 0.5) screenShake = 0; }
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (isRunning) {
+                for (let i = 0; i < balls.length; i++) {
+                    for (let j = i + 1; j < balls.length; j++) {
+                        let dx = balls[j].x - balls[i].x, dy = balls[j].y - balls[i].y, dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < balls[i].radius + balls[j].radius) {
+                            balls[i].hits++; balls[j].hits++; balls[i].vx *= -1; balls[i].vy *= -1; balls[j].vx *= -1; balls[j].vy *= -1;
+                            balls[i].x -= dx * 0.08; balls[i].y -= dy * 0.08; balls[j].x += dx * 0.08; balls[j].y += dy * 0.08;
+                            spawnParticles((balls[i].x + balls[j].x) / 2, (balls[i].y + balls[j].y) / 2, "#FFF", 3); playSound('hit');
+                        }
+                    }
+                }
+                balls.forEach(b => { b.update(); b.draw(); });
+            }
+
+            for (let i = particles.length - 1; i >= 0; i--) { particles[i].update(); particles[i].draw(); if (particles[i].life <= 0) particles.splice(i, 1); }
+            ctx.restore(); requestAnimationFrame(loop);
+        }
+        loop();
+
+        function showNotify(msg, color) {
+            const notif = document.getElementById('notification'), txt = document.getElementById('notif-text');
+            txt.innerText = msg; txt.style.color = color; notif.style.borderColor = color; notif.classList.add('show');
+            setTimeout(() => notif.classList.remove('show'), 2200);
+        }
+    </script>
+</body>
+</html>
