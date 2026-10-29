@@ -1,350 +1,600 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ديربي أرينا الملكي | Royal Derby Arena</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0b0b0d">
+<title>ديربي أرينا الملكي | Royal Derby</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Cinzel:wght@700;900&display=swap" rel="stylesheet">
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Cairo', sans-serif; background: #030712; color: #fff; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
-        
-        .cyber-border { border: 1px solid rgba(255, 215, 0, 0.4); box-shadow: 0 0 15px rgba(255, 215, 0, 0.2), inset 0 0 10px rgba(255, 215, 0, 0.1); }
-        .neon-text { color: #FFD700; text-shadow: 0 0 10px #FFD700, 0 0 20px #FFD700; }
-        .btn-gold { background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); color: #000; font-weight: 900; transition: all 0.2s; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.5); }
-        .btn-gold:active { transform: scale(0.95); }
-        .btn-paypal { background: linear-gradient(135deg, #003087, #009cde); border: 1px solid #00d4ff; color: #fff; }
-        
-        #gameCanvas { width: 100%; height: 100%; display: block; background: radial-gradient(circle at center, #0f172a 0%, #030712 100%); touch-action: none; }
-        
-        .notification { position: fixed; top: 20%; left: 50%; transform: translate(-50%, -50%) scale(0.8); background: rgba(3, 7, 18, 0.95); border: 2px solid #FFD700; padding: 15px 30px; border-radius: 12px; z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); text-align: center; width: 85%; max-width: 320px; box-shadow: 0 0 30px rgba(255, 215, 0, 0.4); }
-        .notification.show { transform: translate(-50%, -50%) scale(1); opacity: 1; visibility: visible; }
-        
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7); } 70% { box-shadow: 0 0 0 12px rgba(255, 215, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); } }
-        .pulse { animation: pulse 1.8s infinite; }
-    </style>
+<style>
+:root{
+  --bg:#0b0b0d;--bg-panel:#141419;--bg-card:#1a1814;
+  --gold:#d4af37;--gold-light:#fcf6ba;--gold-dim:#aa771c;
+  --gold-gradient:linear-gradient(135deg,#bf953f,#fcf6ba 25%,#b38728 50%,#fbf5b7 75%,#aa771c);
+  --neon:#38bdf8;--danger:#ef4444;--green:#22c55e;
+  --text:#f5f5f7;--muted:#a1a1a6;
+}
+*{box-sizing:border-box;margin:0;padding:0;user-select:none;-webkit-tap-highlight-color:transparent}
+body{font-family:'Cairo',sans-serif;background:radial-gradient(circle at center,#1f1b13,#0b0b0d);color:var(--text);height:100vh;overflow:hidden;display:flex;flex-direction:column}
+button{font-family:inherit;cursor:pointer;border:none;outline:none;transition:transform .1s;min-height:44px;min-width:44px}
+button:active{transform:scale(.95)}
+
+.header{padding:10px 15px;display:flex;justify-content:space-between;align-items:center;background:rgba(20,20,25,.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--gold-dim);z-index:20}
+.user-info{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700; cursor:pointer;}
+.user-info .rank{color:var(--neon);font-size:11px;background:#1e293b;padding:3px 8px;border-radius:10px;border:1px solid #334155}
+.wallet{display:flex;align-items:center;gap:8px;background:#1e293b;padding:5px 12px;border-radius:20px;border:1px solid var(--gold-dim)}
+.wallet span{color:var(--gold);font-weight:900}
+.demo-toggle{background:transparent;border:1px solid var(--gold-dim);color:var(--gold);padding:6px 10px;border-radius:10px;font-size:14px;cursor:pointer;margin-inline-start:8px;display:none;}
+.demo-toggle.active{background:var(--gold);color:#0b0b0d;animation:pulseDemo 1s infinite}
+@keyframes pulseDemo{0%,100%{box-shadow:0 0 10px rgba(212,175,55,.5)}50%{box-shadow:0 0 25px rgba(212,175,55,.9)}}
+
+.arena-container{flex:1;position:relative;display:flex;justify-content:center;align-items:center;padding:10px;overflow:hidden}
+canvas{background:#000;border-radius:50%;box-shadow:0 0 50px rgba(212,175,55,.15),inset 0 0 40px rgba(56,189,248,.25);max-width:100%;max-height:100%;aspect-ratio:1}
+.kill-feed{position:absolute;top:15px;right:15px;display:flex;flex-direction:column;gap:5px;pointer-events:none;z-index:10;max-width:200px}
+.kill-item{background:rgba(239,68,68,.85);color:white;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;animation:slideIn .3s}
+@keyframes slideIn{from{transform:translateX(30px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+.commentator-text{display:none;position:absolute;top:15%;left:50%;transform:translateX(-50%);font-size:26px;font-weight:900;color:#fff;text-align:center;text-shadow:0 0 10px #ff0000,0 0 20px #ff0000;z-index:30;pointer-events:none;opacity:0;transition:opacity .3s;width:90%;line-height:1.2}
+.commentator-text.show{opacity:1;animation:popIn .5s cubic-bezier(.175,.885,.32,1.275)}
+@keyframes popIn{0%{transform:translateX(-50%) scale(.5)}100%{transform:translateX(-50%) scale(1)}}
+body.demo-mode .commentator-text{display:block}
+
+.fake-chat{display:none;position:absolute;bottom:15px;left:15px;flex-direction:column;gap:5px;z-index:10;pointer-events:none;max-width:200px}
+.chat-msg{background:rgba(0,0,0,.6);padding:4px 10px;border-radius:15px;font-size:11px;color:#ccc;animation:slideUp .3s;border-inline-start:3px solid var(--gold)}
+.chat-msg b{color:var(--gold)}
+@keyframes slideUp{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
+body.demo-mode .fake-chat{display:flex}
+
+.overlay-screen{position:absolute;inset:0;background:rgba(5,8,16,.85);backdrop-filter:blur(8px);display:none;flex-direction:column;justify-content:center;align-items:center;z-index:50;text-align:center;padding:20px;border-radius:50%}
+.overlay-screen.active{display:flex}
+.overlay-title{font-size:26px;font-weight:900;color:var(--gold);margin-bottom:10px;text-shadow:0 0 20px rgba(212,175,55,.4)}
+.overlay-sub{font-size:15px;color:var(--muted);margin-bottom:20px}
+
+.controls{padding:12px 15px;background:var(--bg-panel);border-top:1px solid #2a2518;display:flex;flex-direction:column;gap:10px;z-index:20}
+.main-btns{display:flex;gap:10px}
+.btn-main{flex:1;padding:12px;border-radius:12px;font-weight:900;font-size:15px;background:var(--gold-gradient);color:#0b0b0d;box-shadow:0 4px 15px rgba(212,175,55,.3);border:none}
+.btn-sec{padding:12px 15px;border-radius:12px;font-weight:700;background:var(--bg-card);color:var(--text);border:1px solid #334155;font-family:inherit}
+
+.tactical{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tac-btn{background:var(--bg-card);border:1px solid var(--gold-dim);padding:10px 6px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text);font-family:inherit}
+.tac-btn span{font-size:12px;font-weight:900}
+.tac-btn small{color:var(--gold);font-size:10px;margin-top:2px}
+.tac-btn:disabled{opacity:.5;cursor:not-allowed}
+
+.input-area{display:flex;gap:8px}
+.input-area input{flex:1;background:#02040a;border:1px solid #334155;border-radius:10px;padding:10px 12px;color:white;font-family:inherit;font-size:14px;outline:none}
+.input-area input:focus{border-color:var(--gold)}
+.input-area button{background:var(--gold-gradient);color:#0b0b0d;font-weight:900;padding:0 20px;border-radius:10px;font-family:inherit}
+
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;justify-content:center;align-items:center;z-index:100;backdrop-filter:blur(5px)}
+.modal.active{display:flex}
+.modal-content{background:var(--bg-panel);border:2px solid var(--gold);border-radius:20px;padding:20px;width:90%;max-width:380px;text-align:center}
+.pack{background:var(--bg-card);border:1px solid #334155;padding:12px 15px;border-radius:12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;color:var(--text);font-family:inherit}
+.pack:hover{border-color:var(--gold)}
+.pack .p-sparks{font-weight:900;color:var(--gold);font-size:15px}
+.pack .p-price{background:#1e293b;padding:4px 10px;border-radius:15px;font-size:13px;border:1px solid #334155;color:var(--muted)}
+
+.toast-container{position:fixed;top:70px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;gap:6px;z-index:200;pointer-events:none;width:90%;max-width:320px}
+.toast{background:rgba(20,20,25,.95);border:1px solid var(--gold);color:white;padding:10px 15px;border-radius:10px;font-size:13px;font-weight:700;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,.5);animation:fadeInOut 2.5s forwards}
+@keyframes fadeInOut{0%{opacity:0;transform:translateY(-10px)}15%{opacity:1;transform:translateY(0)}85%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-10px)}}
+</style>
 </head>
 <body>
 
-    <div id="notification" class="notification z-50">
-        <span id="notif-text" class="text-yellow-400 font-bold text-lg"></span>
+<div class="toast-container" id="toastContainer"></div>
+<div class="commentator-text" id="commentatorText"></div>
+
+<div class="header">
+  <div class="user-info" id="secretTrigger">
+    <span>👑 <span id="uiName">ضيف</span></span>
+    <span class="rank" id="uiRank">مبتدئ</span>
+    <button class="demo-toggle" id="demoBtn" onclick="DemoMode.toggle()" title="وضع التسجيل">🎬</button>
+  </div>
+  <div class="wallet">
+    <span id="uiSparks">0</span> ⚡
+    <button class="buy-btn" style="background:var(--gold-gradient);color:#0b0b0d;font-weight:900;padding:5px 12px;border-radius:12px;font-size:12px;margin-inline-start:6px" onclick="UIController.openStore()">شحن</button>
+  </div>
+</div>
+
+<div class="arena-container">
+  <div class="kill-feed" id="killFeed"></div>
+  <div class="fake-chat" id="fakeChat"></div>
+  <canvas id="gameCanvas"></canvas>
+
+  <div class="overlay-screen" id="overlayScreen">
+    <div class="overlay-title" id="overlayTitle">انتهت المعركة</div>
+    <div class="overlay-sub" id="overlaySub">أداء بطولي رائع!</div>
+    <button class="btn-main" style="max-width:200px" onclick="GameEngine.resetGame()">إعادة الجولة</button>
+  </div>
+</div>
+
+<div class="controls">
+  <div class="main-btns">
+    <button class="btn-main" id="startBtn" onclick="GameEngine.startBattle()">▶ ابدأ المعركة</button>
+    <button class="btn-sec" onclick="GameEngine.resetGame()">↺ تصفير</button>
+  </div>
+
+  <div class="tactical">
+    <button class="tac-btn" id="tacBoost" onclick="TacticalSystem.use('boost')">
+      <span>⚡ Boost</span><small>50 ⚡</small>
+    </button>
+    <button class="tac-btn" id="tacShield" onclick="TacticalSystem.use('shield')">
+      <span>🛡️ Shield</span><small>120 ⚡</small>
+    </button>
+    <button class="tac-btn" id="tacStrike" onclick="TacticalSystem.use('strike')">
+      <span>⚔️ Strike</span><small>250 ⚡</small>
+    </button>
+  </div>
+
+  <div class="input-area">
+    <input type="text" id="ballName" placeholder="اكتب اسم حيّك/مدينتك..." maxlength="12">
+    <button onclick="GameEngine.spawnPlayerBall()">إطلاق 🚀</button>
+  </div>
+</div>
+
+<div class="modal" id="storeModal">
+  <div class="modal-content">
+    <h2 style="color:var(--gold);margin-bottom:10px">⚡ متجر الشارات الحقيقي</h2>
+    <p style="font-size:11px;color:var(--muted);margin-bottom:15px">الدفع الآمن عبر PayPal</p>
+    
+    <div class="pack" onclick="PaymentSystem.buyPayPal(500, 'https://www.paypal.com/ncp/payment/YR6MF6C7QMJPA')">
+      <div class="p-sparks">500 شرارة</div>
+      <div class="p-price">$1.35</div>
     </div>
+    <div class="pack" onclick="PaymentSystem.buyPayPal(1600, 'https://www.paypal.com/ncp/payment/G2PZE5QB6MV5N')">
+      <div class="p-sparks">1600 شرارة</div>
+      <div class="p-price">$4.00</div>
+    </div>
+    <div class="pack" onclick="PaymentSystem.buyPayPal(3800, 'https://www.paypal.com/ncp/payment/L893U4GE7FMTL')">
+      <div class="p-sparks">3800 شرارة</div>
+      <div class="p-price">$8.00</div>
+    </div>
+    <button class="btn-sec" style="width:100%;margin-top:10px" onclick="UIController.closeStore()">إغلاق</button>
+  </div>
+</div>
 
-    <!-- الشريط العلوي (السيادة والرصيد) -->
-    <header class="relative z-20 p-3 bg-black/85 backdrop-blur-md border-b border-yellow-500/30 flex flex-col gap-1.5 rounded-b-2xl">
-        <div class="flex justify-between items-center">
-            <div class="flex items-center gap-2">
-                <div class="text-2xl animate-bounce">👑</div>
-                <div>
-                    <div class="text-yellow-400 font-black text-sm neon-text">ديربي أرينا</div>
-                    <div id="statusTier" class="text-cyan-400 text-[10px] font-bold tracking-widest">الرتبة: مواطن سيليكوني</div>
-                </div>
-            </div>
-            
-            <div class="flex items-center gap-2">
-                <div class="flex items-center gap-1 bg-black/60 rounded-full px-3 py-1 cyber-border">
-                    <span class="text-yellow-400 text-xs">⚡</span>
-                    <span id="sparkCount" class="text-yellow-400 font-bold text-sm">1000</span>
-                </div>
-                <button id="buyBtn" class="btn-paypal px-2.5 py-1 rounded-lg text-xs font-bold">💳 شحن</button>
-            </div>
-        </div>
+<script>
+'use strict';
 
-        <div class="flex justify-between items-center text-[10px] bg-white/5 px-2.5 py-1 rounded-lg border border-white/10">
-            <div class="flex items-center gap-1">
-                <span class="text-yellow-400">🏆 راعي الحلبة:</span>
-                <span id="sponsorName" class="text-cyan-300 font-bold">الجيش الملكي</span>
-            </div>
-            <div id="timerBox" class="text-yellow-300 font-bold hidden">
-                ⏱️ المتبقي: <span id="timerVal" class="text-red-400 font-black">20</span> ث
-            </div>
-        </div>
-    </header>
+/* ============================================================
+   1. FIREBASE & USER DATA (الخزنة والبنك)
+   ============================================================ */
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY", // ضع مفتاح الويب من Firebase هنا لتفعيل المزامنة
+  authDomain: "royalderby-89ab1.firebaseapp.com",
+  databaseURL: "https://royalderby-89ab1-default-rtdb.firebaseio.com",
+  projectId: "royalderby-89ab1",
+  storageBucket: "royalderby-89ab1.appspot.com",
+  messagingSenderId: "108186871000525070975",
+  appId: "1:108186871000525070975:web:123456789"
+};
+try { if (!firebase.apps.length) firebase.initializeApp(firebaseConfig); } catch(e) { console.log("Firebase Offline Mode"); }
 
-    <!-- الحلبة -->
-    <main class="relative flex-grow z-10">
-        <canvas id="gameCanvas"></canvas>
-    </main>
+const UserId = localStorage.getItem('derby_user') || "hero_" + Math.floor(Math.random() * 89999 + 10000);
+localStorage.setItem('derby_user', UserId);
 
-    <!-- الشريط السفلي -->
-    <footer class="relative z-20 p-3 bg-black/85 backdrop-blur-md border-t border-yellow-500/30 flex flex-col gap-2 rounded-t-2xl">
-        <div class="grid grid-cols-3 gap-2">
-            <button onclick="openMysteryBox()" class="bg-purple-900/40 border border-purple-500/60 active:bg-purple-700 text-purple-200 rounded-lg py-1.5 font-bold text-[10px] flex flex-col items-center">
-                <span>🎁 صندوق الغموض</span>
-                <span class="text-[9px] text-purple-400 font-mono">(200⚡)</span>
-            </button>
-            <button onclick="placeBet(100)" class="bg-emerald-900/40 border border-emerald-500/60 active:bg-emerald-700 text-emerald-200 rounded-lg py-1.5 font-bold text-[10px] flex flex-col items-center">
-                <span>🎰 راهن واربح</span>
-                <span class="text-[9px] text-emerald-400 font-mono">(100⚡)</span>
-            </button>
-            <button onclick="sponsorArena(500)" class="bg-yellow-900/40 border border-yellow-500/60 active:bg-yellow-700 text-yellow-200 rounded-lg py-1.5 font-bold text-[10px] flex flex-col items-center">
-                <span>👑 كن الراعي</span>
-                <span class="text-[9px] text-yellow-400 font-mono">(500⚡)</span>
-            </button>
-        </div>
+const UserData = {
+  name: 'قائد',
+  _sparks: parseInt(localStorage.getItem('derby_sparks')) || 1000,
+  prestige: parseInt(localStorage.getItem('derby_prestige')) || 0,
+  
+  get sparks() { return this._sparks; },
+  set sparks(val) {
+    this._sparks = Math.max(0, val);
+    localStorage.setItem('derby_sparks', this._sparks);
+    UIController.updateUI();
+    try {
+      if (window.firebase && firebase.apps.length) {
+        firebase.database().ref('players/' + UserId).update({ sparks: this._sparks });
+      }
+    } catch(e) {}
+  },
+  
+  get rank() {
+    if(this.prestige > 10000) return 'السيادة المطلقة';
+    if(this.prestige > 3000) return 'أمير الحرب';
+    if(this.prestige > 500) return 'نبيل الحلبة';
+    return 'مواطن سيليكوني';
+  }
+};
 
-        <div class="flex gap-2">
-            <button onclick="triggerAction('strike')" class="flex-1 bg-red-600/25 border border-red-500 active:bg-red-600/50 text-red-400 rounded-lg py-2 font-bold flex flex-col items-center">
-                <span class="text-sm">⚡ ضربة قاضية</span>
-                <span class="text-[9px] text-red-300 font-mono">(100⚡)</span>
-            </button>
-            <button onclick="triggerAction('boost')" class="flex-1 bg-blue-600/25 border border-blue-500 active:bg-blue-600/50 text-blue-400 rounded-lg py-2 font-bold flex flex-col items-center">
-                <span class="text-sm">🚀 تعزيز النفاث</span>
-                <span class="text-[9px] text-blue-300 font-mono">(50⚡)</span>
-            </button>
-        </div>
+try {
+  if (window.firebase && firebase.apps.length) {
+    firebase.database().ref('players/' + UserId + '/sparks').on('value', (snap) => {
+      if(snap.val() !== null) {
+        UserData._sparks = snap.val();
+        UIController.updateUI();
+      }
+    });
+  }
+} catch(e) {}
 
-        <button onclick="startGame()" id="startBtn" class="btn-gold w-full py-2.5 rounded-xl text-base font-black pulse">
-            ▶ ابدأ المعركة الملكية
-        </button>
-    </footer>
+/* ============================================================
+   2. AUDIO FX
+   ============================================================ */
+const AudioFX={
+  ctx:null,
+  init(){ if(!this.ctx) this.ctx=new (window.AudioContext||window.webkitAudioContext)(); if(this.ctx.state==='suspended')this.ctx.resume(); },
+  play(freq,type,dur,vol){
+    try{
+      this.init();if(!this.ctx)return;
+      const osc=this.ctx.createOscillator(),gain=this.ctx.createGain();
+      osc.type=type;osc.frequency.setValueAtTime(freq,this.ctx.currentTime);
+      gain.gain.setValueAtTime(vol,this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(.001,this.ctx.currentTime+dur);
+      osc.connect(gain);gain.connect(this.ctx.destination);osc.start();osc.stop(this.ctx.currentTime+dur);
+    }catch(e){}
+  },
+  hit(){this.play(300,'triangle',.1,.08)},
+  elim(){this.play(120,'sawtooth',.3,.15)},
+  win(){[523,659,784,1047].forEach((f,i)=>setTimeout(()=>this.play(f,'sine',.25,.12),i*140))},
+  bass(){this.play(60,'sine',.8,.3)},
+  click(){this.play(600,'sine',.04,.04)}
+};
 
-    <script>
-        // ==========================================================
-        // 1. نظام السيادة والدوبامين (Sovereignty & Dopamine System)
-        // ==========================================================
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        
-        // --- نظام الأصوات الرياضية (Procedural Audio) ---
-        function playSound(type) {
-            try {
-                if (audioCtx.state === 'suspended') audioCtx.resume();
-                const now = audioCtx.currentTime;
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.connect(gain); gain.connect(audioCtx.destination);
+/* ============================================================
+   3. STATE & DEMO MODE
+   ============================================================ */
+const STATES={BOOT:'BOOT',LOBBY:'LOBBY',BATTLE:'BATTLE',FINAL_DUEL:'FINAL_DUEL',VICTORY:'VICTORY'};
+let CurrentState=STATES.BOOT;
+function transitionTo(newState){ CurrentState=newState; }
 
-                if (type === 'hit') {
-                    osc.type = 'triangle'; osc.frequency.setValueAtTime(220, now); osc.frequency.exponentialRampToValueAtTime(80, now + 0.08); gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.08); osc.start(now); osc.stop(now + 0.08);
-                } else if (type === 'coin') {
-                    osc.type = 'sine'; osc.frequency.setValueAtTime(987.77, now); osc.frequency.setValueAtTime(1318.51, now + 0.08); gain.gain.setValueAtTime(0.3, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.25); osc.start(now); osc.stop(now + 0.25);
-                } else if (type === 'victory') {
-                    // نغمة النصر الرياضية (دو، ري، مي، صول)
-                    [523.25, 587.33, 659.25, 783.99].forEach((freq, idx) => {
-                        const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
-                        o.connect(g); g.connect(audioCtx.destination);
-                        o.type = 'triangle'; o.frequency.value = freq;
-                        g.gain.setValueAtTime(0.2, now + idx * 0.1);
-                        g.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.1 + 0.4);
-                        o.start(now + idx * 0.1); o.stop(now + idx * 0.1 + 0.4);
-                    });
-                }
-            } catch(e) {}
+const DemoMode={
+  active:false, demoTimers:[],
+  toggle(){
+    this.active=!this.active;
+    const btn=document.getElementById('demoBtn');
+    if(this.active){
+      document.body.classList.add('demo-mode');
+      btn.classList.add('active');
+      UIController.showToast('🎬 وضع التسجيل مُفعّل');
+      this.start();
+    }else{
+      document.body.classList.remove('demo-mode');
+      btn.classList.remove('active');
+      UIController.showToast('🎬 وضع التسجيل مُعطّل');
+      this.stop();
+    }
+  },
+  start(){
+    if(CurrentState===STATES.LOBBY) GameEngine.startBattle();
+    UIController.fakeChat('أبو فهد','أنا مع الرياض!');
+    UIController.fakeChat('سلطان','جدة بتفوز 💪');
+
+    const timer=setInterval(()=>{
+      if(!this.active)return;
+      const alive=Balls.filter(b=>b.alive);
+      if(alive.length<=1){
+        setTimeout(()=>{GameEngine.resetGame();setTimeout(()=>GameEngine.startBattle(),1500)},3000); return;
+      }
+      const rand=Math.random();
+      if(rand>0.75){ UIController.triggerWhaleDrop('أبو فهد'); }
+      else if(rand>0.45){
+        UIController.commentate(['يا إلهي! تصادم مدمر!','هل ستصمد الكرة الذهبية؟','الرياض في خطر!','لا أصدق هذا الأداء!'][Math.floor(Math.random()*4)]);
+        ScreenShake=10;
+      }else if(rand>0.25){
+        UIController.fakeChat(['ناصر','سالم','فهد','عبدالله'][Math.floor(Math.random()*4)],['1','2','الذهبي!','يلا جدة!','غش!!'][Math.floor(Math.random()*5)]);
+      }
+    },3500);
+    this.demoTimers.push(timer);
+  },
+  stop(){ this.demoTimers.forEach(t=>clearInterval(t)); this.demoTimers=[]; document.getElementById('fakeChat').innerHTML=''; }
+};
+
+/* ============================================================
+   4. ARENA & PHYSICS
+   ============================================================ */
+const Config={MAX_BALLS:20,ARENA_RADIUS_RATIO:.44,BALL_RADIUS_RATIO:.055,FRICTION:.988,HOLE_PULL:.25,MAX_VELOCITY:16,EPSILON:.0001};
+const canvas=document.getElementById('gameCanvas');
+const ctx=canvas.getContext('2d');
+
+let Arena={cx:0,cy:0,radius:0};
+let Balls=[],Holes=[],Particles=[];
+let FanAngle=0,PlayerBallId=null,lastTime=performance.now();
+let playerKills=0,playerDeaths=0,ScreenShake=0,HitStop=0;
+
+function resizeCanvas(){
+  const container=canvas.parentElement;
+  const size=Math.min(container.clientWidth-20,container.clientHeight-20,480);
+  canvas.width=size*window.devicePixelRatio; canvas.height=size*window.devicePixelRatio;
+  canvas.style.width=size+'px'; canvas.style.height=size+'px';
+  ctx.setTransform(window.devicePixelRatio,0,0,window.devicePixelRatio,0,0);
+  Arena.cx=size/2;Arena.cy=size/2;Arena.radius=size*Config.ARENA_RADIUS_RATIO;
+  setupHoles();
+}
+window.addEventListener('resize',resizeCanvas);
+
+function setupHoles(){
+  Holes=[]; const holeR=Math.max(12,Arena.radius*.11); const dist=Arena.radius*.64;
+  for(let i=0;i<6;i++){ const angle=(i*Math.PI*2)/6; Holes.push({x:Arena.cx+Math.cos(angle)*dist,y:Arena.cy+Math.sin(angle)*dist,r:holeR}); }
+}
+
+function getSafeSpawnPosition(radius){
+  for(let attempt=0;attempt<50;attempt++){
+    const angle=Math.random()*Math.PI*2; const dist=Math.random()*(Arena.radius*.48);
+    const x=Arena.cx+Math.cos(angle)*dist; const y=Arena.cy+Math.sin(angle)*dist;
+    let safeFromHoles=true;
+    for(const h of Holes){ const dx=h.x-x,dy=h.y-y; if(Math.sqrt(dx*dx+dy*dy)<h.r+radius+10){safeFromHoles=false;break} }
+    if(!safeFromHoles)continue;
+    let safeFromBalls=true;
+    for(const b of Balls){ if(!b.alive)continue; const dx=b.x-x,dy=b.y-y; if(Math.sqrt(dx*dx+dy*dy)<b.r+radius+8){safeFromBalls=false;break} }
+    if(safeFromBalls)return{x,y};
+  }
+  return null;
+}
+
+function createBall(name,isPlayer=false){
+  const bR=Math.max(10,Arena.radius*Config.BALL_RADIUS_RATIO);
+  const pos=getSafeSpawnPosition(bR);
+  if(!pos){UIController.showToast('⚠️ الحلبة مكتظة، تعذر توليد الكرة!');return false}
+  const ball={ id:Math.random().toString(36).substr(2,9), name,x:pos.x,y:pos.y,
+    vx:(Math.random()-.5)*6,vy:(Math.random()-.5)*6, r:bR,
+    color:isPlayer?'#d4af37':`hsl(${Math.floor(Math.random()*360)},75%,55%)`,
+    alive:true,shield:false,shieldTimer:0,isPlayer,lastHitBy:null };
+  Balls.push(ball); if(isPlayer)PlayerBallId=ball.id; return true;
+}
+
+function updatePhysics(dt){
+  if(CurrentState!==STATES.BATTLE&&CurrentState!==STATES.FINAL_DUEL)return;
+  if(HitStop>0){HitStop--;return}
+
+  for(let b of Balls){
+    if(!b.alive)continue;
+    if(b.shield){b.shieldTimer-=dt;if(b.shieldTimer<=0)b.shield=false}
+    b.vx*=Math.pow(Config.FRICTION,dt*60); b.vy*=Math.pow(Config.FRICTION,dt*60);
+    if(isNaN(b.vx)||isNaN(b.vy)){b.vx=0;b.vy=0}
+    const speedSq=b.vx*b.vx+b.vy*b.vy,maxV=Config.MAX_VELOCITY;
+    if(speedSq>maxV*maxV){ const speed=Math.sqrt(speedSq); b.vx=(b.vx/speed)*maxV;b.vy=(b.vy/speed)*maxV; }
+    for(let h of Holes){
+      const dx=h.x-b.x,dy=h.y-b.y; const distSq=dx*dx+dy*dy,dist=Math.sqrt(distSq);
+      if(dist<h.r*2.5&&dist>Config.EPSILON){ const pull=Config.HOLE_PULL*(1-dist/(h.r*2.5))*60*dt; b.vx+=(dx/dist)*pull;b.vy+=(dy/dist)*pull; }
+      if(dist<h.r*.85&&!b.shield){ eliminateBall(b);break; }
+    }
+    if(!b.alive)continue;
+    b.x+=b.vx*dt*60;b.y+=b.vy*dt*60;
+    const adx=b.x-Arena.cx,ady=b.y-Arena.cy; const aDist=Math.sqrt(adx*adx+ady*ady),maxR=Arena.radius-b.r;
+    if(aDist>maxR&&aDist>Config.EPSILON){ const nx=adx/aDist,ny=ady/aDist; b.x=Arena.cx+nx*maxR;b.y=Arena.cy+ny*maxR; const dot=b.vx*nx+b.vy*ny; if(dot>0){b.vx-=1.8*dot*nx;b.vy-=1.8*dot*ny} }
+  }
+
+  const len=Balls.length;
+  for(let i=0;i<len;i++){
+    const b1=Balls[i];if(!b1.alive)continue;
+    for(let j=i+1;j<len;j++){
+      const b2=Balls[j];if(!b2.alive)continue;
+      const dx=b2.x-b1.x,dy=b2.y-b1.y; const distSq=dx*dx+dy*dy,minDist=b1.r+b2.r;
+      if(distSq<minDist*minDist&&distSq>Config.EPSILON){
+        const dist=Math.sqrt(distSq),nx=dx/dist,ny=dy/dist; const overlap=.5*(minDist-dist);
+        b1.x-=nx*overlap;b1.y-=ny*overlap; b2.x+=nx*overlap;b2.y+=ny*overlap;
+        const kx=b1.vx-b2.vx,ky=b1.vy-b2.vy; const p=(nx*kx+ny*ky);
+        b1.vx-=p*nx*.95;b1.vy-=p*ny*.95; b2.vx+=p*nx*.95;b2.vy+=p*ny*.95;
+        const impactSpeed=Math.sqrt(kx*kx+ky*ky);
+        if(impactSpeed>8){ ScreenShake=Math.min(15,impactSpeed); AudioFX.hit(); b2.lastHitBy=b1.id; b1.lastHitBy=b2.id; spawnSparks(b1.x+nx*b1.r,b1.y+ny*b1.r,b1.color,8); }
+      }
+    }
+  }
+
+  FanAngle+=.035*dt*60; const fanDistSq=(Arena.radius*.25)*(Arena.radius*.25);
+  for(let b of Balls){
+    if(!b.alive)continue; const fdx=b.x-Arena.cx,fdy=b.y-Arena.cy;
+    if(fdx*fdx+fdy*fdy<fanDistSq){ const angle=Math.atan2(fdy,fdx); const force=.4*dt*60; b.vx+=Math.cos(angle+Math.PI/2)*force; b.vy+=Math.sin(angle+Math.PI/2)*force; }
+  }
+
+  for(let i=Particles.length-1;i>=0;i--){ let p=Particles[i]; p.x+=p.vx*dt*60;p.y+=p.vy*dt*60; p.vy+=.1*dt*60;p.life-=dt*1.5; if(p.life<=0)Particles.splice(i,1); }
+
+  const aliveBalls=Balls.filter(b=>b.alive);
+  if(CurrentState===STATES.BATTLE){
+    if(aliveBalls.length===2){ transitionTo(STATES.FINAL_DUEL); UIController.showToast('⚡ منافسة حاسمة!'); }
+    else if(aliveBalls.length<=1){ finishGame(aliveBalls); }
+  }else if(CurrentState===STATES.FINAL_DUEL){ if(aliveBalls.length<=1)finishGame(aliveBalls); }
+}
+
+function eliminateBall(ball){
+  ball.alive=false; AudioFX.elim(); spawnSparks(ball.x,ball.y,ball.color,25);
+  UIController.addKillFeed(`💀 ${ball.name} تم إقصاؤه`);
+  if(ball.isPlayer){ playerDeaths++; UIController.showToast('❌ تم إقصاء كرتك!'); }
+  else if(ball.lastHitBy===PlayerBallId){ playerKills++; UIController.showToast(`🎯 إقصاء! (${playerKills} ضدك)`); }
+}
+
+function finishGame(aliveBalls){
+  const winner=aliveBalls.length===1?aliveBalls[0]:{name:'تعادل',isPlayer:false};
+  const isPlayerWin=winner.isPlayer||false;
+  transitionTo(STATES.VICTORY);
+  UIController.showVictory(winner.name, isPlayerWin);
+  AudioFX.win();
+  if(isPlayerWin) { UserData.sparks += 250; UserData.prestige += 50; }
+}
+
+function spawnSparks(x,y,color,count=10){
+  for(let i=0;i<count&&Particles.length<150;i++){
+    const angle=Math.random()*Math.PI*2; const speed=Math.random()*5+2;
+    Particles.push({x,y,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,color,life:1,size:Math.random()*3+1.5});
+  }
+}
+
+function render(){
+  const w=canvas.width/window.devicePixelRatio,h=canvas.height/window.devicePixelRatio;
+  ctx.clearRect(0,0,w,h); if(Arena.radius<=0)return;
+  ctx.save();
+  if(ScreenShake>0){ ctx.translate((Math.random()-.5)*ScreenShake,(Math.random()-.5)*ScreenShake); ScreenShake*=.9;if(ScreenShake<.5)ScreenShake=0; }
+
+  ctx.beginPath();ctx.arc(Arena.cx,Arena.cy,Arena.radius,0,Math.PI*2);
+  ctx.fillStyle='#080e1a';ctx.fill(); ctx.strokeStyle='#d4af37';ctx.lineWidth=4; ctx.shadowColor='#d4af37';ctx.shadowBlur=15;ctx.stroke();ctx.shadowBlur=0;
+
+  for(let h of Holes){
+    ctx.beginPath();ctx.arc(h.x,h.y,h.r*1.3,0,Math.PI*2); ctx.strokeStyle='rgba(239,68,68,.3)';ctx.lineWidth=2;ctx.stroke();
+    ctx.beginPath();ctx.arc(h.x,h.y,h.r,0,Math.PI*2); ctx.fillStyle='#000';ctx.fill(); ctx.strokeStyle='#ef4444';ctx.lineWidth=2;ctx.stroke();
+  }
+
+  ctx.save(); ctx.translate(Arena.cx,Arena.cy);ctx.rotate(FanAngle);
+  for(let i=0;i<4;i++){ ctx.rotate(Math.PI/2); ctx.beginPath();ctx.moveTo(0,0); ctx.lineTo(Arena.radius*.22,-Arena.radius*.06); ctx.lineTo(Arena.radius*.22,Arena.radius*.06); ctx.fillStyle='rgba(56,189,248,.4)';ctx.fill(); }
+  ctx.restore();
+
+  for(let p of Particles){ ctx.globalAlpha=p.life;ctx.fillStyle=p.color; ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill(); }
+  ctx.globalAlpha=1;
+
+  for(let b of Balls){
+    if(!b.alive)continue;
+    ctx.save(); ctx.shadowColor=b.color;ctx.shadowBlur=b.isPlayer?18:10;
+    ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2); ctx.fillStyle=b.color;ctx.fill();ctx.shadowBlur=0;
+    if(b.shield){ ctx.beginPath();ctx.arc(b.x,b.y,b.r+6,0,Math.PI*2); ctx.strokeStyle='rgba(56,189,248,.9)';ctx.lineWidth=3;ctx.stroke(); }
+    if(b.isPlayer){ ctx.beginPath();ctx.arc(b.x,b.y,b.r+4,0,Math.PI*2); ctx.strokeStyle='#d4af37';ctx.lineWidth=2.5;ctx.stroke(); }
+    ctx.fillStyle='#fff'; ctx.font=`bold ${Math.max(9,b.r*.75)}px Cairo`; ctx.textAlign='center';ctx.textBaseline='middle'; ctx.fillText(b.name,b.x,b.y);
+    ctx.restore();
+  }
+  ctx.restore();
+}
+
+function gameLoop(timestamp){
+  const dt=Math.min((timestamp-lastTime)/1000,.1); lastTime=timestamp;
+  updatePhysics(dt); render(); requestAnimationFrame(gameLoop);
+}
+
+/* ============================================================
+   5. GAME ENGINE & UI CONTROLLER
+   ============================================================ */
+const GameEngine={
+  startBattle(){
+    if(CurrentState!==STATES.LOBBY)return;
+    AudioFX.click();
+    if(Balls.filter(b=>b.alive).length<2){
+      const names=['الرياض','جدة','الدمام','الطائف','أبها','حائل','تبوك','بريدة','الخبر','جازان'];
+      const shuffled=names.sort(()=>.5-Math.random());
+      if(!Balls.some(b=>b.isPlayer)){
+        const inputName=document.getElementById('ballName').value.trim()||UserData.name;
+        createBall(inputName,true);
+      }
+      for(let i=0;i<7&&Balls.length<Config.MAX_BALLS;i++){ createBall(shuffled[i%shuffled.length],false); }
+    }
+    transitionTo(STATES.BATTLE);
+    document.getElementById('startBtn').innerText='⏸ المعركة دائرة';
+    UIController.showToast('🚀 بدأت المعركة الملكية!');
+  },
+  resetGame(){
+    AudioFX.click(); Balls=[];Particles=[];PlayerBallId=null; playerKills=0;playerDeaths=0;ScreenShake=0;HitStop=0;
+    transitionTo(STATES.LOBBY);
+    document.getElementById('startBtn').innerText='▶ ابدأ المعركة';
+    document.getElementById('killFeed').innerHTML='';
+    document.getElementById('overlayScreen').classList.remove('active');
+    UIController.showToast('🔄 تم إعادة تعيين الحلبة');
+  },
+  spawnPlayerBall(){
+    if(CurrentState!==STATES.LOBBY){UIController.showToast('⚠️ لا يمكن إضافة كرات أثناء المعركة!');return}
+    const input=document.getElementById('ballName'); const name=input.value.trim()||UserData.name;
+    if(Balls.some(b=>b.isPlayer)){UIController.showToast('⚠️ لديك كرة بالفعل!');return}
+    if(createBall(name,true)){ input.value='';UserData.name=name; UIController.updateUI(); AudioFX.play(800,'sine',.1,.08); UIController.showToast(`✨ تم إطلاق كرة "${name}"!`); }
+  }
+};
+
+const TacticalSystem={
+  costs:{boost:50,shield:120,strike:250},
+  use(type){
+    if(CurrentState!==STATES.BATTLE&&CurrentState!==STATES.FINAL_DUEL){UIController.showToast('⚠️ ابدأ المعركة أولاً!');return}
+    const cost=this.costs[type];
+    if(UserData.sparks<cost){UIController.showToast('⚠️ عملات غير كافية!');UIController.openStore();return}
+    const pBall=Balls.find(b=>b.id===PlayerBallId&&b.alive);
+    if(!pBall){UIController.showToast('⚠️ كرتك غير موجودة!');return}
+    
+    UserData.sparks-=cost;
+    
+    if(type==='boost'){
+      const speed=Math.sqrt(pBall.vx*pBall.vx+pBall.vy*pBall.vy);
+      if(speed<.5){ const angle=Math.random()*Math.PI*2; pBall.vx=Math.cos(angle)*12;pBall.vy=Math.sin(angle)*12; }
+      else{pBall.vx*=2.8;pBall.vy*=2.8}
+      AudioFX.play(400,'square',.2,.1); UIController.showToast('⚡ دفعة السرعة!');
+    }else if(type==='shield'){
+      pBall.shield=true;pBall.shieldTimer=4; AudioFX.play(900,'sine',.3,.1); UIController.showToast('🛡️ درع 4 ثوان!');
+    }else if(type==='strike'){
+      AudioFX.play(100,'sawtooth',.4,.15); HitStop=8;ScreenShake=20;
+      for(let b of Balls){ if(b.id!==pBall.id&&b.alive){ const dx=b.x-pBall.x,dy=b.y-pBall.y; const dist=Math.sqrt(dx*dx+dy*dy); if(dist<160&&dist>Config.EPSILON){ const force=(1-dist/160)*22; b.vx+=(dx/dist)*force;b.vy+=(dy/dist)*force; b.lastHitBy=pBall.id; } } }
+      spawnSparks(pBall.x,pBall.y,'#38bdf8',20); UIController.showToast('⚔️ موجة صدمة!');
+    }
+  }
+};
+
+const UIController={
+  updateUI(){
+    document.getElementById('uiName').innerText=UserData.name;
+    document.getElementById('uiSparks').innerText=UserData.sparks;
+    document.getElementById('uiRank').innerText=UserData.rank;
+  },
+  showToast(msg){
+    const c=document.getElementById('toastContainer'); const t=document.createElement('div');
+    t.className='toast';t.innerText=msg; c.appendChild(t);setTimeout(()=>t.remove(),2600);
+  },
+  addKillFeed(msg){
+    const feed=document.getElementById('killFeed'); const item=document.createElement('div');
+    item.className='kill-item';item.innerText=msg; feed.appendChild(item);setTimeout(()=>item.remove(),3500);
+  },
+  commentate(text){
+    const el=document.getElementById('commentatorText'); el.innerText=text;el.classList.remove('show');
+    void el.offsetWidth;el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),2000);
+  },
+  fakeChat(user,msg){
+    const chat=document.getElementById('fakeChat'); const el=document.createElement('div');
+    el.className='chat-msg';el.innerHTML=`<b>${user}</b>: ${msg}`; chat.appendChild(el);
+    if(chat.children.length>4)chat.firstChild.remove(); setTimeout(()=>el.remove(),4000);
+  },
+  triggerWhaleDrop(sponsorName){
+    AudioFX.bass(); this.commentate(`💰 ${sponsorName} دفع 5000 شارة! مطر ذهب!`); ScreenShake=20;
+    for(let i=0;i<200;i++){ Particles.push({x:Math.random()*Arena.radius*2+(Arena.cx-Arena.radius),y:-20,vx:(Math.random()-.5)*4,vy:Math.random()*8+4,life:2,color:'#d4af37',size:Math.random()*4+2}); }
+    const alive=Balls.filter(b=>b.alive); if(alive.length>0){ const target=alive[Math.floor(Math.random()*alive.length)]; target.vx*=3;target.vy*=3; }
+  },
+  openStore(){AudioFX.click();document.getElementById('storeModal').classList.add('active')},
+  closeStore(){AudioFX.click();document.getElementById('storeModal').classList.remove('active')},
+  showVictory(winnerName,isPlayerWin){
+    document.getElementById('overlayTitle').innerText=isPlayerWin?`👑 فزت يا ${winnerName}!`:`الفائز: ${winnerName}`;
+    document.getElementById('overlaySub').innerText=isPlayerWin?`🏆 ${playerKills} إقصاء — أداء بطولي!`:'حاول مرة أخرى، المجد ينتظرك!';
+    document.getElementById('overlayScreen').classList.add('active');
+  }
+};
+
+// دالة الشراء الحقيقية عبر PayPal
+const PaymentSystem={
+  buyPayPal(amount, url){
+    AudioFX.click();
+    UIController.closeStore();
+    UIController.showToast(`⏳ جاري تحويلك لدفع ${amount} شرارة...`);
+    setTimeout(() => {
+      window.location.href = url + "?custom_id=" + UserId;
+    }, 1500);
+  }
+};
+
+/* ============================================================
+   6. GHOST BUTTON (الزر الشبح)
+   ============================================================ */
+let secretTapCount = 0;
+document.getElementById('secretTrigger').addEventListener('click', (e) => {
+    if (e.target.id === 'demoBtn' || e.target.closest('#demoBtn')) return;
+    secretTapCount++;
+    if (secretTapCount >= 3) {
+        const btn = document.getElementById('demoBtn');
+        if (btn.style.display === 'none' || btn.style.display === '') {
+            btn.style.display = 'block';
+            UIController.showToast('🛠️ تم إظهار زر التسجيل');
+        } else {
+            btn.style.display = 'none';
+            UIController.showToast('🛠️ تم إخفاء زر التسجيل');
         }
+        secretTapCount = 0;
+    }
+    setTimeout(() => { secretTapCount = 0; }, 600);
+});
 
-        // --- نظام الرتب (Sovereignty Manager) ---
-        const statusTiers = ['مواطن سيليكوني', 'نبيل الحلبة', 'أمير الحرب', 'السيادة المطلقة'];
-        let currentPrestige = parseInt(localStorage.getItem('derby_prestige')) || 0;
-        
-        function updatePrestige(amount) {
-            currentPrestige += amount;
-            localStorage.setItem('derby_prestige', currentPrestige);
-            
-            let tierIndex = 0;
-            if (currentPrestige > 10000) tierIndex = 3;
-            else if (currentPrestige > 3000) tierIndex = 2;
-            else if (currentPrestige > 500) tierIndex = 1;
-            
-            const tierElement = document.getElementById('statusTier');
-            tierElement.innerText = "الرتبة: " + statusTiers[tierIndex];
-            
-            if (tierIndex === 3) tierElement.style.color = '#FFD700'; // ذهبي
-            else if (tierIndex === 2) tierElement.style.color = '#FF0055'; // أحمر
-            else if (tierIndex === 1) tierElement.style.color = '#00F0FF'; // أزرق
-        }
-        updatePrestige(0); // تحديث الواجهة عند الدخول
-
-        // ==========================================================
-        // 2. الخزنة والاقتصاد (Firebase + Local Fallback)
-        // ==========================================================
-        const firebaseConfig = { apiKey: "YOUR_API_KEY", databaseURL: "https://royalderby-89ab1-default-rtdb.firebaseio.com" };
-        try { if (!firebase.apps.length) firebase.initializeApp(firebaseConfig); } catch(e) { console.log("Offline mode"); }
-
-        const userId = localStorage.getItem('derby_user') || "hero_" + Math.floor(Math.random() * 89999 + 10000);
-        localStorage.setItem('derby_user', userId);
-        let sparks = parseInt(localStorage.getItem('derby_sparks')) || 1000;
-
-        function updateSparks(newAmount) {
-            sparks = Math.max(0, newAmount);
-            localStorage.setItem('derby_sparks', sparks);
-            document.getElementById('sparkCount').innerText = sparks;
-            try { if (window.firebase && firebase.apps.length) firebase.database().ref('players/' + userId).update({ sparks: sparks }); } catch(e) {}
-        }
-        updateSparks(sparks);
-
-        document.getElementById('buyBtn').onclick = () => {
-            playSound('coin');
-            showNotify("جاري تحويلك لبوابة PayPal...", "#00F0FF");
-            setTimeout(() => { window.location.href = "https://www.paypal.com/ncp/payment/YR6MF6C7QMJPA?custom_id=" + userId; }, 1200);
-        };
-
-        // ==========================================================
-        // 3. محرك اللعبة (Canvas & Particles)
-        // ==========================================================
-        const canvas = document.getElementById("gameCanvas");
-        const ctx = canvas.getContext("2d");
-        let balls = [], particles = [];
-        let isRunning = false, screenShake = 0, timeLeft = 20, battleTimer = null;
-        let isBetting = false, chosenColor = null;
-
-        const COLORS = [
-            { name: "الذهبي", hex: "#FFD700" }, { name: "السماوي", hex: "#00F0FF" },
-            { name: "القرمزي", hex: "#FF0055" }, { name: "الأخضر", hex: "#39FF14" }, { name: "الأرجواني", hex: "#A855F7" }
-        ];
-
-        function resizeCanvas() { canvas.width = canvas.parentElement.clientWidth; canvas.height = canvas.parentElement.clientHeight; }
-        window.addEventListener('resize', resizeCanvas); resizeCanvas();
-
-        class Ball {
-            constructor(x, y, colorData) {
-                this.x = x; this.y = y; this.colorData = colorData; this.radius = 20; this.hits = 0;
-                const speed = 4.5 + Math.random() * 2.5, angle = Math.random() * Math.PI * 2;
-                this.vx = Math.cos(angle) * speed; this.vy = Math.sin(angle) * speed;
-            }
-            update() {
-                this.x += this.vx; this.y += this.vy;
-                if (this.x <= this.radius || this.x >= canvas.width - this.radius) { this.vx *= -1; this.x = Math.max(this.radius, Math.min(this.x, canvas.width - this.radius)); spawnParticles(this.x, this.y, this.colorData.hex, 3); playSound('hit'); }
-                if (this.y <= this.radius || this.y >= canvas.height - this.radius) { this.vy *= -1; this.y = Math.max(this.radius, Math.min(this.y, canvas.height - this.radius)); spawnParticles(this.x, this.y, this.colorData.hex, 3); playSound('hit'); }
-            }
-            draw() {
-                ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.fillStyle = this.colorData.hex; ctx.shadowColor = this.colorData.hex; ctx.shadowBlur = 18; ctx.fill(); ctx.shadowBlur = 0; ctx.strokeStyle = "#FFF"; ctx.lineWidth = 2.5; ctx.stroke(); ctx.closePath();
-            }
-        }
-
-        class Particle {
-            constructor(x, y, color, isGold = false) {
-                this.x = x; this.y = y; this.vx = (Math.random() - 0.5) * (isGold ? 8 : 12); this.vy = isGold ? (Math.random() * 6 + 2) : (Math.random() - 0.5) * 12;
-                this.size = Math.random() * 4 + 1.5; this.life = 1.0; this.color = color; this.isGold = isGold;
-            }
-            update() { this.x += this.vx; this.y += this.vy; this.life -= this.isGold ? 0.015 : 0.035; }
-            draw() { ctx.fillStyle = this.color; ctx.globalAlpha = Math.max(0, this.life); ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1.0; }
-        }
-
-        function spawnParticles(x, y, color, count = 10, isGold = false) { for (let i = 0; i < count; i++) particles.push(new Particle(x, y, color, isGold)); }
-
-        // ==========================================================
-        // 4. منطق المعركة والاقتصاد
-        // ==========================================================
-        function startGame() {
-            if (isRunning) return; playSound('hit');
-            isRunning = true; balls = []; timeLeft = 20;
-            COLORS.forEach((col) => { balls.push(new Ball(Math.random() * (canvas.width - 80) + 40, Math.random() * (canvas.height - 80) + 40, col)); });
-            document.getElementById('timerBox').classList.remove('hidden');
-            document.getElementById('timerVal').innerText = timeLeft;
-            document.getElementById('startBtn').innerText = "⚔️ المعركة مستمرة...";
-            document.getElementById('startBtn').classList.remove('pulse');
-            showNotify("🔥 انطلقت معركة الديربي!", "#00F0FF");
-            clearInterval(battleTimer);
-            battleTimer = setInterval(() => { timeLeft--; document.getElementById('timerVal').innerText = timeLeft; if (timeLeft <= 0) endBattle(); }, 1000);
-        }
-
-        function endBattle() {
-            clearInterval(battleTimer); isRunning = false;
-            document.getElementById('timerBox').classList.add('hidden');
-            document.getElementById('startBtn').innerText = "▶ ابدأ معركة جديدة";
-            document.getElementById('startBtn').classList.add('pulse');
-            const winner = balls.reduce((prev, current) => (prev.hits > current.hits) ? prev : current, balls[0]);
-            playSound('victory'); screenShake = 20;
-            for (let i = 0; i < 100; i++) { setTimeout(() => { spawnParticles(Math.random() * canvas.width, 0, winner.colorData.hex, 1, true); }, i * 25); }
-
-            if (isBetting && chosenColor) {
-                if (chosenColor.hex === winner.colorData.hex) { 
-                    updateSparks(sparks + 250); 
-                    updatePrestige(50); // زيادة الوجاهة
-                    showNotify(`🎉 فزت! (${winner.colorData.name}) +250⚡ و +50 وجاهة!`, "#39FF14"); 
-                } else { 
-                    showNotify(`💔 فازت (${winner.colorData.name})، حظ أوفر!`, "#FF0055"); 
-                }
-                isBetting = false; chosenColor = null;
-            } else { 
-                showNotify(`🏆 الفائز: الكرة ${winner.colorData.name}!`, winner.colorData.hex); 
-            }
-        }
-
-        function placeBet(amount) {
-            playSound('coin'); if (sparks < amount) { showNotify("رصيدك غير كافٍ!", "#FF0055"); return; }
-            if (isBetting) { showNotify("لديك رهان نشط!", "#FFD700"); return; }
-            chosenColor = COLORS[Math.floor(Math.random() * COLORS.length)];
-            isBetting = true; updateSparks(sparks - amount); 
-            showNotify(`🎰 راهنت بـ 100⚡ على: ${chosenColor.name}!`, chosenColor.hex);
-            if (!isRunning) startGame();
-        }
-
-        function openMysteryBox() {
-            playSound('coin'); if (sparks < 200) { showNotify("تحتاج 200⚡!", "#FF0055"); return; }
-            updateSparks(sparks - 200); showNotify("🎁 جاري الفتح...", "#A855F7");
-            setTimeout(() => {
-                const rand = Math.random(); let prize = 0, text = "";
-                if (rand > 0.90) { prize = 800; text = "جائزة كبرى! 800⚡"; playSound('victory'); }
-                else if (rand > 0.50) { prize = 300; text = "300⚡"; playSound('coin'); }
-                else if (rand > 0.2) { prize = 100; text = "100⚡"; playSound('coin'); }
-                else { text = "صندوق فارغ!"; }
-                if (prize > 0) { updateSparks(sparks + prize); spawnParticles(canvas.width / 2, canvas.height / 2, '#FFD700', 40, true); showNotify(`🎉 ${text}`, "#39FF14"); }
-                else { showNotify(`💨 ${text}`, "#FF0055"); }
-            }, 1200);
-        }
-
-        function sponsorArena(amount) {
-            playSound('victory'); if (sparks < amount) { showNotify("تحتاج 500⚡!", "#FF0055"); return; }
-            updateSparks(sparks - amount); updatePrestige(100); // الوجاهة تزيد بسرعة للهوامير
-            const name = prompt("اكتب اسمك الذي سيظهر كراعي رسمي:") || "القائد";
-            document.getElementById('sponsorName').innerText = name;
-            for (let i = 0; i < 100; i++) { setTimeout(() => spawnParticles(Math.random() * canvas.width, 0, '#FFD700', 1, true), i * 20); }
-            showNotify(`👑 أنت الراعي الرسمي يا ${name}! (+100 وجاهة)`, "#FFD700");
-        }
-
-        function triggerAction(type) {
-            playSound('hit'); if (!isRunning) { showNotify("ابدأ المعركة أولاً!", "#FFD700"); return; }
-            if (type === 'strike') {
-                if (sparks < 100) { showNotify("تحتاج 100⚡!", "#FF0055"); return; }
-                updateSparks(sparks - 100); screenShake = 18;
-                balls.forEach(b => { b.vx *= -1.8; b.vy *= -1.8; spawnParticles(b.x, b.y, '#FF0055', 8); });
-                showNotify("⚡ ضربة قاضية!", "#FF0055");
-            } else if (type === 'boost') {
-                if (sparks < 50) { showNotify("تحتاج 50⚡!", "#FF0055"); return; }
-                updateSparks(sparks - 50);
-                balls.forEach(b => { b.vx *= 1.5; b.vy *= 1.5; });
-                showNotify("🚀 تعزيز!", "#00F0FF");
-            }
-        }
-
-        // ==========================================================
-        // 5. الحلقة الرئيسية والرسم
-        // ==========================================================
-        function loop() {
-            ctx.save();
-            if (screenShake > 0) { ctx.translate((Math.random() - 0.5) * screenShake, (Math.random() - 0.5) * screenShake); screenShake *= 0.88; if (screenShake < 0.5) screenShake = 0; }
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            if (isRunning) {
-                for (let i = 0; i < balls.length; i++) {
-                    for (let j = i + 1; j < balls.length; j++) {
-                        let dx = balls[j].x - balls[i].x, dy = balls[j].y - balls[i].y, dist = Math.sqrt(dx * dx + dy * dy);
-                        if (dist < balls[i].radius + balls[j].radius) {
-                            balls[i].hits++; balls[j].hits++; balls[i].vx *= -1; balls[i].vy *= -1; balls[j].vx *= -1; balls[j].vy *= -1;
-                            balls[i].x -= dx * 0.08; balls[i].y -= dy * 0.08; balls[j].x += dx * 0.08; balls[j].y += dy * 0.08;
-                            spawnParticles((balls[i].x + balls[j].x) / 2, (balls[i].y + balls[j].y) / 2, "#FFF", 3); playSound('hit');
-                        }
-                    }
-                }
-                balls.forEach(b => { b.update(); b.draw(); });
-            }
-
-            for (let i = particles.length - 1; i >= 0; i--) { particles[i].update(); particles[i].draw(); if (particles[i].life <= 0) particles.splice(i, 1); }
-            ctx.restore(); requestAnimationFrame(loop);
-        }
-        loop();
-
-        function showNotify(msg, color) {
-            const notif = document.getElementById('notification'), txt = document.getElementById('notif-text');
-            txt.innerText = msg; txt.style.color = color; notif.style.borderColor = color; notif.classList.add('show');
-            setTimeout(() => notif.classList.remove('show'), 2200);
-        }
-    </script>
+/* ============================================================
+   7. BOOT
+   ============================================================ */
+function boot(){
+  resizeCanvas(); UIController.updateUI(); transitionTo(STATES.LOBBY);
+  requestAnimationFrame(gameLoop);
+}
+window.onload=boot;
+</script>
 </body>
 </html>
