@@ -1,94 +1,109 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>متجر دله - بطاقات شحن اللعبة الخاصة</title>
-    <!-- Bootstrap 5 CSS للربط السريع والتصميم المتجاوب -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.rtl.min.css">
-    <style>
-        body {
-            background-color: #121212;
-            color: #ffffff;
-            font-family: system-ui, -apple-system, sans-serif;
-        }
-        .card-custom {
-            background-color: #1e1e1e;
-            border: 1px solid #333;
-            border-radius: 12px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .card-custom:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(255, 193, 7, 0.2);
-        }
-        .badge-bronze { background-color: #cd7f32; }
-        .badge-silver { background-color: #c0c0c0; color: #000; }
-        .badge-gold { background-color: #ffc107; color: #000; }
-        .btn-store {
-            background-color: #ffc107;
-            color: #000;
-            font-weight: bold;
-            border: none;
-        }
-        .btn-store:hover {
-            background-color: #e0a800;
-        }
-    </style>
-</head>
-<body>
+// ====================================================================
+// ⚡ GAME ENGINE & CARD ACTIVATION SYSTEM (ring-game core)
+// ====================================================================
 
-    <div class="container py-5">
-        <!-- هيدر المتجر -->
-        <div class="text-center mb-5">
-            <h1 class="display-5 fw-bold text-warning">متجر دله الرقمي</h1>
-            <p class="lead text-muted">احصل على بطاقات الشحن الخاصة بلعبتك فوراً وفعّل ميزاتك بكل سهولة</p>
-        </div>
+// حالة اللاعب والبيانات الأساسية
+let player = {
+    name: "القائد",
+    level: 1,
+    balance: 0,
+    shield: false,
+    score: 0,
+    inventory: []
+};
 
-        <!-- شبكة عرض البطاقات (Grid System) -->
-        <div class="row row-cols-1 row-cols-md-3 g-4">
+// تهيئة اللعبة عند التحميل
+window.onload = function() {
+    console.log("⚡ تم تشغيل محرك اللعبة بنجاح...");
+    initGameUI();
+};
+
+// إنشاء واجهة اللعبة داخل المكون الرئيسي
+function initGameUI() {
+    const gameContainer = document.getElementById('game');
+    if (!gameContainer) return;
+
+    gameContainer.innerHTML = `
+        <div style="background-color: #1a1a1a; color: #fff; padding: 20px; border-radius: 10px; max-width: 500px; margin: auto; text-align: center; font-family: sans-serif;">
+            <h2>🎮 لوحة تحكم اللعبة</h2>
+            <hr style="border-color: #333;">
+            <p><strong>الرصيد:</strong> <span id="player-balance">${player.balance}</span> ريال</p>
+            <p><strong>المستوى:</strong> <span id="player-level">${player.level}</span></p>
+            <p><strong>الدرع:</strong> <span id="player-shield">${player.shield ? 'نشط 🛡️' : 'غير غير نشط ❌'}</span></p>
+            <p><strong>النقاط:</strong> <span id="player-score">${player.score}</span></p>
             
-            <!-- 1. البطاقة البرونزية -->
-            <div class="col">
-                <div class="card card-custom h-100 p-3 text-center">
-                    <div class="card-body">
-                        <span class="badge badge-bronze mb-3 px-3 py-2 fs-6">الفئة البرونزية</span>
-                        <h3 class="card-title fw-bold mb-3">حزمة البداية</h3>
-                        <p class="text-muted">تتضمن نقاط أساسية + درع بداية اللعبة لتسريع تقدمك.</p>
-                        <h4 class="text-warning fw-bold my-3">35 ر.س</h4>
-                        <button class="btn btn-store w-100 py-2 mt-3">شحن فوري</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 2. البطاقة الفضية -->
-            <div class="col">
-                <div class="card card-custom h-100 p-3 text-center border-secondary">
-                    <div class="card-body">
-                        <span class="badge badge-silver mb-3 px-3 py-2 fs-6">الفئة الفضية</span>
-                        <h3 class="card-title fw-bold mb-3">حزمة المحارب</h3>
-                        <p class="text-muted">نقاط مضاعفة + أسلحة وميزات استثنائية داخل اللعبة.</p>
-                        <h4 class="text-warning fw-bold my-3">75 ر.س</h4>
-                        <button class="btn btn-store w-100 py-2 mt-3">شحن فوري</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 3. البطاقة الذهبية -->
-            <div class="col">
-                <div class="card card-custom h-100 p-3 text-center border-warning">
-                    <div class="card-body">
-                        <span class="badge badge-gold mb-3 px-3 py-2 fs-6">الفئة الذهبية (الملكية)</span>
-                        <h3 class="card-title fw-bold mb-3">الحزمة الأسطورية</h3>
-                        <p class="text-muted">الرصيد الأقصى + فتح كافة الميزات والترقيات الحصرية بالكامل.</p>
-                        <h4 class="text-warning fw-bold my-3">150 ر.س</h4>
-                        <button class="btn btn-store w-100 py-2 mt-3">شحن فوري</button>
-                    </div>
-                </div>
-            </div>
-
+            <hr style="border-color: #333;">
+            <h3>🔑 أدخل كود شحن بطاقة دله</h3>
+            <input type="text" id="card-code-input" placeholder="أدخل الكود هنا (مثال: BRONZE35)" style="padding: 10px; width: 80%; border-radius: 5px; border: 1px solid #444; margin-bottom: 10px; text-align: center;">
+            <br>
+            <button onclick="submitCardCode()" style="background-color: #ffc107; color: #000; font-weight: bold; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">تفعيل الكود الفوري</button>
+            <p id="system-message" style="margin-top: 15px; font-weight: bold;"></p>
         </div>
-    </div>
+    `;
+}
 
-</body>
-</html>
+// دالة معالجة الأكواد المدخلة من متجر دله
+function submitCardCode() {
+    const inputField = document.getElementById('card-code-input');
+    const code = inputField.value.trim().toUpperCase();
+    
+    if (code === "") {
+        showMessage("الرجاء إدخال كود بطاقة الشحن!", "orange");
+        return;
+    }
+
+    receiveCharge(code);
+    inputField.value = "";
+}
+
+// محرك تفعيل البطاقات ومنح المكافآت الحصرية
+function receiveCharge(chargeKey) {
+    // 1. البطاقة البرونزية (35 ريال)
+    if (chargeKey === "BRONZE35" || chargeKey.startsWith("BRZ-")) {
+        player.balance += 35;
+        player.score += 500;
+        player.shield = true;
+        player.inventory.push("درع بداية اللعبة");
+        showMessage("✅ تم تفعيل البطاقة البرونزية! حصلت على 35 ريال رصيد + 500 نقطة + درع الحماية!", "#cd7f32");
+    } 
+    // 2. البطاقة الفضية (75 ريال)
+    else if (chargeKey === "SILVER75" || chargeKey.startsWith("SLV-")) {
+        player.balance += 75;
+        player.score += 1500;
+        player.level += 1;
+        player.shield = true;
+        player.inventory.push("سلاح المحارب المطور");
+        showMessage("⚡ تم تفعيل البطاقة الفضية! حصلت على 75 ريال رصيد + ترقية مستوى + سلاح فضي!", "#c0c0c0");
+    } 
+    // 3. البطاقة الذهبية الملكية (150 ريال)
+    else if (chargeKey === "GOLD150" || chargeKey.startsWith("GLD-")) {
+        player.balance += 150;
+        player.score += 5000;
+        player.level += 3;
+        player.shield = true;
+        player.inventory.push("الحزمة الأسطورية الشاملة");
+        showMessage("🔥 تم تفعيل البطاقة الذهبية الملكية! فتح كامل الميزات + 150 ريال + 3 مستويات!", "#ffc107");
+    } 
+    else {
+        showMessage("❌ الكود غير صحيح أو مستخدم من قبل، يرجى التأكد من متجر دله.", "red");
+        return;
+    }
+
+    // تحديث الواجهة فوراً
+    updateUI();
+}
+
+// تحديث بيانات الصفحة
+function updateUI() {
+    document.getElementById('player-balance').innerText = player.balance;
+    document.getElementById('player-level').innerText = player.level;
+    document.getElementById('player-shield').innerText = player.shield ? 'نشط 🛡️' : 'غير نشط ❌';
+    document.getElementById('player-score').innerText = player.score;
+}
+
+// عرض رسائل النظام
+function showMessage(msg, color) {
+    const msgElement = document.getElementById('system-message');
+    msgElement.innerText = msg;
+    msgElement.style.color = color;
+}
