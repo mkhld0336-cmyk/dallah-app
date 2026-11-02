@@ -1,109 +1,290 @@
-// ====================================================================
-// ⚡ GAME ENGINE & CARD ACTIVATION SYSTEM (ring-game core)
-// ====================================================================
+# ═══════════════════════════════════════════════════════════════
+# 🦅 مرصد | Marsad - الإصدار الملكي الفاخر 13.0
+# ═══════════════════════════════════════════════════════════════
 
-// حالة اللاعب والبيانات الأساسية
-let player = {
-    name: "القائد",
-    level: 1,
-    balance: 0,
-    shield: false,
-    score: 0,
-    inventory: []
-};
+!pip install -q streamlit pandas pillow
+!wget -q https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -O /usr/local/bin/cloudflared
+!chmod +x /usr/local/bin/cloudflared
 
-// تهيئة اللعبة عند التحميل
-window.onload = function() {
-    console.log("⚡ تم تشغيل محرك اللعبة بنجاح...");
-    initGameUI();
-};
+import os, time, json, pandas as pd, subprocess, re, base64
+from google.colab import drive
+drive.mount('/content/drive')
 
-// إنشاء واجهة اللعبة داخل المكون الرئيسي
-function initGameUI() {
-    const gameContainer = document.getElementById('game');
-    if (!gameContainer) return;
+app_code = '''
+import os
+import time
+import json
+import pandas as pd
+import streamlit as st
+import base64
 
-    gameContainer.innerHTML = `
-        <div style="background-color: #1a1a1a; color: #fff; padding: 20px; border-radius: 10px; max-width: 500px; margin: auto; text-align: center; font-family: sans-serif;">
-            <h2>🎮 لوحة تحكم اللعبة</h2>
-            <hr style="border-color: #333;">
-            <p><strong>الرصيد:</strong> <span id="player-balance">${player.balance}</span> ريال</p>
-            <p><strong>المستوى:</strong> <span id="player-level">${player.level}</span></p>
-            <p><strong>الدرع:</strong> <span id="player-shield">${player.shield ? 'نشط 🛡️' : 'غير غير نشط ❌'}</span></p>
-            <p><strong>النقاط:</strong> <span id="player-score">${player.score}</span></p>
-            
-            <hr style="border-color: #333;">
-            <h3>🔑 أدخل كود شحن بطاقة دله</h3>
-            <input type="text" id="card-code-input" placeholder="أدخل الكود هنا (مثال: BRONZE35)" style="padding: 10px; width: 80%; border-radius: 5px; border: 1px solid #444; margin-bottom: 10px; text-align: center;">
-            <br>
-            <button onclick="submitCardCode()" style="background-color: #ffc107; color: #000; font-weight: bold; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">تفعيل الكود الفوري</button>
-            <p id="system-message" style="margin-top: 15px; font-weight: bold;"></p>
-        </div>
-    `;
-}
+st.set_page_config(page_title="مرصد | Marsad", page_icon="🛒", layout="wide", initial_sidebar_state="collapsed")
 
-// دالة معالجة الأكواد المدخلة من متجر دله
-function submitCardCode() {
-    const inputField = document.getElementById('card-code-input');
-    const code = inputField.value.trim().toUpperCase();
+# ═══════════════════════════════════════════════════════════════
+# 🎨 التصميم الملكي الفاخر (CSS متقدم)
+# ═══════════════════════════════════════════════════════════════
+st.markdown("""
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
     
-    if (code === "") {
-        showMessage("الرجاء إدخال كود بطاقة الشحن!", "orange");
-        return;
-    }
+    /* إخفاء أدوات ستريم ليت الافتراضية */
+    #MainMenu, header, footer {visibility: hidden;}
+    .block-container { padding-top: 0rem; padding-bottom: 2rem; max-width: 1400px; }
+    
+    /* الخلفية العامة (أبيض ناصع) */
+    .stApp { background-color: #f8fafc; color: #0f172a; font-family: 'Cairo', sans-serif; }
+    
+    /* الشريط العلوي (Top Bar) */
+    .top-bar { background-color: #0f172a; color: #f8fafc; padding: 10px 30px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: 600; }
+    .top-bar span { color: #d4af37; }
+    
+    /* الشريط الرئيسي (Navbar) */
+    .navbar { background-color: #ffffff; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+    .nav-logo { font-size: 28px; font-weight: 800; color: #0f172a; margin: 0; }
+    .nav-logo span { color: #d4af37; }
+    
+    /* البانر الرئيسي (Hero) */
+    .hero-banner { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #ffffff; padding: 50px 30px; border-radius: 20px; text-align: center; margin: 30px 0; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+    .hero-title { font-size: 36px; font-weight: 800; margin-bottom: 15px; }
+    .hero-subtitle { font-size: 18px; color: #cbd5e1; margin-bottom: 25px; }
+    
+    /* أزرار الأقسام */
+    .cat-pill { display: inline-block; background: #ffffff; border: 1px solid #e2e8f0; padding: 10px 20px; border-radius: 30px; font-weight: 700; color: #0f172a; margin: 5px; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+    .cat-pill:hover { border-color: #d4af37; color: #d4af37; }
+    .cat-pill.active { background: #d4af37; color: #000; border-color: #d4af37; }
+    
+    /* كروت المنتجات */
+    .product-card { background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; margin-bottom: 20px; transition: transform 0.3s, box-shadow 0.3s; }
+    .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); border-color: #d4af37; }
+    .product-image { width: 100%; height: 220px; object-fit: cover; border-bottom: 1px solid #e2e8f0; }
+    .product-info { padding: 20px; text-align: center; }
+    .product-category { font-size: 12px; font-weight: 700; color: #0f172a; background: #f1f5f9; padding: 5px 12px; border-radius: 20px; display: inline-block; margin-bottom: 15px; }
+    .product-name { font-size: 18px; font-weight: 800; color: #0f172a; margin: 0 0 10px 0; }
+    .product-price { font-size: 26px; font-weight: 800; color: #d4af37; }
+    
+    /* الأزرار */
+    .stButton > button { background: #0f172a; color: #ffffff; font-weight: 700; font-family: 'Cairo', sans-serif; border: none; border-radius: 10px; padding: 12px 20px; width: 100%; transition: 0.2s; }
+    .stButton > button:hover { background: #d4af37; color: #000; }
+    
+    /* صندوق الدردشة */
+    .chat-container { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; margin-top: 40px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+    
+    /* التنبيهات */
+    .alert-box { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; padding: 20px; border-radius: 12px; margin-bottom: 30px; text-align: center; font-weight: 700; font-size: 16px; }
+</style>
+""", unsafe_allow_html=True)
 
-    receiveCharge(code);
-    inputField.value = "";
-}
+# ═══════════════════════════════════════════════════════════════
+# 🗄️ البيانات
+# ═══════════════════════════════════════════════════════════════
+CSV_PATH = "/content/drive/MyDrive/Marsad_Final_Categorized.csv"
+FOLDER_PATH = "/content/drive/MyDrive/Marsad_Images"
+ORDERS_FILE = "/content/drive/MyDrive/marsad_orders.json"
+CHAT_FILE = "/content/drive/MyDrive/marsad_chat.json"
 
-// محرك تفعيل البطاقات ومنح المكافآت الحصرية
-function receiveCharge(chargeKey) {
-    // 1. البطاقة البرونزية (35 ريال)
-    if (chargeKey === "BRONZE35" || chargeKey.startsWith("BRZ-")) {
-        player.balance += 35;
-        player.score += 500;
-        player.shield = true;
-        player.inventory.push("درع بداية اللعبة");
-        showMessage("✅ تم تفعيل البطاقة البرونزية! حصلت على 35 ريال رصيد + 500 نقطة + درع الحماية!", "#cd7f32");
-    } 
-    // 2. البطاقة الفضية (75 ريال)
-    else if (chargeKey === "SILVER75" || chargeKey.startsWith("SLV-")) {
-        player.balance += 75;
-        player.score += 1500;
-        player.level += 1;
-        player.shield = true;
-        player.inventory.push("سلاح المحارب المطور");
-        showMessage("⚡ تم تفعيل البطاقة الفضية! حصلت على 75 ريال رصيد + ترقية مستوى + سلاح فضي!", "#c0c0c0");
-    } 
-    // 3. البطاقة الذهبية الملكية (150 ريال)
-    else if (chargeKey === "GOLD150" || chargeKey.startsWith("GLD-")) {
-        player.balance += 150;
-        player.score += 5000;
-        player.level += 3;
-        player.shield = true;
-        player.inventory.push("الحزمة الأسطورية الشاملة");
-        showMessage("🔥 تم تفعيل البطاقة الذهبية الملكية! فتح كامل الميزات + 150 ريال + 3 مستويات!", "#ffc107");
-    } 
-    else {
-        showMessage("❌ الكود غير صحيح أو مستخدم من قبل، يرجى التأكد من متجر دله.", "red");
-        return;
-    }
+@st.cache_data
+def load_data():
+    if os.path.exists(CSV_PATH):
+        df = pd.read_csv(CSV_PATH)
+        col_map = {'اسم_المنتج':'name', 'السعر':'price', 'القسم':'category', 'اسم_الصورة':'image'}
+        df.rename(columns=col_map, inplace=True)
+        return df
+    return pd.DataFrame(columns=['name', 'price', 'category', 'image'])
 
-    // تحديث الواجهة فوراً
-    updateUI();
-}
+df = load_data()
 
-// تحديث بيانات الصفحة
-function updateUI() {
-    document.getElementById('player-balance').innerText = player.balance;
-    document.getElementById('player-level').innerText = player.level;
-    document.getElementById('player-shield').innerText = player.shield ? 'نشط 🛡️' : 'غير نشط ❌';
-    document.getElementById('player-score').innerText = player.score;
-}
+def get_b64(img_name):
+    path = os.path.join(FOLDER_PATH, str(img_name))
+    try:
+        with open(path, "rb") as f: return base64.b64encode(f.read()).decode()
+    except: return ""
 
-// عرض رسائل النظام
-function showMessage(msg, color) {
-    const msgElement = document.getElementById('system-message');
-    msgElement.innerText = msg;
-    msgElement.style.color = color;
-}
+# تهيئة الدردشة والطلبات
+if 'chat' not in st.session_state:
+    if os.path.exists(CHAT_FILE):
+        with open(CHAT_FILE, "r", encoding="utf-8") as f: st.session_state.chat = json.load(f)
+    else: st.session_state.chat = []
+
+if 'role' not in st.session_state: st.session_state.role = None
+if 'username' not in st.session_state: st.session_state.username = None
+
+# ═══════════════════════════════════════════════════════════════
+# 🖥️ الواجهات
+# ═══════════════════════════════════════════════════════════════
+
+# --- الشريط العلوي (يظهر في كل الصفحات) ---
+st.markdown("""
+<div class="top-bar">
+    <div>للاستفسار المباشر: <span>0511344046</span> (مدير الميدان) | <span>0500000000</span> (المدير العام)</div>
+    <div>نسخة التطوير (Beta) - جاهزة للانطلاق</div>
+</div>
+<div class="navbar">
+    <h1 class="nav-logo">مرصد <span>Marsad</span></h1>
+    <div style="color: #64748b; font-weight: 600;">منصة التجزئة الذكية</div>
+</div>
+""", unsafe_allow_html=True)
+
+# --- لوحة التحكم (للمشرف والمدير) ---
+if st.session_state.role in ["admin", "supervisor"]:
+    st.markdown(f"<h2 style='margin-top:30px;'>مرحباً بك، {st.session_state.username} 👋</h2>", unsafe_allow_html=True)
+    if st.button("تسجيل الخروج", key="logout"):
+        st.session_state.role = None
+        st.session_state.username = None
+        st.rerun()
+        
+    tab1, tab2, tab3 = st.tabs(["📦 إدارة المنتجات", "➕ إضافة منتج جديد", "📥 الطلبات الواردة"])
+    
+    with tab1:
+        st.info("💡 يمكنك حذف المنتجات غير المرغوبة أو تعديل أسعارها مباشرة.")
+        col_del1, col_del2 = st.columns([3, 1])
+        with col_del1:
+            product_to_delete = st.selectbox("اختر منتجاً لحذفه:", ["لا شيء"] + list(df['name']))
+        with col_del2:
+            st.write(""); st.write("")
+            if st.button("🗑️ حذف"):
+                if product_to_delete != "لا شيء":
+                    df_updated = df[df['name'] != product_to_delete]
+                    df_updated.to_csv(CSV_PATH, index=False, encoding='utf-8-sig')
+                    st.success("✅ تم الحذف!"); time.sleep(1); st.rerun()
+        
+        st.markdown("---")
+        edited = st.data_editor(df[['name', 'price', 'category']], use_container_width=True, hide_index=True)
+        if st.button("💾 حفظ التعديلات"):
+            edited.to_csv(CSV_PATH, index=False, encoding='utf-8-sig')
+            st.success("✅ تم حفظ الأسعار"); time.sleep(1); st.rerun()
+        
+    with tab2:
+        with st.form("add_prod"):
+            n = st.text_input("اسم المنتج")
+            p = st.number_input("السعر", min_value=1.0)
+            c = st.selectbox("القسم", ["مواد غذائية", "أجهزة منزلية", "بطاقات رقمية", "أخرى"])
+            img = st.file_uploader("صورة المنتج", type=["jpg", "png"])
+            if st.form_submit_button("إضافة للمنصة"):
+                if n and img:
+                    img_path = os.path.join(FOLDER_PATH, img.name)
+                    with open(img_path, "wb") as f: f.write(img.getbuffer())
+                    new_row = pd.DataFrame({"name": [n], "price": [p], "category": [c], "image": [img.name]})
+                    new_row.to_csv(CSV_PATH, mode='a', header=not os.path.exists(CSV_PATH), index=False)
+                    st.success("✅ تمت الإضافة!"); time.sleep(1); st.rerun()
+
+    with tab3:
+        if os.path.exists(ORDERS_FILE):
+            with open(ORDERS_FILE, "r") as f: orders = json.load(f)
+            if orders: st.dataframe(pd.DataFrame(orders), use_container_width=True)
+            else: st.info("لا توجد طلبات.")
+        else: st.info("لا توجد طلبات.")
+
+# --- واجهة المتجر (للتجار والزوار) ---
+else:
+    # الدخول للمشرفين (مخفي في الشريط الجانبي)
+    with st.sidebar:
+        st.markdown("### بوابة الإدارة")
+        code = st.text_input("كود الدخول", type="password")
+        if st.button("دخول"):
+            if code == "1990":
+                st.session_state.role = "admin"; st.session_state.username = "المدير العام"; st.rerun()
+            elif code == "0511344046":
+                st.session_state.role = "supervisor"; st.session_state.username = "مدير الميدان"; st.rerun()
+            else: st.error("كود غير صحيح")
+
+    # البانر الرئيسي
+    st.markdown("""
+    <div class="hero-banner">
+        <div class="hero-title">المنصة جاهزة للانطلاق 🚀</div>
+        <div class="hero-subtitle">نعمل حالياً على تحديث الأسعار النهائية. تصفح المنتجات الآن، واتفق معنا مباشرة عبر الشات.</div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # تنبيه الأسعار التجريبية
+    st.markdown("""
+    <div class="alert-box">
+        ⚠️ ملاحظة: الصور والأسعار المعروضة حالياً هي "عينات تجريبية" لأغراض الاختبار. سيتم تحديثها قريباً لضمان أفضل جودة.
+    </div>
+    """, unsafe_allow_html=True)
+
+    # أزرار الأقسام (شكل حلو ومرتب)
+    st.markdown("<h3 style='margin-bottom:15px;'>تسوق حسب القسم</h3>", unsafe_allow_html=True)
+    cats = ["الكل"] + list(df['category'].unique())
+    
+    # عرض الأقسام كأزرار تفاعلية (باستخدام st.radio مخفي كأزرار)
+    selected_cat = st.radio("", cats, horizontal=True, label_visibility="collapsed")
+    
+    filtered_df = df if selected_cat == "الكل" else df[df['category'] == selected_cat]
+
+    # شبكة المنتجات
+    st.markdown("<hr style='margin: 30px 0; border-color: #e2e8f0;'>", unsafe_allow_html=True)
+    cols = st.columns(4) # 4 أعمدة عشان يكون شكل سوق كبير
+    for i, (_, row) in enumerate(filtered_df.iterrows()):
+        col = cols[i % 4]
+        with col:
+            b64 = get_b64(row['image'])
+            img_tag = f'<img src="data:image/jpeg;base64,{b64}" class="product-image">' if b64 else '<div class="product-image" style="background:#f1f5f9; display:flex; align-items:center; justify-content:center; color:#94a3b8;">لا توجد صورة</div>'
+            
+            st.markdown(f"""
+            <div class="product-card">
+                {img_tag}
+                <div class="product-info">
+                    <span class="product-category">{row['category']}</span>
+                    <h3 class="product-name">{row['name']}</h3>
+                    <div class="product-price">{row['price']} <span style="font-size:14px; font-weight:400">ريال</span></div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            with st.expander("🛒 اطلب الآن"):
+                with st.form(key=f"order_{i}"):
+                    n = st.text_input("اسم المتجر", key=f"n_{i}")
+                    ph = st.text_input("رقم الجوال", key=f"p_{i}")
+                    q = st.number_input("الكمية", 1, key=f"q_{i}")
+                    if st.form_submit_button("تأكيد الطلب"):
+                        if n and ph:
+                            orders = []
+                            if os.path.exists(ORDERS_FILE):
+                                with open(ORDERS_FILE, "r") as f: orders = json.load(f)
+                            orders.append({"store": n, "phone": ph, "product": row['name'], "qty": q, "price": row['price'], "date": str(pd.Timestamp.now())})
+                            with open(ORDERS_FILE, "w") as f: json.dump(orders, f, ensure_ascii=False, indent=2)
+                            st.success("✅ تم إرسال الطلب!")
+                        else: st.error("أكمل البيانات")
+
+    # --- قسم دردشة المؤسسين (في الأسفل) ---
+    st.markdown("<div class='chat-container'>", unsafe_allow_html=True)
+    st.markdown("### 💬 دردشة المؤسسين والاتفاق المباشر")
+    st.markdown("<p style='color:#64748b; font-size:14px;'>هذه المساحة مخصصة للمؤسسين للتحدث حول الأسعار وتأكيد الطلبات.</p>", unsafe_allow_html=True)
+    
+    for msg in st.session_state.chat:
+        st.markdown(f"**{msg['sender']}:** {msg['text']}")
+        
+    with st.form("chat_form", clear_on_submit=True):
+        c1, c2 = st.columns([1, 3])
+        with c1: sender = st.text_input("اسمك")
+        with c2: text = st.text_input("الرسالة")
+        if st.form_submit_button("إرسال"):
+            if text:
+                st.session_state.chat.append({"sender": sender or "زائر", "text": text})
+                with open(CHAT_FILE, "w", encoding="utf-8") as f: json.dump(st.session_state.chat, f, ensure_ascii=False)
+                st.rerun()
+    st.markdown("</div>", unsafe_allow_html=True)
+'''
+
+with open("marsad_app.py", "w", encoding="utf-8") as f:
+    f.write(app_code)
+
+print("⏳ جاري تشغيل الموقع...")
+subprocess.Popen(["streamlit", "run", "marsad_app.py", "--server.port=8501"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+time.sleep(10)
+
+print("🌍 جاري فتح الرابط...")
+if os.path.exists("/content/cf.log"): os.remove("/content/cf.log")
+subprocess.Popen(["cloudflared", "tunnel", "--url", "http://localhost:8501", "--protocol", "http2", "--no-autoupdate", "--logfile", "/content/cf.log"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+for _ in range(30):
+    time.sleep(1)
+    if os.path.exists("/content/cf.log"):
+        with open("/content/cf.log", "r") as f:
+            match = re.search(r'https://[a-zA-Z0-9-]+\.trycloudflare\.com', f.read())
+            if match:
+                print("\n" + "="*60)
+                print(f"🎉 الموقع جاهز! انسخ الرابط فوراً:")
+                print(f"🔗 {match.group(0)}")
+                print("="*60)
+                break
