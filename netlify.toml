@@ -1,8 +1,0 @@
-[build]
-  publish = "." 
-  functions = "netlify/functions"
-
-[[redirects]]
-  from = "/api/paypal-webhook"
-  to = "/.netlify/functions/paypal-webhook"
-  status = 200
