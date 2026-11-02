@@ -74,10 +74,11 @@ with st.sidebar:
     user_role = "تاجر"
     auth_code = st.text_input("كود الدخول (للمشرفين فقط):", type="password")
     
+    # 👇 تمت إضافة رقم اليمني هنا (الفريق صار 3 مشرفين)
     if auth_code == "1990":
         user_role = "المدير 👑"
         st.success(f"مرحباً بك يا {user_role}")
-    elif auth_code == "0511344046":
+    elif auth_code in ["0511344046", "0582239230"]:
         user_role = "المشرف 🛡️"
         st.success(f"مرحباً بك يا {user_role}")
     elif auth_code != "":
@@ -85,6 +86,7 @@ with st.sidebar:
 
     st.markdown("---")
     
+    # قسم التتبع للتاجر
     if user_role == "تاجر":
         st.subheader("📍 تتبع طلبك")
         track_phone = st.text_input("أدخل رقم جوالك لمتابعة الطلب:")
