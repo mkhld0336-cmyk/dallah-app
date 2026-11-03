@@ -21,17 +21,17 @@ if phone_number:
         if os.path.exists(ORDERS_FILE):
             with open(ORDERS_FILE, "r", encoding="utf-8") as f:
                 orders = json.load(f)
-        
+
         my_orders = [o for o in orders if str(o.get("phone")) == phone_number]
-        
+
         if my_orders:
             st.success(f"تم العثور على {len(my_orders)} طلب مرتبط بهذا الرقم.")
-            
+
             for order in reversed(my_orders):
                 status = order.get("status", "تم الاستلام")
                 status_map = {"تم الاستلام": 1, "قيد التجهيز": 2, "في الطريق": 3, "تم التسليم": 4}
                 current_stage = status_map.get(status, 1)
-                
+
                 with st.container(border=True):
                     col1, col2, col3 = st.columns(3)
                     with col1:
@@ -40,11 +40,11 @@ if phone_number:
                         st.markdown(f"**التاريخ:** {order.get('date', '')}")
                     with col3:
                         st.markdown(f"**السعر:** `{order.get('price', 0)} ر.س`")
-                    
+
                     st.subheader("مرحلة التوصيل الحالية", anchor=False)
                     progress_percentage = (current_stage - 1) / 3
                     st.progress(progress_percentage)
-                    
+
                     step_cols = st.columns(4)
                     with step_cols[0]:
                         st.markdown(":material/fact_check: **تم تأكيد الطلب**")
@@ -65,7 +65,7 @@ if phone_number:
                         else:
                             st.markdown(":material/check_box: تم التسليم")
                             st.caption("في موقع المتجر")
-                    
+
                     if current_stage >= 3 and current_stage < 4:
                         st.info("معلومات السائق: كابتن أحمد - 0500000000 - مركبة مبردة")
                     st.divider()
