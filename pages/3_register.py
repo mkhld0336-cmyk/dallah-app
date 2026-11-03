@@ -16,7 +16,7 @@ SUBS_FILE = "marsad_subscribers.json"
 
 with st.container(border=True):
     st.subheader("بيانات المتجر / المطعم", anchor=False)
-    
+
     with st.form("sub_form"):
         col1, col2 = st.columns(2)
         with col1:
@@ -25,9 +25,9 @@ with st.container(border=True):
         with col2:
             phone = st.text_input("رقم الجوال *", placeholder="05xxxxxxxx")
             location = st.text_input("الموقع (الحي / المدينة)")
-        
+
         st.markdown(":material/info: الحقول التي تحمل (*) إلزامية.")
-        
+
         if st.form_submit_button("إرسال طلب الاشتراك", type="primary", use_container_width=True):
             if store_name and phone:
                 if phone.startswith("05") and len(phone) == 10:
