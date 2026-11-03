@@ -7,6 +7,15 @@ from datetime import datetime
 from PIL import Image, ImageDraw
 
 # ==========================================
+# 0. إعدادات المسار (مهم جداً للسيرفر)
+# ==========================================
+# هذا السطر يضمن أن المنصة تقرأ الملفات من نفس مجلد المشروع
+try:
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+except:
+    pass
+
+# ==========================================
 # 1. إعدادات الصفحة والتصميم
 # ==========================================
 st.set_page_config(page_title="مرصد - سوق النخبة", page_icon="👑", layout="wide")
@@ -38,9 +47,14 @@ ORDERS_FILE = "marsad_orders.json"
 @st.cache_data
 def load_data():
     if os.path.exists(CSV_PATH):
-        df = pd.read_csv(CSV_PATH)
-        df.rename(columns={'اسم_الصورة': 'image_filename', 'اسم_المنتج': 'product_name', 'السعر': 'price', 'القسم': 'category'}, inplace=True)
-        return df
+        try:
+            df = pd.read_csv(CSV_PATH)
+            # توحيد أسماء الأعمدة لتناسب الكود
+            df.rename(columns={'اسم_الصورة': 'image_filename', 'اسم_المنتج': 'product_name', 'السعر': 'price', 'القسم': 'category'}, inplace=True)
+            return df
+        except Exception as e:
+            st.error(f"خطأ في قراءة ملف الإكسل: {e}")
+            return pd.DataFrame()
     return pd.DataFrame()
 
 df_market = load_data()
@@ -58,13 +72,19 @@ def add_watermark(img_path):
 
 def load_orders():
     if os.path.exists(ORDERS_FILE):
-        with open(ORDERS_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
+        try:
+            with open(ORDERS_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except:
+            return []
     return []
 
 def save_orders(orders):
-    with open(ORDERS_FILE, "w", encoding="utf-8") as f:
-        json.dump(orders, f, ensure_ascii=False, indent=4)
+    try:
+        with open(ORDERS_FILE, "w", encoding="utf-8") as f:
+            json.dump(orders, f, ensure_ascii=False, indent=4)
+    except Exception as e:
+        st.error(f"خطأ في حفظ الطلب: {e}")
 
 # ==========================================
 # 3. الشريط الجانبي (الصلاحيات والتتبع)
@@ -74,7 +94,7 @@ with st.sidebar:
     user_role = "تاجر"
     auth_code = st.text_input("كود الدخول (للمشرفين فقط):", type="password")
     
-    # 👇 تمت إضافة رقم اليمني هنا (الفريق صار 3 مشرفين)
+    # أكواد الدخول
     if auth_code == "1990":
         user_role = "المدير 👑"
         st.success(f"مرحباً بك يا {user_role}")
@@ -92,7 +112,7 @@ with st.sidebar:
         track_phone = st.text_input("أدخل رقم جوالك لمتابعة الطلب:")
         if track_phone:
             orders = load_orders()
-            user_orders = [o for o in orders if o.get("phone") == track_phone]
+            user_orders = [o for o in orders if str(o.get("phone")) == str(track_phone)]
             if user_orders:
                 latest_order = user_orders[-1]
                 status = latest_order.get("status", "تم الاستلام")
@@ -119,12 +139,14 @@ if user_role == "تاجر":
                     img_name = row.get('image_filename', '')
                     img_path = os.path.join(IMAGES_DIR, str(img_name))
                     
+                    # التحقق من وجود الصورة
                     if os.path.exists(img_path):
                         wm_img = add_watermark(img_path)
                         if wm_img: st.image(wm_img, use_container_width=True)
                         else: st.image(img_path, use_container_width=True)
                     else:
-                        st.image("https://via.placeholder.com/300x200?text=No+Image", use_container_width=True)
+                        # صورة افتراضية في حال عدم وجود الصورة في السيرفر
+                        st.image("https://placehold.co/300x200/0e1117/00ffff?text=Marsad+Premium", use_container_width=True)
 
                     st.markdown(f"<div class='product-title'>{row.get('product_name', 'منتج')}</div>", unsafe_allow_html=True)
                     st.markdown(f"<div class='product-price'>السعر: {row.get('price', '0')} ر.س</div>", unsafe_allow_html=True)
@@ -149,6 +171,8 @@ if user_role == "تاجر":
                                 st.rerun()
                             else:
                                 st.error("⚠️ يرجى إدخال رقم الجوال أولاً.")
+    else:
+        st.warning("⚠️ لم يتم العثور على ملف البيانات Marsad_Final_Categorized.csv، أو أنه فارغ.")
 
 # ==========================================
 # 5. لوحة تحكم المشرف / المدير (لإدارة الطلبات)
@@ -160,9 +184,9 @@ if user_role in ["المشرف 🛡️", "المدير 👑"]:
     
     if orders:
         for i, order in enumerate(orders):
-            with st.expander(f"طلب: {order['product_name']} | الجوال: {order['phone']} | الحالة: {order['status']}"):
-                st.write(f"**السعر:** {order['price']} ر.س")
-                st.write(f"**التاريخ:** {order['date']}")
+            with st.expander(f"طلب: {order.get('product_name', 'منتج')} | الجوال: {order.get('phone', '')} | الحالة: {order.get('status', '')}"):
+                st.write(f"**السعر:** {order.get('price', '0')} ر.س")
+                st.write(f"**التاريخ:** {order.get('date', '')}")
                 
                 col1, col2, col3 = st.columns(3)
                 if col1.button("قيد التجهيز", key=f"proc_{i}"):
