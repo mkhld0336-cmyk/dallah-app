@@ -3,91 +3,93 @@ import streamlit as st
 import json, os
 import pandas as pd
 
-st.markdown("""
-<style>
-html, body, [data-testid="stSidebarNav"] { direction: RTL; text-align: right; }
-</style>
-""", unsafe_import_code=True)
+st.markdown("""<style>html, body, [data-testid="stSidebarNav"] {direction: RTL; text-align: right;}</style>""", unsafe_allow_html=True)
 
-st.title(":material/admin_panel_settings: لوحة التحكم الإدارية")
-st.caption("إدارة الطلبات والاشتراكات - محمية بكود إدارة")
+st.title("🔐 لوحة التحكم الإدارية الداخلية")
+st.caption("خاصة بموظفي العمليات والدعم اللوجستي لمنصة مرصد")
 
 ORDERS_FILE = "marsad_orders.json"
 SUBS_FILE = "marsad_subscribers.json"
 
-auth = st.text_input("أدخل كود الإدارة للدخول:", type="password")
+if "admin_auth" not in st.session_state:
+    st.session_state.admin_auth = False
 
-if auth == "1990":
-    st.success("مرحباً بك يا مدير المنصة")
-
-    tab1, tab2 = st.tabs(["📦 الطلبات الحالية", "🤝 طلبات الاشتراك"])
-
+if not st.session_state.admin_auth:
+    with st.container(border=True):
+        st.subheader("التحقق من الهوية الرقمية", anchor=False)
+        access_code = st.text_input("أدخل كود الدخول للإدارة", type="password", placeholder="••••")
+        if st.button("تسجيل الدخول", type="primary", use_container_width=True):
+            if access_code == "1990":
+                st.session_state.admin_auth = True
+                st.rerun()
+            else:
+                st.error("❌ كود الدخول غير صحيح!")
+else:
+    if st.sidebar.button("🚪 تسجيل الخروج", use_container_width=True):
+        st.session_state.admin_auth = False
+        st.rerun()
+    
+    orders = []
+    if os.path.exists(ORDERS_FILE):
+        with open(ORDERS_FILE, "r", encoding="utf-8") as f: orders = json.load(f)
+    
+    subs = []
+    if os.path.exists(SUBS_FILE):
+        with open(SUBS_FILE, "r", encoding="utf-8") as f: subs = json.load(f)
+    
+    pending = sum(1 for o in orders if o.get("status") == "تم الاستلام")
+    in_transit = sum(1 for o in orders if o.get("status") == "في الطريق")
+    delivered = sum(1 for o in orders if o.get("status") == "تم التسليم")
+    total_value = sum(float(o.get("price", 0)) for o in orders)
+    
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("إجمالي الطلبات", f"{len(orders)}", delta=f"{pending} معلق")
+    c2.metric("في الطريق", f"{in_transit}", delta="قيد التوصيل")
+    c3.metric("تم التسليم", f"{delivered}", delta="مكتمل")
+    c4.metric("حجم المبيعات", f"{total_value:.0f} ر.س")
+    
+    st.divider()
+    
+    tab1, tab2 = st.tabs([f"📦 الطلبات ({len(orders)})", f"🤝 طلبات الاشتراك ({len(subs)})"])
+    
     with tab1:
-        if os.path.exists(ORDERS_FILE):
-            with open(ORDERS_FILE, "r", encoding="utf-8") as f:
-                orders = json.load(f)
-
-            if orders:
-                st.markdown(f"**:material/analytics: إجمالي الطلبات: {len(orders)}**")
-
-                for i, o in enumerate(reversed(orders)):
-                    idx = len(orders) - 1 - i
-                    status = o.get("status", "تم الاستلام")
-                    icon = {"تم الاستلام": "🆕", "قيد التجهيز": "⚙️", "في الطريق": "🚚", "تم التسليم": "✅"}.get(status, "•")
-
-                    with st.expander(f"{icon} {o.get('product')} | {o.get('phone')} | {status}"):
-                        c1, c2, c3 = st.columns(3)
-                        with c1:
-                            st.markdown(f":material/payments: **السعر:** {o.get('price')} ر.س")
-                        with c2:
-                            st.markdown(f":material/schedule: **التاريخ:** {o.get('date', '')}")
-                        with c3:
-                            st.markdown(f":material/flag: **الحالة:** {status}")
-
-                        st.markdown("**تحديث الحالة:**")
-                        btn1, btn2, btn3 = st.columns(3)
-                        if btn1.button("⚙️ قيد التجهيز", key=f"p_{idx}", use_container_width=True):
+        if orders:
+            for i, o in enumerate(reversed(orders)):
+                idx = len(orders) - 1 - i
+                status = o.get("status", "تم الاستلام")
+                icon = {"تم الاستلام": "🆕", "قيد التجهيز": "⚙️", "في الطريق": "🚚", "تم التسليم": "✅"}.get(status, "•")
+                
+                with st.container(border=True):
+                    col_det, col_ops = st.columns([3, 1], vertical_alignment="center")
+                    with col_det:
+                        st.markdown(f"### {icon} {o.get('product', '')}")
+                        st.markdown(f"📱 **الجوال:** `{o.get('phone', '')}` | 💰 **القيمة:** `{o.get('price', 0)} ر.س`")
+                        st.markdown(f"🕐 **التاريخ:** {o.get('date', '')} | 🚦 **الحالة:** `{status}`")
+                    with col_ops:
+                        if st.button("⚙️ تجهيز", key=f"p_{idx}", use_container_width=True):
                             orders[idx]["status"] = "قيد التجهيز"
                             with open(ORDERS_FILE, "w", encoding="utf-8") as f: json.dump(orders, f, ensure_ascii=False)
                             st.rerun()
-                        if btn2.button("🚚 في الطريق", key=f"w_{idx}", use_container_width=True):
+                        if st.button("🚚 توصيل", key=f"w_{idx}", use_container_width=True):
                             orders[idx]["status"] = "في الطريق"
                             with open(ORDERS_FILE, "w", encoding="utf-8") as f: json.dump(orders, f, ensure_ascii=False)
                             st.rerun()
-                        if btn3.button("✅ تم التسليم", key=f"d_{idx}", use_container_width=True):
+                        if st.button("✅ تسليم", key=f"d_{idx}", use_container_width=True, type="primary"):
                             orders[idx]["status"] = "تم التسليم"
                             with open(ORDERS_FILE, "w", encoding="utf-8") as f: json.dump(orders, f, ensure_ascii=False)
                             st.rerun()
-            else:
-                st.info(":material/inbox: لا توجد طلبات حتى الآن.")
         else:
-            st.info(":material/inbox: لا توجد طلبات حتى الآن.")
-
+            st.info("📭 لا توجد طلبات حتى الآن.")
+    
     with tab2:
-        if os.path.exists(SUBS_FILE):
-            with open(SUBS_FILE, "r", encoding="utf-8") as f:
-                subs = json.load(f)
-
-            if subs:
-                st.markdown(f"**:material/people: إجمالي المشتركين: {len(subs)}**")
-                df = pd.DataFrame(subs)
-                df.columns = ["اسم المتجر", "المالك", "الجوال", "الموقع", "التاريخ"]
-                st.dataframe(df, use_container_width=True, hide_index=True)
-
-                csv = df.to_csv(index=False).encode("utf-8-sig")
-                st.download_button(
-                    label="📥 تحميل قائمة المشتركين (CSV)",
-                    data=csv,
-                    file_name=f"marsad_subscribers_{pd.Timestamp.now().strftime('%Y%m%d')}.csv",
-                    mime="text/csv",
-                    use_container_width=True
-                )
-            else:
-                st.info(":material/inbox: لا توجد طلبات اشتراك حتى الآن.")
+        if subs:
+            df = pd.DataFrame(subs)
+            df.columns = ["المتجر", "المالك", "الجوال", "البريد", "المدينة", "الحي", "العنوان", "التاريخ"]
+            st.dataframe(df, use_container_width=True, hide_index=True)
+            
+            csv = df.to_csv(index=False).encode("utf-8-sig")
+            st.download_button("📥 تحميل قائمة المشتركين (CSV)", data=csv,
+                              file_name=f"marsad_subs_{pd.Timestamp.now().strftime('%Y%m%d')}.csv",
+                              mime="text/csv", use_container_width=True)
         else:
-            st.info(":material/inbox: لا توجد طلبات اشتراك حتى الآن.")
-
-elif auth != "":
-    st.error("❌ كود الإدارة غير صحيح. حاول مرة أخرى.")
-else:
-    st.info("🔒 هذه الصفحة محمية. أدخل الكود للوصول إلى لوحة التحكم.")
+            st.info("📭 لا توجد طلبات اشتراك حتى الآن.")
