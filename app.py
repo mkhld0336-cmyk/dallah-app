@@ -1,3 +1,4 @@
+
 import streamlit as st
 import pandas as pd
 from pathlib import Path
@@ -228,6 +229,23 @@ h1, h2, h3, p, label, span, div {
     direction: ltr;
 }
 
+.saving-badge {
+    display: inline-block;
+    background: #E5F4E9;
+    color: #17633B;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 900;
+    margin: 8px 0;
+}
+
+.old-price {
+    color: #8A949E;
+    text-decoration: line-through;
+    font-size: 14px;
+}
+
 .muted {
     color: #89939D;
     font-size: 12px;
@@ -288,7 +306,7 @@ hr {
 
 
 # =========================================================
-# قراءة البيانات
+# قراءة CSV بالأعمدة العربية
 # =========================================================
 
 @st.cache_data
@@ -296,51 +314,105 @@ def load_products():
     if not CSV_FILE.exists():
         return pd.DataFrame()
 
-    try:
-        df = pd.read_csv(CSV_FILE, encoding="utf-8-sig")
-    except UnicodeDecodeError:
-        df = pd.read_csv(CSV_FILE, encoding="utf-8")
+    df = pd.read_csv(
+        CSV_FILE,
+        encoding="utf-8-sig"
+    )
 
-    required = {"name", "price", "category"}
-    if not required.issubset(set(df.columns)):
-        return pd.DataFrame()
+    required_columns = [
+        "اسم المنتج",
+        "السعر",
+        "القطاع",
+        "ملاحظات",
+        "الصورة"
+    ]
 
-    if "notes" not in df.columns:
-        df["notes"] = ""
+    missing = [
+        col for col in required_columns
+        if col not in df.columns
+    ]
 
-    if "image" not in df.columns:
-        df["image"] = ""
+    if missing:
+        raise ValueError(
+            "الأعمدة التالية غير موجودة في الملف: "
+            + "، ".join(missing)
+        )
 
-    df["name"] = df["name"].fillna("").astype(str).str.strip()
-    df["category"] = df["category"].fillna("").astype(str).str.strip()
-    df["notes"] = df["notes"].fillna("").astype(str).str.strip()
-    df["image"] = df["image"].fillna("").astype(str).str.strip()
+    df["اسم المنتج"] = (
+        df["اسم المنتج"].fillna("").astype(str).str.strip()
+    )
+    df["القطاع"] = (
+        df["القطاع"].fillna("").astype(str).str.strip()
+    )
+    df["ملاحظات"] = (
+        df["ملاحظات"].fillna("").astype(str).str.strip()
+    )
+    df["الصورة"] = (
+        df["الصورة"].fillna("").astype(str).str.strip()
+    )
 
-    df["price"] = pd.to_numeric(
-        df["price"].astype(str).str.replace(",", ".", regex=False),
+    df["السعر"] = pd.to_numeric(
+        df["السعر"].astype(str).str.replace(",", ".", regex=False),
         errors="coerce"
     ).fillna(0)
 
-    df = df[(df["name"] != "") & (df["price"] > 0)].copy()
+    # استخراج السعر السابق من الملاحظات
+    # أمثلة مدعومة:
+    # السعر السابق 24.50
+    # السعر السابق: 24,50
+    # السعر قبل العرض 30
+    old_price_pattern = re.compile(
+        r"(?:السعر\s*(?:السابق|قبل\s*العرض|الأصلي|قبل\s*الخصم))"
+        r"\s*[:：\-]?\s*"
+        r"([0-9]+(?:[.,][0-9]{1,2})?)",
+        flags=re.IGNORECASE
+    )
 
-    def classify(category):
-        value = str(category).strip().lower()
+    def extract_old_price(notes):
+        match = old_price_pattern.search(str(notes))
+        if not match:
+            return None
+
+        try:
+            return float(match.group(1).replace(",", "."))
+        except (ValueError, AttributeError):
+            return None
+
+    df["السعر القديم"] = df["ملاحظات"].apply(extract_old_price)
+
+    # توحيد أسماء القطاعات
+    def normalize_category(value):
+        value = str(value).strip().lower()
 
         if "بقال" in value or "grocery" in value:
             return "بقالة"
 
-        if "رقمي" in value or "بطاق" in value or "digital" in value:
+        if (
+            "رقمي" in value
+            or "بطاق" in value
+            or "digital" in value
+        ):
             return "بطاقة رقمية"
 
         return "أخرى"
 
-    df["group"] = df["category"].apply(classify)
-    df = df.reset_index(drop=True)
+    df["القسم"] = df["القطاع"].apply(normalize_category)
 
-    return df
+    # لا نعرض المنتجات التي ليس لها سعر صالح
+    df = df[
+        (df["اسم المنتج"] != "") &
+        (df["السعر"] > 0)
+    ].copy()
+
+    return df.reset_index(drop=True)
 
 
-products = load_products()
+try:
+    products = load_products()
+    data_error = None
+except Exception as exc:
+    products = pd.DataFrame()
+    data_error = str(exc)
 
 
 # =========================================================
@@ -353,6 +425,7 @@ DEFAULTS = {
     "selected_product": None,
     "quantity": 1,
     "phone": "",
+    "otp_sent": False,
     "otp_verified": False,
     "payment_method": "دفع كامل",
     "order_confirmed": False,
@@ -371,6 +444,7 @@ def go(screen):
 def reset_order():
     st.session_state.selected_product = None
     st.session_state.quantity = 1
+    st.session_state.otp_sent = False
     st.session_state.otp_verified = False
     st.session_state.order_confirmed = False
     st.session_state.payment_method = "دفع كامل"
@@ -400,8 +474,13 @@ def safe_image_path(filename):
     for path in possible_paths:
         try:
             resolved = path.resolve()
-            if resolved.is_relative_to(BASE_DIR.resolve()) and resolved.is_file():
+
+            if (
+                resolved.is_relative_to(BASE_DIR.resolve())
+                and resolved.is_file()
+            ):
                 return resolved
+
         except (OSError, ValueError):
             continue
 
@@ -436,6 +515,23 @@ st.markdown("""
 
 
 # =========================================================
+# معالجة أخطاء الملف
+# =========================================================
+
+if data_error:
+    st.error(f"تعذر قراءة ملف المنتجات: {data_error}")
+    st.stop()
+
+if products.empty:
+    st.error(
+        "لم يتم العثور على منتجات صالحة. "
+        "تأكد من وجود Marsad_Valid_Products.csv "
+        "بجانب app.py وأن عمود السعر يحتوي على أسعار صحيحة."
+    )
+    st.stop()
+
+
+# =========================================================
 # الصفحة الرئيسية
 # =========================================================
 
@@ -448,8 +544,10 @@ if st.session_state.screen == "home":
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown('<div class="section-title">تصفح الأقسام</div>',
-                unsafe_allow_html=True)
+    st.markdown(
+        '<div class="section-title">تصفح الأقسام</div>',
+        unsafe_allow_html=True
+    )
 
     categories = [
         {
@@ -472,6 +570,10 @@ if st.session_state.screen == "home":
     cols = st.columns(3)
 
     for col, item in zip(cols, categories):
+        count = int(
+            (products["القسم"] == item["name"]).sum()
+        )
+
         with col:
             st.markdown(f"""
             <div class="category-card">
@@ -481,7 +583,12 @@ if st.session_state.screen == "home":
             </div>
             """, unsafe_allow_html=True)
 
-            if st.button("استعراض القسم", key=f"cat_{item['name']}"):
+            st.caption(f"{count} منتج")
+
+            if st.button(
+                "استعراض القسم",
+                key=f"cat_{item['name']}"
+            ):
                 st.session_state.category = item["name"]
                 go("products")
 
@@ -516,112 +623,102 @@ elif st.session_state.screen == "products":
         </div>
         """, unsafe_allow_html=True)
 
-    if products.empty:
-        st.error(
-            "لم يتم العثور على بيانات المنتجات. "
-            "تأكد من وجود Marsad_Valid_Products.csv بجانب app.py."
-        )
+    category_products = products[
+        products["القسم"] == category
+    ].copy()
+
+    st.caption(f"عدد المنتجات: {len(category_products)}")
+
+    search = st.text_input(
+        "ابحث عن منتج",
+        placeholder="اكتب اسم المنتج..."
+    )
+
+    if search.strip():
+        category_products = category_products[
+            category_products["اسم المنتج"].str.contains(
+                re.escape(search.strip()),
+                case=False,
+                na=False
+            )
+        ]
+
+    if category_products.empty:
+        st.info("لا توجد منتجات مطابقة للبحث.")
+
     else:
-        category_products = products[
-            products["group"] == category
-        ].copy()
+        for start in range(0, len(category_products), 3):
+            row = category_products.iloc[start:start + 3]
+            cols = st.columns(3)
 
-        st.caption(f"عدد المنتجات: {len(category_products)}")
+            for col, (original_index, product) in zip(
+                cols, row.iterrows()
+            ):
+                with col:
+                    st.markdown(
+                        '<div class="product-card">',
+                        unsafe_allow_html=True
+                    )
 
-        search = st.text_input(
-            "ابحث عن منتج",
-            placeholder="اكتب اسم المنتج..."
-        )
+                    image_path = safe_image_path(product["الصورة"])
 
-        if search.strip():
-            category_products = category_products[
-                category_products["name"].str.contains(
-                    re.escape(search.strip()),
-                    case=False,
-                    na=False
-                )
-            ]
-
-        if category_products.empty:
-            st.info("لا توجد منتجات مطابقة للبحث.")
-        else:
-            # الاحتفاظ بفهرس المنتج الأصلي داخل البيانات
-            category_products = category_products.copy()
-
-            for start in range(0, len(category_products), 3):
-                row = category_products.iloc[start:start + 3]
-                cols = st.columns(3)
-
-                for col, (original_index, product) in zip(
-                    cols, row.iterrows()
-                ):
-                    with col:
-                        st.markdown('<div class="product-card">',
-                                    unsafe_allow_html=True)
-
-                        image_path = safe_image_path(product["image"])
-
-                        if image_path:
-                            st.image(
-                                str(image_path),
-                                use_container_width=True
-                            )
-                        else:
-                            st.markdown("""
-                            <div style="
-                                height:130px;
-                                background:#F1F4F2;
-                                border-radius:10px;
-                                display:flex;
-                                align-items:center;
-                                justify-content:center;
-                                color:#799084;
-                                font-size:35px;">
-                                ▧
-                            </div>
-                            """, unsafe_allow_html=True)
-
-                        st.markdown(
-                            f'<div class="product-name">'
-                            f'{html.escape(product["name"])}</div>',
-                            unsafe_allow_html=True
+                    if image_path:
+                        st.image(
+                            str(image_path),
+                            use_container_width=True
                         )
+                    else:
+                        st.markdown("""
+                        <div style="
+                            height:130px;
+                            background:#F1F4F2;
+                            border-radius:10px;
+                            display:flex;
+                            align-items:center;
+                            justify-content:center;
+                            color:#799084;
+                            font-size:42px;">
+                            ▧
+                        </div>
+                        """, unsafe_allow_html=True)
 
-                        notes = str(product["notes"]).strip()
-                        if notes:
-                            st.markdown(
-                                f'<div class="product-note">'
-                                f'{html.escape(notes[:100])}</div>',
-                                unsafe_allow_html=True
-                            )
-                        else:
-                            st.markdown(
-                                '<div class="product-note">'
-                                'متاح للطلب</div>',
-                                unsafe_allow_html=True
-                            )
+                    st.markdown(
+                        f'<div class="product-name">'
+                        f'{html.escape(product["اسم المنتج"])}</div>',
+                        unsafe_allow_html=True
+                    )
 
-                        # السعر لا يظهر في بطاقة المنتج
-                        st.markdown(
-                            '<div class="product-hidden-price">'
-                            'اعرف تفاصيل طلبك بعد التحقق'
-                            '</div>',
-                            unsafe_allow_html=True
+                    # لا نعرض الملاحظات لأنها قد تحتوي على سعر قديم
+                    st.markdown(
+                        '<div class="product-note">متاح للطلب</div>',
+                        unsafe_allow_html=True
+                    )
+
+                    # إخفاء السعر تماماً في صفحة المنتجات
+                    st.markdown(
+                        '<div class="product-hidden-price">'
+                        'اعرف تفاصيل طلبك بعد التحقق'
+                        '</div>',
+                        unsafe_allow_html=True
+                    )
+
+                    if st.button(
+                        "اطلب الآن",
+                        key=f"order_{original_index}"
+                    ):
+                        st.session_state.selected_product = int(
+                            original_index
                         )
+                        st.session_state.quantity = 1
+                        st.session_state.otp_sent = False
+                        st.session_state.otp_verified = False
+                        st.session_state.order_confirmed = False
+                        go("verify")
 
-                        if st.button(
-                            "اطلب الآن",
-                            key=f"order_{original_index}"
-                        ):
-                            st.session_state.selected_product = int(
-                                original_index
-                            )
-                            st.session_state.quantity = 1
-                            st.session_state.otp_verified = False
-                            st.session_state.order_confirmed = False
-                            go("verify")
-
-                        st.markdown('</div>', unsafe_allow_html=True)
+                    st.markdown(
+                        '</div>',
+                        unsafe_allow_html=True
+                    )
 
 
 # =========================================================
@@ -634,8 +731,10 @@ elif st.session_state.screen == "verify":
 
     if product is None:
         st.warning("لم يتم اختيار منتج.")
+
         if st.button("العودة للرئيسية"):
             go("home")
+
     else:
         if st.button("← العودة للمنتجات"):
             go("products")
@@ -645,12 +744,15 @@ elif st.session_state.screen == "verify":
         <div class="info-card">
             <div class="step-label">خطوة التحقق</div>
             <h3>تحقق من رقم جوالك</h3>
-            <p class="muted">أدخل رقم الجوال للانتقال إلى تفاصيل طلبك.</p>
+            <p class="muted">
+                أدخل رقم الجوال للانتقال إلى تفاصيل طلبك.
+            </p>
         </div>
         """, unsafe_allow_html=True)
 
         st.markdown(
-            f"**المنتج المختار:** {html.escape(product['name'])}"
+            f"**المنتج المختار:** "
+            f"{html.escape(product['اسم المنتج'])}"
         )
 
         st.session_state.phone = st.text_input(
@@ -661,18 +763,21 @@ elif st.session_state.screen == "verify":
         )
 
         if not st.session_state.otp_verified:
+
             if st.button("إرسال رمز التحقق"):
                 phone = st.session_state.phone.strip()
 
                 if not re.fullmatch(r"\+9665\d{8}", phone):
-                    st.error("أدخل رقم جوال سعودي بصيغة +9665XXXXXXXX.")
+                    st.error(
+                        "أدخل رقم جوال سعودي بصيغة +9665XXXXXXXX."
+                    )
                 else:
                     st.session_state.otp_sent = True
                     st.success(
-                        "تم إرسال رمز تجريبي. رمز الاختبار هو 1234."
+                        "رمز التحقق التجريبي هو 1234."
                     )
 
-            if st.session_state.get("otp_sent", False):
+            if st.session_state.otp_sent:
                 otp = st.text_input(
                     "رمز التحقق",
                     max_chars=4,
@@ -682,13 +787,13 @@ elif st.session_state.screen == "verify":
                 if st.button("تحقق والمتابعة"):
                     if otp.strip() == "1234":
                         st.session_state.otp_verified = True
-                        st.success("تم التحقق بنجاح.")
                         go("invoice")
                     else:
                         st.error("رمز التحقق غير صحيح.")
 
         else:
             st.success("تم التحقق من رقم الجوال.")
+
             if st.button("متابعة إلى الفاتورة"):
                 go("invoice")
 
@@ -702,29 +807,40 @@ elif st.session_state.screen == "invoice":
     product = get_selected_product()
 
     if product is None or not st.session_state.otp_verified:
-        st.warning("يرجى إكمال اختيار المنتج والتحقق أولاً.")
+        st.warning(
+            "يرجى إكمال اختيار المنتج والتحقق أولاً."
+        )
+
         if st.button("العودة للرئيسية"):
             go("home")
+
     else:
         st.markdown("""
         <div class="section-title">ملخص الطلب</div>
         <div class="step-label">تم التحقق ✓</div>
         """, unsafe_allow_html=True)
 
-        image_path = safe_image_path(product["image"])
+        image_path = safe_image_path(product["الصورة"])
 
         col1, col2 = st.columns([1, 3])
 
         with col1:
             if image_path:
-                st.image(str(image_path), use_container_width=True)
+                st.image(
+                    str(image_path),
+                    use_container_width=True
+                )
             else:
                 st.markdown("📦")
 
         with col2:
-            st.markdown(f"**{html.escape(product['name'])}**")
             st.markdown(
-                '<span class="muted">تفاصيل المنتج والكمية</span>',
+                f"**{html.escape(product['اسم المنتج'])}**"
+            )
+            st.markdown(
+                '<span class="muted">'
+                'تفاصيل المنتج والكمية'
+                '</span>',
                 unsafe_allow_html=True
             )
 
@@ -737,53 +853,91 @@ elif st.session_state.screen == "invoice":
             value=int(st.session_state.quantity),
             step=1
         )
+
         st.session_state.quantity = int(quantity)
 
-        unit_price = float(product["price"])
+        unit_price = float(product["السعر"])
+        old_unit_price = product["السعر القديم"]
+
         subtotal = unit_price * quantity
         tax = subtotal * 0.15
         total = subtotal + tax
 
+        # السعر القديم والتوفير
+        valid_old_price = (
+            pd.notna(old_unit_price)
+            and old_unit_price is not None
+            and float(old_unit_price) > unit_price
+        )
+
         st.markdown("### تفاصيل الفاتورة")
+
+        if valid_old_price:
+            old_unit_price = float(old_unit_price)
+            old_subtotal = old_unit_price * quantity
+            saving = old_subtotal - subtotal
+
+            st.markdown(
+                f'<div class="old-price">'
+                f'السعر السابق للوحدة: {money(old_unit_price)}'
+                f'</div>',
+                unsafe_allow_html=True
+            )
+
+            st.markdown(
+                f'<div class="saving-badge">'
+                f'وفر {money(saving)}'
+                f'</div>',
+                unsafe_allow_html=True
+            )
 
         invoice_rows = [
             ("سعر الوحدة", money(unit_price)),
             ("الكمية", str(quantity)),
             ("الإجمالي", money(subtotal)),
             ("ضريبة القيمة المضافة 15%", money(tax)),
-            ("التوصيل", "يحدد عند التأكيد"),
         ]
 
         for label, value in invoice_rows:
             left, right = st.columns([2, 1])
             left.write(label)
+
             right.markdown(
                 f"<div style='text-align:left;font-weight:800'>"
                 f"{value}</div>",
                 unsafe_allow_html=True
             )
 
+        st.markdown(
+            """
+            <div class="muted">
+                التوصيل: يحدد عند تأكيد الطلب
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
         st.markdown(f"""
         <div class="invoice-total">
-            <small>الإجمالي شامل الضريبة وقبل التوصيل</small><br>
+            <small>الإجمالي شامل ضريبة القيمة المضافة 15%</small><br>
             <strong>{money(total)}</strong>
         </div>
         """, unsafe_allow_html=True)
 
         st.markdown("### طريقة الدفع")
 
+        payment_options = [
+            "دفع كامل",
+            "عند الاستلام",
+            "عربون 20%"
+        ]
+
         payment_method = st.radio(
             "اختر طريقة الدفع",
-            [
-                "دفع كامل",
-                "عند الاستلام",
-                "عربون 20%"
-            ],
-            index=[
-                "دفع كامل",
-                "عند الاستلام",
-                "عربون 20%"
-            ].index(st.session_state.payment_method)
+            payment_options,
+            index=payment_options.index(
+                st.session_state.payment_method
+            )
         )
 
         st.session_state.payment_method = payment_method
@@ -791,9 +945,11 @@ elif st.session_state.screen == "invoice":
         if payment_method == "دفع كامل":
             amount_due = total
             payment_description = "المبلغ المطلوب حالياً"
+
         elif payment_method == "عربون 20%":
             amount_due = total * 0.20
             payment_description = "العربون المطلوب حالياً"
+
         else:
             amount_due = 0
             payment_description = "الدفع عند الاستلام"
@@ -813,7 +969,7 @@ elif st.session_state.screen == "invoice":
 
 
 # =========================================================
-# شاشة استلام الطلب
+# شاشة الاستلام
 # =========================================================
 
 elif st.session_state.screen == "receipt":
@@ -822,9 +978,11 @@ elif st.session_state.screen == "receipt":
 
     if product is None or not st.session_state.order_confirmed:
         st.warning("لا يوجد طلب مؤكد.")
+
         if st.button("العودة للرئيسية"):
             reset_order()
             go("home")
+
     else:
         st.markdown("""
         <div class="hero">
@@ -836,7 +994,7 @@ elif st.session_state.screen == "receipt":
         st.markdown("### تفاصيل الطلب")
 
         st.markdown(
-            f"**المنتج:** {html.escape(product['name'])}"
+            f"**المنتج:** {html.escape(product['اسم المنتج'])}"
         )
         st.markdown(
             f"**الكمية:** {st.session_state.quantity}"
@@ -845,7 +1003,7 @@ elif st.session_state.screen == "receipt":
             f"**طريقة الدفع:** {st.session_state.payment_method}"
         )
 
-        if product["group"] == "بطاقة رقمية":
+        if product["القسم"] == "بطاقة رقمية":
 
             st.markdown("### رمز البطاقة التجريبي")
 
@@ -886,7 +1044,7 @@ elif st.session_state.screen == "receipt":
 
 
 # =========================================================
-# نهاية التطبيق
+# التذييل
 # =========================================================
 
 st.markdown("""
