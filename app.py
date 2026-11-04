@@ -1,285 +1,186 @@
 import streamlit as st
+import pandas as pd
 import time
+import os
 
-# ==========================================
-# 1. إعدادات الصفحة والتصميم (Light Mode)
-# ==========================================
 st.set_page_config(page_title="مرصد | Marsad", page_icon="🦅", layout="wide")
 
-# تصميم CSS نظيف واحترافي (يحاكي الصور)
 st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
-    
-    html, body, [class*="css"] { 
-        font-family: 'Cairo', sans-serif; 
-        direction: rtl; 
-        text-align: right;
-    }
-    .stApp { 
-        background-color: #F8FAFC; 
-        color: #0F172A;
-    }
-    
-    /* تصميم البطاقات */
-    div[data-testid="stVerticalBlockBorderWrapper"] {
-        background-color: #ffffff !important;
-        border: 1px solid #E2E8F0 !important;
-        border-radius: 12px !important;
-        padding: 20px !important;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
-        transition: all 0.3s ease !important;
-    }
-    div[data-testid="stVerticalBlockBorderWrapper"]:hover {
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
-        border-color: #3B82F6 !important;
-    }
-    
-    /* العناوين */
-    h1, h2, h3 { color: #1E293B !important; font-weight: 800 !important; }
-    
-    /* الأزرار */
-    .stButton>button { 
-        background-color: #3B82F6 !important; 
-        color: white !important; 
-        font-weight: bold !important; 
-        border-radius: 8px !important; 
-        border: none !important;
-        padding: 10px 24px !important;
-        transition: 0.2s !important;
-    }
-    .stButton>button:hover {
-        background-color: #2563EB !important;
-    }
-    
-    /* تنسيق أزرار الكمية */
-    .qty-btn {
-        background-color: #F1F5F9;
-        color: #1E293B;
-        border: 1px solid #CBD5E1;
-        border-radius: 8px;
-        padding: 8px 16px;
-        font-weight: bold;
-        cursor: pointer;
-    }
-    
-    /* الفاتورة */
-    .invoice-box {
-        background-color: #F1F5F9;
-        padding: 20px;
-        border-radius: 10px;
-        border-right: 4px solid #3B82F6;
-    }
-    </style>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
+html, body, [class*="css"] { font-family: 'Cairo', sans-serif; direction: rtl; text-align: right; }
+.stApp { background-color: #F8FAFC; color: #0F172A; }
+h1, h2, h3 { color: #1E293B !important; font-weight: 800 !important; }
+.hero-banner { background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); border-radius: 16px; padding: 40px 30px; color: white; text-align: center; margin-bottom: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.15); }
+.hero-banner h1 { color: #FFD700 !important; font-size: 2.2rem; margin: 0; }
+.hero-banner p { color: #CBD5E1; font-size: 1.1rem; margin-top: 10px; }
+div[data-testid="stVerticalBlockBorderWrapper"] { background: #ffffff !important; border: 1px solid #E2E8F0 !important; border-radius: 16px !important; padding: 20px !important; transition: all 0.3s ease !important; }
+div[data-testid="stVerticalBlockBorderWrapper"]:hover { box-shadow: 0 12px 24px rgba(0,0,0,0.08) !important; transform: translateY(-3px) !important; }
+.price-tag { font-size: 1.5rem; font-weight: 900; color: #10B981; margin: 10px 0; }
+.card-region { color: #64748B; font-size: 0.9rem; }
+.code-box { background: #0F172A; color: #FFD700; padding: 24px; border-radius: 12px; font-size: 1.6rem; font-weight: 900; text-align: center; letter-spacing: 4px; font-family: monospace; margin: 15px 0; }
+.qty-display { text-align: center; font-size: 1.5rem; font-weight: 900; padding: 5px; }
+.stButton>button { background-color: #3B82F6 !important; color: white !important; font-weight: bold !important; border-radius: 10px !important; border: none !important; padding: 10px !important; }
+.stButton>button:hover { background-color: #2563EB !important; }
+</style>
 """, unsafe_allow_html=True)
 
-# ==========================================
-# 2. إدارة الحالة (Session State)
-# ==========================================
-if "stage" not in st.session_state:
-    st.session_state.stage = "categories"
-if "selected_product" not in st.session_state:
-    st.session_state.selected_product = None
-if "quantity" not in st.session_state:
-    st.session_state.quantity = 1
-if "phone" not in st.session_state:
-    st.session_state.phone = ""
-if "payment_method" not in st.session_state:
-    st.session_state.payment_method = "full"
+# ============ STATE ============
+if "page" not in st.session_state: st.session_state.page = "home"
+if "category" not in st.session_state: st.session_state.category = None
+if "selected" not in st.session_state: st.session_state.selected = None
+if "quantity" not in st.session_state: st.session_state.quantity = 1
+if "payment" not in st.session_state: st.session_state.payment = "دفع كامل"
 
-# بيانات تجريبية للمنتجات (سنستبدلها ببياناتك قريباً)
-PRODUCTS = {
-    "cafe": [
-        {"id": 1, "name": "أكواب قهوة ورقية", "desc": "عبوة توريد - 1 كرتون", "min": 1, "price": 145.00, "img": "https://images.unsplash.com/photo-1611162458324-aae1eb4129a4?auto=format&fit=crop&w=400&q=80"},
-        {"id": 2, "name": "حليب مبخر (أبوقوس)", "desc": "عبوة توريد - 24 حبة", "min": 1, "price": 180.00, "img": "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=400&q=80"}
-    ],
-    "restaurant": [
-        {"id": 3, "name": "زيت قلي نخيل", "desc": "عبوة توريد - 18 لتر", "min": 1, "price": 112.50, "img": "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=400&q=80"},
-        {"id": 4, "name": "أرز بسمتي الشفاء", "desc": "عبوة توريد - 4.5 كجم", "min": 1, "price": 25.99, "img": "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=400&q=80"}
-    ],
-    "grocery": [
-        {"id": 5, "name": "مياه نوفا", "desc": "كرتون 40x330 مل", "min": 1, "price": 14.99, "img": "https://images.unsplash.com/photo-1523362628745-0c100150b504?auto=format&fit=crop&w=400&q=80"},
-        {"id": 6, "name": "بيض فقيه", "desc": "طبق 30 حبة", "min": 1, "price": 13.99, "img": "https://images.unsplash.com/photo-1506976785307-8732e854ad03?auto=format&fit=crop&w=400&q=80"}
-    ]
-}
+# ============ LOAD DATA ============
+@st.cache_data
+def load_data():
+    if os.path.exists("Marsad_Valid_Products.csv"):
+        df = pd.read_csv("Marsad_Valid_Products.csv")
+        df.columns = ["name", "price", "category", "notes", "image"]
+        return df
+    return pd.DataFrame()
 
-# ==========================================
-# 3. بناء الطبقات (UI)
-# ==========================================
+df = load_data()
 
-# --- الطبقة الأولى: الأقسام ---
-if st.session_state.stage == "categories":
-    st.title("🦅 منصة مرصد")
-    st.write("اختر قطاعك للبدء في تسوق احتياجاتك بالجملة.")
+# ============ HOME ============
+if st.session_state.page == "home":
+    st.markdown("<h1 style='text-align:center;'>🦅 منصة مرصد</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; color:#64748B; font-size:1.1rem;'>منصة التوريد الذكية للمتاجر والمطاعم والمقاهي</p>", unsafe_allow_html=True)
     st.divider()
+    st.subheader("اختر قطاعك")
     
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        with st.container(border=True):
-            st.markdown("<h2 style='text-align: center;'>☕</h2>", unsafe_allow_html=True)
-            st.markdown("<h3 style='text-align: center;'>المقاهي</h3>", unsafe_allow_html=True)
-            st.markdown("<p style='text-align: center; color: gray;'>أكواب ومستلزمات</p>", unsafe_allow_html=True)
-            if st.button("تصفح المقاهي", key="cat_cafe", use_container_width=True):
-                st.session_state.stage = "products"
-                st.session_state.category = "cafe"
-                st.rerun()
-    with col2:
-        with st.container(border=True):
-            st.markdown("<h2 style='text-align: center;'>🍽️</h2>", unsafe_allow_html=True)
-            st.markdown("<h3 style='text-align: center;'>المطاعم</h3>", unsafe_allow_html=True)
-            st.markdown("<p style='text-align: center; color: gray;'>مواد تشغيل</p>", unsafe_allow_html=True)
-            if st.button("تصفح المطاعم", key="cat_rest", use_container_width=True):
-                st.session_state.stage = "products"
-                st.session_state.category = "restaurant"
-                st.rerun()
-    with col3:
-        with st.container(border=True):
-            st.markdown("<h2 style='text-align: center;'>🛒</h2>", unsafe_allow_html=True)
-            st.markdown("<h3 style='text-align: center;'>البقالات</h3>", unsafe_allow_html=True)
-            st.markdown("<p style='text-align: center; color: gray;'>احتياجات يومية</p>", unsafe_allow_html=True)
-            if st.button("تصفح البقالات", key="cat_groc", use_container_width=True):
-                st.session_state.stage = "products"
-                st.session_state.category = "grocery"
-                st.rerun()
-
-# --- الطبقة الثانية: المنتجات ---
-elif st.session_state.stage == "products":
-    if st.button("🔙 العودة للأقسام"):
-        st.session_state.stage = "categories"
-        st.rerun()
-        
-    st.title("المنتجات المتاحة")
-    st.divider()
-    
-    cat = st.session_state.category
     cols = st.columns(3)
-    for idx, prod in enumerate(PRODUCTS[cat]):
-        with cols[idx % 3]:
+    cats = [("🛒", "البقالة", "grocery"), ("💳", "البطاقات الرقمية", "digital"), ("📦", "أخرى", "other")]
+    
+    for i, (icon, name, key) in enumerate(cats):
+        with cols[i]:
             with st.container(border=True):
-                st.image(prod["img"], use_container_width=True)
-                st.markdown(f"### {prod['name']}")
-                st.markdown(f"<p style='color: gray; font-size: 0.9em;'>{prod['desc']}</p>", unsafe_allow_html=True)
-                st.markdown(f"<p style='font-size: 0.9em;'>الحد الأدنى: {prod['min']} كرتون</p>", unsafe_allow_html=True)
-                
-                # أزرار الكمية
-                q_col1, q_col2, q_col3 = st.columns([1, 2, 1])
-                with q_col1:
-                    if st.button("−", key=f"minus_{prod['id']}"):
-                        if st.session_state.quantity > prod['min']:
-                            st.session_state.quantity -= 1
-                            st.rerun()
-                with q_col2:
-                    st.markdown(f"<h4 style='text-align: center; margin: 0;'>{st.session_state.quantity}</h4>", unsafe_allow_html=True)
-                with q_col3:
-                    if st.button("+", key=f"plus_{prod['id']}"):
-                        st.session_state.quantity += 1
-                        st.rerun()
-                
-                if st.button("اطلب الآن", key=f"order_{prod['id']}", use_container_width=True, type="primary"):
-                    st.session_state.selected_product = prod
-                    st.session_state.stage = "otp"
+                st.markdown(f"<h2 style='text-align:center; font-size:2.5rem;'>{icon}</h2>", unsafe_allow_html=True)
+                st.markdown(f"<h3 style='text-align:center;'>{name}</h3>", unsafe_allow_html=True)
+                if st.button(f"اكتشف {name}", key=f"cat_{key}", use_container_width=True, type="primary"):
+                    st.session_state.category = key
+                    st.session_state.page = "products"
                     st.rerun()
-                
-                st.caption("اعرف تفاصيل طلبك بعد التحقق")
 
-# --- الطبقة الثالثة: التحقق OTP ---
-elif st.session_state.stage == "otp":
-    if st.button("🔙 العودة للمنتجات"):
-        st.session_state.stage = "products"
+# ============ PRODUCTS ============
+elif st.session_state.page == "products":
+    if st.button("🔙 العودة للأقسام"):
+        st.session_state.page = "home"
         st.rerun()
         
-    st.title("التحقق من الحساب")
-    st.write("أدخل رقم جوالك لإظهار تفاصيل الطلب ومتابعة الشراء.")
+    cat = st.session_state.category
+    cat_map = {"grocery": "بقالة", "digital": "بطاقة رقمية", "other": "أخرى"}
+    cat_name = cat_map.get(cat, "بقالة")
+    
+    if cat == "digital":
+        st.markdown("""
+        <div class="hero-banner">
+            <h1>قسم البطاقات الرقمية</h1>
+            <p>عالمك الرقمي.. أقرب إليك</p>
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        st.title(cat_name)
+    
     st.divider()
     
+    filtered_df = df[df['category'] == cat_name]
+    
+    if filtered_df.empty:
+        st.warning("لا توجد منتجات في هذا القسم حالياً.")
+    else:
+        cols = st.columns(3)
+        for idx, (_, row) in enumerate(filtered_df.iterrows()):
+            with cols[idx % 3]:
+                with st.container(border=True):
+                    st.markdown(f"<h3>{row['name']}</h3>", unsafe_allow_html=True)
+                    st.caption(f"ملاحظات: {row['notes']}")
+                    if cat == "digital":
+                        st.markdown(f"<div class='card-region'>المنطقة: السعودية</div>", unsafe_allow_html=True)
+                    
+                    # هنا نضع السعر في الفاتورة لاحقاً، لكن لا نعرضه هنا
+                    if st.button("اطلب الآن", key=f"ord_{idx}", use_container_width=True, type="primary"):
+                        st.session_state.selected = row.to_dict()
+                        st.session_state.page = "otp"
+                        st.rerun()
+                    st.caption("اعرف تفاصيل طلبك بعد التحقق")
+
+# ============ OTP ============
+elif st.session_state.page == "otp":
+    if st.button("🔙 العودة للمنتجات"):
+        st.session_state.page = "products"
+        st.rerun()
+    st.title("التحقق من الحساب")
     with st.container(border=True):
-        st.markdown("<h3 style='text-align: center;'>📱</h3>", unsafe_allow_html=True)
         phone = st.text_input("رقم الجوال السعودي", placeholder="05X XXX XXXX")
-        
         if st.button("إرسال رمز التحقق", use_container_width=True, type="primary"):
             if len(phone) >= 10:
                 st.session_state.phone = phone
-                st.session_state.stage = "otp_verify"
+                st.session_state.page = "otp_verify"
                 st.rerun()
             else:
-                st.error("أدخل رقم جوال صحيح")
-                
-    st.caption("تحقق آمن وواضح. يُستخدم رقمك للتحقق من الحساب ومتابعة الطلب.")
+                st.error("⚠️ أدخل رقم جوال صحيح")
 
-# --- الطبقة الثالثة (ب): إدخال رمز التحقق ---
-elif st.session_state.stage == "otp_verify":
+# ============ OTP VERIFY ============
+elif st.session_state.page == "otp_verify":
     st.title("رمز التحقق")
-    st.write(f"تم إرسال الرمز إلى {st.session_state.phone}")
-    
     with st.container(border=True):
-        otp = st.text_input("أدخل رمز التحقق (للتجربة: 1234)", type="password")
-        if st.button("تأكيد الرمز", use_container_width=True, type="primary"):
+        otp = st.text_input("أدخل الرمز (للتجربة: 1234)", type="password")
+        if st.button("تأكيد", use_container_width=True, type="primary"):
             if otp == "1234":
-                st.session_state.stage = "invoice"
+                st.session_state.page = "invoice"
                 st.rerun()
             else:
-                st.error("رمز غير صحيح. جرب 1234")
+                st.error("⚠️ رمز غير صحيح")
 
-# --- الطبقة الرابعة: الفاتورة والدفع ---
-elif st.session_state.stage == "invoice":
-    prod = st.session_state.selected_product
-    qty = st.session_state.quantity
-    subtotal = prod['price'] * qty
-    vat = subtotal * 0.15
-    total = subtotal + vat
+# ============ INVOICE ============
+elif st.session_state.page == "invoice":
+    prod = st.session_state.selected
+    price = float(prod['price'])
+    vat = price * 0.15
+    total = price + vat
     
     st.title("ملخص الطلب")
-    st.success("✅ تم التحقق من الحساب")
+    st.success("✅ تم التحقق")
     st.divider()
     
     with st.container(border=True):
-        col1, col2 = st.columns([1, 2])
-        with col1:
-            st.image(prod["img"], use_container_width=True)
-        with col2:
-            st.markdown(f"### {prod['name']}")
-            st.markdown(f"**الكمية:** {qty} كرتون")
-            st.markdown(f"**سعر الوحدة:** `{prod['price']:.2f} ر.س`")
-            
-        st.divider()
-        
-        st.markdown(f"**الإجمالي قبل الضريبة:** {subtotal:.2f} ر.س")
-        st.markdown(f"**ضريبة القيمة المضافة (15%):** {vat:.2f} ر.س")
-        st.markdown(f"**التوصيل:** حسب الوجهة")
-        st.markdown(f"<h3 style='color: #3B82F6;'>الإجمالي النهائي: {total:.2f} ر.س</h3>", unsafe_allow_html=True)
-        
+        st.markdown(f"### {prod['name']}")
+        st.markdown(f"**سعر الوحدة:** `{price:.2f} ر.س`")
+        st.markdown(f"**ضريبة القيمة المضافة (15%):** `{vat:.2f} ر.س`")
+        st.markdown(f"<div class='price-tag'>الإجمالي النهائي: {total:.2f} ر.س</div>", unsafe_allow_html=True)
         st.divider()
         st.subheader("اختر طريقة الدفع")
         
-        col_p1, col_p2, col_p3 = st.columns(3)
-        with col_p1:
-            if st.button("دفع كامل", use_container_width=True, type="primary" if st.session_state.payment_method == "full" else "secondary"):
-                st.session_state.payment_method = "full"
-                st.rerun()
-        with col_p2:
-            if st.button("عند الاستلام", use_container_width=True, type="primary" if st.session_state.payment_method == "cod" else "secondary"):
-                st.session_state.payment_method = "cod"
-                st.rerun()
-        with col_p3:
-            if st.button("عربون 20%", use_container_width=True, type="primary" if st.session_state.payment_method == "deposit" else "secondary"):
-                st.session_state.payment_method = "deposit"
-                st.rerun()
-                
-        st.divider()
+        c1, c2, c3 = st.columns(3)
+        if c1.button("دفع كامل", use_container_width=True): st.session_state.payment = "دفع كامل"
+        if c2.button("عند الاستلام", use_container_width=True): st.session_state.payment = "عند الاستلام"
+        if c3.button("عربون 20%", use_container_width=True): st.session_state.payment = "عربون 20%"
         
-        # عرض تفاصيل الدفع المختار
-        if st.session_state.payment_method == "full":
-            st.info(f"سيتم سداد كامل المبلغ: **{total:.2f} ر.س**")
-        elif st.session_state.payment_method == "cod":
-            st.info(f"سيتم الدفع عند الاستلام: **{total:.2f} ر.س**")
-        elif st.session_state.payment_method == "deposit":
-            deposit = total * 0.20
-            remaining = total - deposit
-            st.info(f"العربون المطلوب الآن: **{deposit:.2f} ر.س**\n\nالمبلغ المتبقي: **{remaining:.2f} ر.س**")
-
+        st.info(f"طريقة الدفع المختارة: **{st.session_state.payment}**")
+        
         if st.button("تأكيد الطلب النهائي", use_container_width=True, type="primary"):
-            st.balloons()
-            st.success("🎉 تم استلام طلبك بنجاح! سيتواصل معك فريق مرصد قريباً.")
-            if st.button("العودة للرئيسية"):
-                st.session_state.clear()
-                st.rerun()
+            st.session_state.page = "delivery"
+            st.rerun()
+
+# ============ DELIVERY ============
+elif st.session_state.page == "delivery":
+    prod = st.session_state.selected
+    st.title("🎉 تم الطلب بنجاح")
+    st.balloons()
+    
+    with st.container(border=True):
+        st.markdown(f"### {prod['name']}")
+        st.markdown(f"**رقم الطلب:** `MR-{int(time.time())}`")
+        
+        if prod['category'] == "بطاقة رقمية":
+            st.divider()
+            st.markdown("<div class='code-box'>XXXX-XXXX-XXXX-YYYY</div>", unsafe_allow_html=True)
+            st.caption("⚠️ رمز تجريبي (Demo).")
+        else:
+            st.info("📦 سيتواصل معك فريق الميدان لتوصيل الطلب.")
+        
+        if st.button("العودة للرئيسية", use_container_width=True):
+            st.session_state.clear()
+            st.rerun()
