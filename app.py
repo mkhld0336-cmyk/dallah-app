@@ -1,186 +1,900 @@
 import streamlit as st
 import pandas as pd
-import time
-import os
+from pathlib import Path
+import html
+import re
 
-st.set_page_config(page_title="مرصد | Marsad", page_icon="🦅", layout="wide")
+# =========================================================
+# إعداد التطبيق
+# =========================================================
+
+st.set_page_config(
+    page_title="مرصد | مشتريات أعمالك",
+    page_icon="🛒",
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
+
+BASE_DIR = Path(__file__).resolve().parent
+CSV_FILE = BASE_DIR / "Marsad_Valid_Products.csv"
 
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
-html, body, [class*="css"] { font-family: 'Cairo', sans-serif; direction: rtl; text-align: right; }
-.stApp { background-color: #F8FAFC; color: #0F172A; }
-h1, h2, h3 { color: #1E293B !important; font-weight: 800 !important; }
-.hero-banner { background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); border-radius: 16px; padding: 40px 30px; color: white; text-align: center; margin-bottom: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.15); }
-.hero-banner h1 { color: #FFD700 !important; font-size: 2.2rem; margin: 0; }
-.hero-banner p { color: #CBD5E1; font-size: 1.1rem; margin-top: 10px; }
-div[data-testid="stVerticalBlockBorderWrapper"] { background: #ffffff !important; border: 1px solid #E2E8F0 !important; border-radius: 16px !important; padding: 20px !important; transition: all 0.3s ease !important; }
-div[data-testid="stVerticalBlockBorderWrapper"]:hover { box-shadow: 0 12px 24px rgba(0,0,0,0.08) !important; transform: translateY(-3px) !important; }
-.price-tag { font-size: 1.5rem; font-weight: 900; color: #10B981; margin: 10px 0; }
-.card-region { color: #64748B; font-size: 0.9rem; }
-.code-box { background: #0F172A; color: #FFD700; padding: 24px; border-radius: 12px; font-size: 1.6rem; font-weight: 900; text-align: center; letter-spacing: 4px; font-family: monospace; margin: 15px 0; }
-.qty-display { text-align: center; font-size: 1.5rem; font-weight: 900; padding: 5px; }
-.stButton>button { background-color: #3B82F6 !important; color: white !important; font-weight: bold !important; border-radius: 10px !important; border: none !important; padding: 10px !important; }
-.stButton>button:hover { background-color: #2563EB !important; }
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded');
+
+html, body, [class*="css"], [data-testid="stAppViewContainer"] {
+    font-family: 'Cairo', sans-serif !important;
+    direction: rtl;
+}
+
+.stApp {
+    background: #F8FAFC;
+    color: #172033;
+}
+
+header[data-testid="stHeader"] {
+    background: #F8FAFC;
+}
+
+.block-container {
+    max-width: 1180px;
+    padding-top: 1.5rem;
+    padding-bottom: 3rem;
+}
+
+h1, h2, h3, p, label, span, div {
+    font-family: 'Cairo', sans-serif;
+}
+
+.marsad-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #FFFFFF;
+    border: 1px solid #E8EDF2;
+    border-radius: 18px;
+    padding: 15px 22px;
+    margin-bottom: 24px;
+}
+
+.brand {
+    color: #123B2D;
+    font-size: 27px;
+    font-weight: 900;
+}
+
+.brand-sub {
+    color: #7B8794;
+    font-size: 12px;
+}
+
+.header-tag {
+    background: #EAF3EE;
+    color: #17563D;
+    padding: 7px 13px;
+    border-radius: 30px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.hero {
+    background: linear-gradient(120deg, #123B2D, #1D5A42);
+    color: white;
+    padding: 35px;
+    border-radius: 22px;
+    margin-bottom: 25px;
+}
+
+.hero h1 {
+    font-size: 30px;
+    font-weight: 900;
+    margin: 0 0 8px 0;
+}
+
+.hero p {
+    color: #D6E6DD;
+    margin: 0;
+    font-size: 14px;
+}
+
+.section-title {
+    font-size: 21px;
+    font-weight: 900;
+    color: #172033;
+    margin: 20px 0 15px 0;
+}
+
+.category-card {
+    background: white;
+    border: 1px solid #E5EBEF;
+    border-radius: 18px;
+    padding: 23px 17px;
+    min-height: 145px;
+    text-align: center;
+}
+
+.category-icon {
+    font-family: 'Material Symbols Rounded';
+    font-size: 35px;
+    color: #1B6045;
+    margin-bottom: 8px;
+}
+
+.category-name {
+    color: #172033;
+    font-size: 17px;
+    font-weight: 900;
+}
+
+.category-desc {
+    color: #87919B;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.product-card {
+    background: #FFFFFF;
+    border: 1px solid #E7ECF0;
+    border-radius: 16px;
+    padding: 12px;
+    min-height: 100%;
+}
+
+.product-name {
+    font-size: 14px;
+    font-weight: 800;
+    color: #172033;
+    line-height: 1.8;
+    min-height: 48px;
+}
+
+.product-note {
+    color: #8A949E;
+    font-size: 11px;
+    min-height: 22px;
+}
+
+.product-hidden-price {
+    background: #F3F6F4;
+    color: #557363;
+    border-radius: 8px;
+    padding: 7px;
+    font-size: 11px;
+    text-align: center;
+    margin: 8px 0;
+}
+
+.digital-banner {
+    background: linear-gradient(120deg, #172B28, #263E35);
+    border-radius: 20px;
+    padding: 25px;
+    color: #FFFFFF;
+    margin-bottom: 20px;
+}
+
+.digital-banner h2 {
+    color: #E7C77B;
+    font-weight: 900;
+}
+
+.digital-banner p {
+    color: #D4DED8;
+    font-size: 13px;
+}
+
+.info-card {
+    background: #FFFFFF;
+    border: 1px solid #E7ECF0;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 15px;
+}
+
+.step-label {
+    color: #1D6548;
+    font-size: 12px;
+    font-weight: 800;
+    margin-bottom: 8px;
+}
+
+.invoice-total {
+    background: #123B2D;
+    color: #FFFFFF;
+    border-radius: 15px;
+    padding: 20px;
+    margin: 15px 0;
+}
+
+.invoice-total small {
+    color: #D6E6DD;
+}
+
+.invoice-total strong {
+    font-size: 27px;
+    font-weight: 900;
+}
+
+.receipt-code {
+    background: #F2F5F2;
+    border: 1px dashed #6C927B;
+    border-radius: 13px;
+    padding: 20px;
+    text-align: center;
+    color: #174B35;
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    direction: ltr;
+}
+
+.muted {
+    color: #89939D;
+    font-size: 12px;
+}
+
+div.stButton > button {
+    background: #174B35;
+    color: #FFFFFF;
+    border: 0;
+    border-radius: 11px;
+    min-height: 43px;
+    font-family: 'Cairo', sans-serif;
+    font-weight: 800;
+    width: 100%;
+}
+
+div.stButton > button:hover {
+    background: #236448;
+    color: white;
+    border: 0;
+}
+
+div.stButton > button:focus {
+    box-shadow: 0 0 0 2px #A7C8B5;
+}
+
+div[data-testid="stTextInput"] input {
+    border-radius: 10px;
+    text-align: right;
+    font-family: 'Cairo', sans-serif;
+}
+
+div[data-testid="stNumberInput"] input {
+    text-align: center;
+}
+
+hr {
+    border-color: #E8EDF0;
+}
+
+[data-testid="stRadio"] label {
+    font-weight: 700;
+}
+
+@media (max-width: 700px) {
+    .block-container {
+        padding: 1rem 0.8rem 2rem 0.8rem;
+    }
+    .hero {
+        padding: 24px 18px;
+    }
+    .hero h1 {
+        font-size: 23px;
+    }
+}
 </style>
 """, unsafe_allow_html=True)
 
-# ============ STATE ============
-if "page" not in st.session_state: st.session_state.page = "home"
-if "category" not in st.session_state: st.session_state.category = None
-if "selected" not in st.session_state: st.session_state.selected = None
-if "quantity" not in st.session_state: st.session_state.quantity = 1
-if "payment" not in st.session_state: st.session_state.payment = "دفع كامل"
 
-# ============ LOAD DATA ============
+# =========================================================
+# قراءة البيانات
+# =========================================================
+
 @st.cache_data
-def load_data():
-    if os.path.exists("Marsad_Valid_Products.csv"):
-        df = pd.read_csv("Marsad_Valid_Products.csv")
-        df.columns = ["name", "price", "category", "notes", "image"]
-        return df
-    return pd.DataFrame()
+def load_products():
+    if not CSV_FILE.exists():
+        return pd.DataFrame()
 
-df = load_data()
+    try:
+        df = pd.read_csv(CSV_FILE, encoding="utf-8-sig")
+    except UnicodeDecodeError:
+        df = pd.read_csv(CSV_FILE, encoding="utf-8")
 
-# ============ HOME ============
-if st.session_state.page == "home":
-    st.markdown("<h1 style='text-align:center;'>🦅 منصة مرصد</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align:center; color:#64748B; font-size:1.1rem;'>منصة التوريد الذكية للمتاجر والمطاعم والمقاهي</p>", unsafe_allow_html=True)
-    st.divider()
-    st.subheader("اختر قطاعك")
-    
+    required = {"name", "price", "category"}
+    if not required.issubset(set(df.columns)):
+        return pd.DataFrame()
+
+    if "notes" not in df.columns:
+        df["notes"] = ""
+
+    if "image" not in df.columns:
+        df["image"] = ""
+
+    df["name"] = df["name"].fillna("").astype(str).str.strip()
+    df["category"] = df["category"].fillna("").astype(str).str.strip()
+    df["notes"] = df["notes"].fillna("").astype(str).str.strip()
+    df["image"] = df["image"].fillna("").astype(str).str.strip()
+
+    df["price"] = pd.to_numeric(
+        df["price"].astype(str).str.replace(",", ".", regex=False),
+        errors="coerce"
+    ).fillna(0)
+
+    df = df[(df["name"] != "") & (df["price"] > 0)].copy()
+
+    def classify(category):
+        value = str(category).strip().lower()
+
+        if "بقال" in value or "grocery" in value:
+            return "بقالة"
+
+        if "رقمي" in value or "بطاق" in value or "digital" in value:
+            return "بطاقة رقمية"
+
+        return "أخرى"
+
+    df["group"] = df["category"].apply(classify)
+    df = df.reset_index(drop=True)
+
+    return df
+
+
+products = load_products()
+
+
+# =========================================================
+# حالة التطبيق والتنقل
+# =========================================================
+
+DEFAULTS = {
+    "screen": "home",
+    "category": "بقالة",
+    "selected_product": None,
+    "quantity": 1,
+    "phone": "",
+    "otp_verified": False,
+    "payment_method": "دفع كامل",
+    "order_confirmed": False,
+}
+
+for key, value in DEFAULTS.items():
+    if key not in st.session_state:
+        st.session_state[key] = value
+
+
+def go(screen):
+    st.session_state.screen = screen
+    st.rerun()
+
+
+def reset_order():
+    st.session_state.selected_product = None
+    st.session_state.quantity = 1
+    st.session_state.otp_verified = False
+    st.session_state.order_confirmed = False
+    st.session_state.payment_method = "دفع كامل"
+
+
+def money(value):
+    return f"{value:,.2f} ر.س"
+
+
+def safe_image_path(filename):
+    if not filename:
+        return None
+
+    filename = str(filename).strip()
+    if not filename:
+        return None
+
+    candidate = Path(filename)
+
+    possible_paths = [
+        BASE_DIR / candidate,
+        BASE_DIR / "images" / candidate.name,
+        BASE_DIR / "assets" / candidate.name,
+        BASE_DIR / "assets" / "images" / candidate.name,
+    ]
+
+    for path in possible_paths:
+        try:
+            resolved = path.resolve()
+            if resolved.is_relative_to(BASE_DIR.resolve()) and resolved.is_file():
+                return resolved
+        except (OSError, ValueError):
+            continue
+
+    return None
+
+
+def get_selected_product():
+    index = st.session_state.selected_product
+
+    if index is None:
+        return None
+
+    if index < 0 or index >= len(products):
+        return None
+
+    return products.iloc[index]
+
+
+# =========================================================
+# رأس التطبيق
+# =========================================================
+
+st.markdown("""
+<div class="marsad-header">
+    <div>
+        <div class="brand">مرصد</div>
+        <div class="brand-sub">منصة مشتريات الأعمال</div>
+    </div>
+    <div class="header-tag">مشتريات أعمالك بوضوح أكبر</div>
+</div>
+""", unsafe_allow_html=True)
+
+
+# =========================================================
+# الصفحة الرئيسية
+# =========================================================
+
+if st.session_state.screen == "home":
+
+    st.markdown("""
+    <div class="hero">
+        <h1>مشتريات أعمالك، بوضوح أكبر</h1>
+        <p>اختر القسم، حدّد احتياجك، واعرف تفاصيل طلبك بعد التحقق.</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown('<div class="section-title">تصفح الأقسام</div>',
+                unsafe_allow_html=True)
+
+    categories = [
+        {
+            "name": "بقالة",
+            "icon": "local_grocery_store",
+            "desc": "منتجات واحتياجات المتاجر"
+        },
+        {
+            "name": "بطاقة رقمية",
+            "icon": "card_giftcard",
+            "desc": "بطاقات رقمية وشحن"
+        },
+        {
+            "name": "أخرى",
+            "icon": "inventory_2",
+            "desc": "منتجات وخيارات إضافية"
+        },
+    ]
+
     cols = st.columns(3)
-    cats = [("🛒", "البقالة", "grocery"), ("💳", "البطاقات الرقمية", "digital"), ("📦", "أخرى", "other")]
-    
-    for i, (icon, name, key) in enumerate(cats):
-        with cols[i]:
-            with st.container(border=True):
-                st.markdown(f"<h2 style='text-align:center; font-size:2.5rem;'>{icon}</h2>", unsafe_allow_html=True)
-                st.markdown(f"<h3 style='text-align:center;'>{name}</h3>", unsafe_allow_html=True)
-                if st.button(f"اكتشف {name}", key=f"cat_{key}", use_container_width=True, type="primary"):
-                    st.session_state.category = key
-                    st.session_state.page = "products"
-                    st.rerun()
 
-# ============ PRODUCTS ============
-elif st.session_state.page == "products":
-    if st.button("🔙 العودة للأقسام"):
-        st.session_state.page = "home"
-        st.rerun()
-        
-    cat = st.session_state.category
-    cat_map = {"grocery": "بقالة", "digital": "بطاقة رقمية", "other": "أخرى"}
-    cat_name = cat_map.get(cat, "بقالة")
-    
-    if cat == "digital":
+    for col, item in zip(cols, categories):
+        with col:
+            st.markdown(f"""
+            <div class="category-card">
+                <div class="category-icon">{item['icon']}</div>
+                <div class="category-name">{item['name']}</div>
+                <div class="category-desc">{item['desc']}</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            if st.button("استعراض القسم", key=f"cat_{item['name']}"):
+                st.session_state.category = item["name"]
+                go("products")
+
+    st.markdown("---")
+    st.markdown(
+        '<p class="muted">مرصد — مشتريات الأعمال بطريقة أوضح.</p>',
+        unsafe_allow_html=True
+    )
+
+
+# =========================================================
+# صفحة المنتجات
+# =========================================================
+
+elif st.session_state.screen == "products":
+
+    category = st.session_state.category
+
+    if st.button("← العودة للرئيسية", key="back_home"):
+        go("home")
+
+    st.markdown(
+        f'<div class="section-title">{html.escape(category)}</div>',
+        unsafe_allow_html=True
+    )
+
+    if category == "بطاقة رقمية":
         st.markdown("""
-        <div class="hero-banner">
-            <h1>قسم البطاقات الرقمية</h1>
-            <p>عالمك الرقمي.. أقرب إليك</p>
+        <div class="digital-banner">
+            <h2>البطاقات الرقمية</h2>
+            <p>اختر البطاقة المناسبة. تظهر تفاصيل الطلب بعد التحقق.</p>
         </div>
         """, unsafe_allow_html=True)
+
+    if products.empty:
+        st.error(
+            "لم يتم العثور على بيانات المنتجات. "
+            "تأكد من وجود Marsad_Valid_Products.csv بجانب app.py."
+        )
     else:
-        st.title(cat_name)
-    
-    st.divider()
-    
-    filtered_df = df[df['category'] == cat_name]
-    
-    if filtered_df.empty:
-        st.warning("لا توجد منتجات في هذا القسم حالياً.")
-    else:
-        cols = st.columns(3)
-        for idx, (_, row) in enumerate(filtered_df.iterrows()):
-            with cols[idx % 3]:
-                with st.container(border=True):
-                    st.markdown(f"<h3>{row['name']}</h3>", unsafe_allow_html=True)
-                    st.caption(f"ملاحظات: {row['notes']}")
-                    if cat == "digital":
-                        st.markdown(f"<div class='card-region'>المنطقة: السعودية</div>", unsafe_allow_html=True)
-                    
-                    # هنا نضع السعر في الفاتورة لاحقاً، لكن لا نعرضه هنا
-                    if st.button("اطلب الآن", key=f"ord_{idx}", use_container_width=True, type="primary"):
-                        st.session_state.selected = row.to_dict()
-                        st.session_state.page = "otp"
-                        st.rerun()
-                    st.caption("اعرف تفاصيل طلبك بعد التحقق")
+        category_products = products[
+            products["group"] == category
+        ].copy()
 
-# ============ OTP ============
-elif st.session_state.page == "otp":
-    if st.button("🔙 العودة للمنتجات"):
-        st.session_state.page = "products"
-        st.rerun()
-    st.title("التحقق من الحساب")
-    with st.container(border=True):
-        phone = st.text_input("رقم الجوال السعودي", placeholder="05X XXX XXXX")
-        if st.button("إرسال رمز التحقق", use_container_width=True, type="primary"):
-            if len(phone) >= 10:
-                st.session_state.phone = phone
-                st.session_state.page = "otp_verify"
-                st.rerun()
-            else:
-                st.error("⚠️ أدخل رقم جوال صحيح")
+        st.caption(f"عدد المنتجات: {len(category_products)}")
 
-# ============ OTP VERIFY ============
-elif st.session_state.page == "otp_verify":
-    st.title("رمز التحقق")
-    with st.container(border=True):
-        otp = st.text_input("أدخل الرمز (للتجربة: 1234)", type="password")
-        if st.button("تأكيد", use_container_width=True, type="primary"):
-            if otp == "1234":
-                st.session_state.page = "invoice"
-                st.rerun()
-            else:
-                st.error("⚠️ رمز غير صحيح")
+        search = st.text_input(
+            "ابحث عن منتج",
+            placeholder="اكتب اسم المنتج..."
+        )
 
-# ============ INVOICE ============
-elif st.session_state.page == "invoice":
-    prod = st.session_state.selected
-    price = float(prod['price'])
-    vat = price * 0.15
-    total = price + vat
-    
-    st.title("ملخص الطلب")
-    st.success("✅ تم التحقق")
-    st.divider()
-    
-    with st.container(border=True):
-        st.markdown(f"### {prod['name']}")
-        st.markdown(f"**سعر الوحدة:** `{price:.2f} ر.س`")
-        st.markdown(f"**ضريبة القيمة المضافة (15%):** `{vat:.2f} ر.س`")
-        st.markdown(f"<div class='price-tag'>الإجمالي النهائي: {total:.2f} ر.س</div>", unsafe_allow_html=True)
-        st.divider()
-        st.subheader("اختر طريقة الدفع")
-        
-        c1, c2, c3 = st.columns(3)
-        if c1.button("دفع كامل", use_container_width=True): st.session_state.payment = "دفع كامل"
-        if c2.button("عند الاستلام", use_container_width=True): st.session_state.payment = "عند الاستلام"
-        if c3.button("عربون 20%", use_container_width=True): st.session_state.payment = "عربون 20%"
-        
-        st.info(f"طريقة الدفع المختارة: **{st.session_state.payment}**")
-        
-        if st.button("تأكيد الطلب النهائي", use_container_width=True, type="primary"):
-            st.session_state.page = "delivery"
-            st.rerun()
+        if search.strip():
+            category_products = category_products[
+                category_products["name"].str.contains(
+                    re.escape(search.strip()),
+                    case=False,
+                    na=False
+                )
+            ]
 
-# ============ DELIVERY ============
-elif st.session_state.page == "delivery":
-    prod = st.session_state.selected
-    st.title("🎉 تم الطلب بنجاح")
-    st.balloons()
-    
-    with st.container(border=True):
-        st.markdown(f"### {prod['name']}")
-        st.markdown(f"**رقم الطلب:** `MR-{int(time.time())}`")
-        
-        if prod['category'] == "بطاقة رقمية":
-            st.divider()
-            st.markdown("<div class='code-box'>XXXX-XXXX-XXXX-YYYY</div>", unsafe_allow_html=True)
-            st.caption("⚠️ رمز تجريبي (Demo).")
+        if category_products.empty:
+            st.info("لا توجد منتجات مطابقة للبحث.")
         else:
-            st.info("📦 سيتواصل معك فريق الميدان لتوصيل الطلب.")
-        
-        if st.button("العودة للرئيسية", use_container_width=True):
-            st.session_state.clear()
-            st.rerun()
+            # الاحتفاظ بفهرس المنتج الأصلي داخل البيانات
+            category_products = category_products.copy()
+
+            for start in range(0, len(category_products), 3):
+                row = category_products.iloc[start:start + 3]
+                cols = st.columns(3)
+
+                for col, (original_index, product) in zip(
+                    cols, row.iterrows()
+                ):
+                    with col:
+                        st.markdown('<div class="product-card">',
+                                    unsafe_allow_html=True)
+
+                        image_path = safe_image_path(product["image"])
+
+                        if image_path:
+                            st.image(
+                                str(image_path),
+                                use_container_width=True
+                            )
+                        else:
+                            st.markdown("""
+                            <div style="
+                                height:130px;
+                                background:#F1F4F2;
+                                border-radius:10px;
+                                display:flex;
+                                align-items:center;
+                                justify-content:center;
+                                color:#799084;
+                                font-size:35px;">
+                                ▧
+                            </div>
+                            """, unsafe_allow_html=True)
+
+                        st.markdown(
+                            f'<div class="product-name">'
+                            f'{html.escape(product["name"])}</div>',
+                            unsafe_allow_html=True
+                        )
+
+                        notes = str(product["notes"]).strip()
+                        if notes:
+                            st.markdown(
+                                f'<div class="product-note">'
+                                f'{html.escape(notes[:100])}</div>',
+                                unsafe_allow_html=True
+                            )
+                        else:
+                            st.markdown(
+                                '<div class="product-note">'
+                                'متاح للطلب</div>',
+                                unsafe_allow_html=True
+                            )
+
+                        # السعر لا يظهر في بطاقة المنتج
+                        st.markdown(
+                            '<div class="product-hidden-price">'
+                            'اعرف تفاصيل طلبك بعد التحقق'
+                            '</div>',
+                            unsafe_allow_html=True
+                        )
+
+                        if st.button(
+                            "اطلب الآن",
+                            key=f"order_{original_index}"
+                        ):
+                            st.session_state.selected_product = int(
+                                original_index
+                            )
+                            st.session_state.quantity = 1
+                            st.session_state.otp_verified = False
+                            st.session_state.order_confirmed = False
+                            go("verify")
+
+                        st.markdown('</div>', unsafe_allow_html=True)
+
+
+# =========================================================
+# التحقق من رقم الجوال ورمز OTP
+# =========================================================
+
+elif st.session_state.screen == "verify":
+
+    product = get_selected_product()
+
+    if product is None:
+        st.warning("لم يتم اختيار منتج.")
+        if st.button("العودة للرئيسية"):
+            go("home")
+    else:
+        if st.button("← العودة للمنتجات"):
+            go("products")
+
+        st.markdown("""
+        <div class="section-title">تحقق للمتابعة</div>
+        <div class="info-card">
+            <div class="step-label">خطوة التحقق</div>
+            <h3>تحقق من رقم جوالك</h3>
+            <p class="muted">أدخل رقم الجوال للانتقال إلى تفاصيل طلبك.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown(
+            f"**المنتج المختار:** {html.escape(product['name'])}"
+        )
+
+        st.session_state.phone = st.text_input(
+            "رقم الجوال",
+            value=st.session_state.phone,
+            placeholder="+9665XXXXXXXX",
+            help="أدخل رقم الجوال بصيغة +966"
+        )
+
+        if not st.session_state.otp_verified:
+            if st.button("إرسال رمز التحقق"):
+                phone = st.session_state.phone.strip()
+
+                if not re.fullmatch(r"\+9665\d{8}", phone):
+                    st.error("أدخل رقم جوال سعودي بصيغة +9665XXXXXXXX.")
+                else:
+                    st.session_state.otp_sent = True
+                    st.success(
+                        "تم إرسال رمز تجريبي. رمز الاختبار هو 1234."
+                    )
+
+            if st.session_state.get("otp_sent", False):
+                otp = st.text_input(
+                    "رمز التحقق",
+                    max_chars=4,
+                    placeholder="أدخل 1234"
+                )
+
+                if st.button("تحقق والمتابعة"):
+                    if otp.strip() == "1234":
+                        st.session_state.otp_verified = True
+                        st.success("تم التحقق بنجاح.")
+                        go("invoice")
+                    else:
+                        st.error("رمز التحقق غير صحيح.")
+
+        else:
+            st.success("تم التحقق من رقم الجوال.")
+            if st.button("متابعة إلى الفاتورة"):
+                go("invoice")
+
+
+# =========================================================
+# الفاتورة
+# =========================================================
+
+elif st.session_state.screen == "invoice":
+
+    product = get_selected_product()
+
+    if product is None or not st.session_state.otp_verified:
+        st.warning("يرجى إكمال اختيار المنتج والتحقق أولاً.")
+        if st.button("العودة للرئيسية"):
+            go("home")
+    else:
+        st.markdown("""
+        <div class="section-title">ملخص الطلب</div>
+        <div class="step-label">تم التحقق ✓</div>
+        """, unsafe_allow_html=True)
+
+        image_path = safe_image_path(product["image"])
+
+        col1, col2 = st.columns([1, 3])
+
+        with col1:
+            if image_path:
+                st.image(str(image_path), use_container_width=True)
+            else:
+                st.markdown("📦")
+
+        with col2:
+            st.markdown(f"**{html.escape(product['name'])}**")
+            st.markdown(
+                '<span class="muted">تفاصيل المنتج والكمية</span>',
+                unsafe_allow_html=True
+            )
+
+        st.markdown("---")
+
+        quantity = st.number_input(
+            "الكمية",
+            min_value=1,
+            max_value=999,
+            value=int(st.session_state.quantity),
+            step=1
+        )
+        st.session_state.quantity = int(quantity)
+
+        unit_price = float(product["price"])
+        subtotal = unit_price * quantity
+        tax = subtotal * 0.15
+        total = subtotal + tax
+
+        st.markdown("### تفاصيل الفاتورة")
+
+        invoice_rows = [
+            ("سعر الوحدة", money(unit_price)),
+            ("الكمية", str(quantity)),
+            ("الإجمالي", money(subtotal)),
+            ("ضريبة القيمة المضافة 15%", money(tax)),
+            ("التوصيل", "يحدد عند التأكيد"),
+        ]
+
+        for label, value in invoice_rows:
+            left, right = st.columns([2, 1])
+            left.write(label)
+            right.markdown(
+                f"<div style='text-align:left;font-weight:800'>"
+                f"{value}</div>",
+                unsafe_allow_html=True
+            )
+
+        st.markdown(f"""
+        <div class="invoice-total">
+            <small>الإجمالي شامل الضريبة وقبل التوصيل</small><br>
+            <strong>{money(total)}</strong>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown("### طريقة الدفع")
+
+        payment_method = st.radio(
+            "اختر طريقة الدفع",
+            [
+                "دفع كامل",
+                "عند الاستلام",
+                "عربون 20%"
+            ],
+            index=[
+                "دفع كامل",
+                "عند الاستلام",
+                "عربون 20%"
+            ].index(st.session_state.payment_method)
+        )
+
+        st.session_state.payment_method = payment_method
+
+        if payment_method == "دفع كامل":
+            amount_due = total
+            payment_description = "المبلغ المطلوب حالياً"
+        elif payment_method == "عربون 20%":
+            amount_due = total * 0.20
+            payment_description = "العربون المطلوب حالياً"
+        else:
+            amount_due = 0
+            payment_description = "الدفع عند الاستلام"
+
+        st.info(
+            f"{payment_description}: "
+            f"{money(amount_due) if amount_due else 'لا يوجد مبلغ مقدم'}"
+        )
+
+        st.caption(
+            "رسوم التوصيل غير محتسبة هنا، وتحدد عند تأكيد الطلب."
+        )
+
+        if st.button("تأكيد الطلب"):
+            st.session_state.order_confirmed = True
+            go("receipt")
+
+
+# =========================================================
+# شاشة استلام الطلب
+# =========================================================
+
+elif st.session_state.screen == "receipt":
+
+    product = get_selected_product()
+
+    if product is None or not st.session_state.order_confirmed:
+        st.warning("لا يوجد طلب مؤكد.")
+        if st.button("العودة للرئيسية"):
+            reset_order()
+            go("home")
+    else:
+        st.markdown("""
+        <div class="hero">
+            <h1>تم استلام طلبك</h1>
+            <p>شكراً لاختيارك مرصد. نعمل على تجهيز طلبك.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown("### تفاصيل الطلب")
+
+        st.markdown(
+            f"**المنتج:** {html.escape(product['name'])}"
+        )
+        st.markdown(
+            f"**الكمية:** {st.session_state.quantity}"
+        )
+        st.markdown(
+            f"**طريقة الدفع:** {st.session_state.payment_method}"
+        )
+
+        if product["group"] == "بطاقة رقمية":
+
+            st.markdown("### رمز البطاقة التجريبي")
+
+            st.markdown("""
+            <div class="receipt-code">
+                XXXX-XXXX-XXXX-YYYY
+            </div>
+            """, unsafe_allow_html=True)
+
+            st.warning(
+                "هذا رمز تجريبي للعرض فقط، وليس بطاقة فعلية "
+                "ولا يمكن استخدامه للشحن أو التفعيل."
+            )
+
+            st.markdown("""
+            **تعليمات التفعيل التجريبية:**
+            1. افتح التطبيق أو المتجر الخاص بالبطاقة.
+            2. اختر استرداد أو تفعيل الرمز.
+            3. أدخل الرمز بعد استلام البطاقة الفعلية.
+            """)
+
+        else:
+            st.markdown("""
+            <div class="info-card">
+                <div class="step-label">حالة الطلب</div>
+                <h3>قيد التجهيز</h3>
+                <p class="muted">
+                    سيتم تجهيز المنتجات ومتابعة حالة الطلب.
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+
+        st.markdown("---")
+
+        if st.button("العودة للرئيسية"):
+            reset_order()
+            go("home")
+
+
+# =========================================================
+# نهاية التطبيق
+# =========================================================
+
+st.markdown("""
+<div style="
+    text-align:center;
+    color:#9AA4AD;
+    font-size:11px;
+    padding-top:25px;">
+    مرصد © — مشتريات أعمالك، بوضوح أكبر
+</div>
+""", unsafe_allow_html=True)
